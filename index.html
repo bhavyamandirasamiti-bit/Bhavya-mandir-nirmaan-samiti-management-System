@@ -52,57 +52,59 @@
             color: white; display: flex; align-items: center; justify-content: space-between;
             flex-wrap: wrap; gap: 15px; position: relative; overflow: hidden;
         }
-        .header::before { content: "🕉️"; position: absolute; font-size: 100px; opacity: 0.1; right: -10px; bottom: -20px; }
+        .header::before { content: "🕉️"; position: absolute; font-size: 120px; opacity: 0.08; right: -20px; bottom: -30px; }
         .header-left { display: flex; align-items: center; gap: 15px; z-index: 1; }
         .temple-logo {
-            width: 55px; height: 55px; background: rgba(255,255,255,0.2);
+            width: 60px; height: 60px; background: rgba(255,255,255,0.2);
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-size: 28px; cursor: pointer; transition: all 0.3s ease; overflow: hidden;
+            font-size: 32px; cursor: pointer; transition: all 0.3s ease; overflow: hidden;
         }
         .temple-logo:hover { background: rgba(255,255,255,0.3); transform: scale(1.05); }
         .temple-logo img { width: 100%; height: 100%; object-fit: cover; }
-        .header-text h1 { font-size: 1.2rem; font-weight: bold; }
-        .header-text p { font-size: 0.7rem; opacity: 0.9; margin-top: 4px; }
+        .header-text h1 { font-size: 1.4rem; font-weight: bold; }
+        .header-text p { font-size: 0.85rem; opacity: 0.9; margin-top: 4px; }
         .top-bar {
             background: var(--light-surface); border-radius: 16px; padding: 12px 20px;
             margin-bottom: 20px; display: flex; justify-content: space-between;
             align-items: center; flex-wrap: wrap; gap: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
-        .user-badge { padding: 4px 12px; border-radius: 20px; font-size: 10px; font-weight: 600; }
+        .user-badge { padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; }
         .badge-super-admin { background: #dc2626; color: white; }
         .badge-admin { background: #f59e0b; color: white; }
         .badge-operator { background: #3b82f6; color: white; }
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .badge-viewer { background: #6b7280; color: white; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 18px; margin-bottom: 24px; }
         .card {
-            background: var(--light-surface); border-radius: 20px; padding: 18px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08); transition: transform 0.2s ease;
+            background: var(--light-surface); border-radius: 20px; padding: 22px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08); transition: transform 0.2s ease, box-shadow 0.2s ease;
             cursor: pointer;
         }
-        .card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.12); }
-        .card-icon { font-size: 28px; color: var(--primary); margin-bottom: 10px; }
-        .card-title { font-size: 12px; font-weight: 500; opacity: 0.7; margin-bottom: 5px; }
-        .card-value { font-size: 24px; font-weight: bold; }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 8px 25px rgba(0,0,0,0.12); }
+        .card-icon { font-size: 36px; color: var(--primary); margin-bottom: 12px; }
+        .card-title { font-size: 14px; font-weight: 500; opacity: 0.7; margin-bottom: 5px; letter-spacing: 0.5px; }
+        .card-value { font-size: 32px; font-weight: bold; }
         .nav-tabs {
-            display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 24px;
-            background: var(--light-surface); padding: 8px; border-radius: 50px;
+            display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px;
+            background: var(--light-surface); padding: 10px; border-radius: 60px;
         }
         .nav-tab {
-            padding: 8px 16px; border: none; background: transparent; border-radius: 40px;
-            cursor: pointer; font-weight: 500; transition: all 0.3s ease;
-            color: inherit; font-size: 11px;
+            padding: 12px 24px; border: none; background: transparent; border-radius: 40px;
+            cursor: pointer; font-weight: 600; transition: all 0.3s ease;
+            color: inherit; font-size: 14px;
         }
         .nav-tab.active { background: var(--primary); color: white; }
-        .form-group { margin-bottom: 16px; }
-        label { display: block; margin-bottom: 6px; font-weight: 500; font-size: 12px; }
+        .form-group { margin-bottom: 18px; }
+        label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 14px; }
         input, select, textarea {
-            width: 100%; padding: 10px 12px; border: 2px solid var(--border);
-            border-radius: 10px; font-size: 13px; background: var(--light-surface);
+            width: 100%; padding: 12px 14px; border: 2px solid var(--border);
+            border-radius: 12px; font-size: 14px; background: var(--light-surface);
+            transition: all 0.3s ease;
         }
-        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(255,153,51,0.1); }
         .btn {
-            padding: 8px 16px; border: none; border-radius: 40px; cursor: pointer;
-            font-weight: 500; transition: all 0.3s ease; display: inline-flex;
-            align-items: center; gap: 6px; font-size: 12px;
+            padding: 10px 22px; border: none; border-radius: 40px; cursor: pointer;
+            font-weight: 600; transition: all 0.3s ease; display: inline-flex;
+            align-items: center; gap: 8px; font-size: 14px;
         }
         .btn-primary { background: var(--primary); color: white; }
         .btn-primary:hover { background: var(--primary-dark); transform: scale(0.98); }
@@ -110,11 +112,11 @@
         .btn-success { background: var(--success); color: white; }
         .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
         .btn-warning { background: var(--warning); color: white; }
-        .table-container { overflow-x: auto; border-radius: 16px; max-height: 450px; overflow-y: auto; }
-        table { width: 100%; border-collapse: collapse; font-size: 12px; }
-        th, td { padding: 10px 8px; text-align: left; border-bottom: 1px solid var(--border); }
+        .table-container { overflow-x: auto; border-radius: 16px; max-height: 500px; overflow-y: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th, td { padding: 12px 10px; text-align: left; border-bottom: 1px solid var(--border); }
         th { background: var(--primary); color: white; font-weight: 600; position: sticky; top: 0; }
-        .badge { padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 600; display: inline-block; }
+        .badge { padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; display: inline-block; }
         .badge-paid { background: #d1fae5; color: #065f46; }
         body.dark .badge-paid { background: #064e3b; color: #a7f3d0; }
         .badge-pending { background: #fee2e2; color: #991b1b; }
@@ -125,9 +127,9 @@
             align-items: center; backdrop-filter: blur(4px);
         }
         .modal-content {
-            background: var(--light-surface); border-radius: 20px;
-            max-width: 90%; width: 480px; max-height: 85vh; overflow-y: auto;
-            padding: 20px; animation: modalSlideIn 0.3s ease;
+            background: var(--light-surface); border-radius: 24px;
+            max-width: 90%; width: 550px; max-height: 85vh; overflow-y: auto;
+            padding: 28px; animation: modalSlideIn 0.3s ease;
         }
         @keyframes modalSlideIn {
             from { transform: translateY(-30px); opacity: 0; }
@@ -135,58 +137,76 @@
         }
         .toast {
             position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-            background: var(--dark-surface); color: white; padding: 10px 20px;
-            border-radius: 50px; z-index: 2100; animation: toastSlide 0.3s ease; font-size: 13px;
+            background: var(--dark-surface); color: white; padding: 12px 24px;
+            border-radius: 50px; z-index: 2100; animation: toastSlide 0.3s ease; font-size: 14px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
         @keyframes toastSlide {
             from { bottom: -60px; opacity: 0; }
             to { bottom: 20px; opacity: 1; }
         }
         .member-photo {
-            width: 35px; height: 35px; border-radius: 50%; object-fit: cover;
+            width: 45px; height: 45px; border-radius: 50%; object-fit: cover;
             background: var(--primary); display: flex; align-items: center;
-            justify-content: center; font-size: 14px; color: white;
+            justify-content: center; font-size: 18px; color: white;
         }
         .pending-row { background: rgba(239, 68, 68, 0.08); border-left: 3px solid var(--danger); }
-        .action-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+        .action-btns { display: flex; gap: 8px; flex-wrap: wrap; }
         .login-card {
-            background: var(--light-surface); border-radius: 28px; padding: 35px 30px;
-            max-width: 420px; margin: 50px auto; box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+            background: var(--light-surface); border-radius: 28px; padding: 50px 40px;
+            max-width: 500px; margin: 60px auto; box-shadow: 0 25px 50px rgba(0,0,0,0.15);
             text-align: center;
         }
-        .login-logo { font-size: 55px; margin-bottom: 10px; }
-        .login-title { color: var(--primary); margin-top: 10px; font-size: 24px; }
-        .login-subtitle { opacity: 0.7; margin-bottom: 25px; font-size: 14px; }
+        .social-links {
+            display: flex; justify-content: center; gap: 20px; margin: 25px 0; flex-wrap: wrap;
+        }
+        .social-icon {
+            width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; font-size: 24px; transition: all 0.3s ease; cursor: pointer;
+        }
+        .social-icon:hover { transform: scale(1.1); }
+        .social-wa { background: #25D366; color: white; }
+        .social-tg { background: #0088cc; color: white; }
+        .social-fb { background: #1877f2; color: white; }
+        .social-ig { background: #e4405f; color: white; }
+        .social-yt { background: #ff0000; color: white; }
+        .year-selector {
+            display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+            margin-bottom: 20px; padding: 15px; background: var(--light-surface);
+            border-radius: 16px;
+        }
+        .about-section {
+            line-height: 1.8; font-size: 16px;
+        }
         @media (max-width: 768px) {
             .app-container { padding: 12px; }
-            .header-text h1 { font-size: 0.9rem; }
-            .nav-tab { padding: 6px 12px; font-size: 10px; }
-            .card-value { font-size: 20px; }
-            .login-card { margin: 20px 16px; padding: 25px 20px; }
+            .header-text h1 { font-size: 1rem; }
+            .nav-tab { padding: 8px 14px; font-size: 12px; }
+            .card-value { font-size: 24px; }
+            .login-card { margin: 30px 16px; padding: 30px 25px; }
         }
     </style>
 </head>
 <body>
     <!-- LOGIN SCREEN -->
-    <div id="loginContainer">
+    <div id="loginContainer" style="display: flex; justify-content: center; align-items: center; min-height: 100vh;">
         <div class="login-card">
-            <div class="login-logo">🕉️</div>
-            <h2 class="login-title">Bhavya Mandir</h2>
-            <div class="login-subtitle">Nirman Samiti</div>
+            <div style="font-size: 70px;">🕉️</div>
+            <h2 style="color: var(--primary); margin-top: 15px; font-size: 1.8rem;">Bhavya Mandir</h2>
+            <p style="opacity: 0.7; margin-bottom: 30px;">Nirman Samiti</p>
             
             <div class="form-group">
-                <label>👤 यूजरनेम</label>
-                <input type="text" id="loginUsername" placeholder="admin / superadmin / operator">
+                <label>यूजरनेम / Username</label>
+                <input type="text" id="loginUsername" placeholder="superadmin / admin / operator" style="font-size: 16px; padding: 14px;">
             </div>
             <div class="form-group">
-                <label>🔒 पासवर्ड</label>
-                <input type="password" id="loginPassword" placeholder="पासवर्ड डालें">
+                <label>पासवर्ड / Password</label>
+                <input type="password" id="loginPassword" placeholder="••••••••" style="font-size: 16px; padding: 14px;">
             </div>
+            <button class="btn btn-primary" onclick="doLogin()" style="width: 100%; justify-content: center; padding: 14px; font-size: 16px;">🔐 लॉगिन करें</button>
             
-            <button class="btn btn-primary" onclick="doLogin()" style="width: 100%; justify-content: center;">🔐 लॉगिन करें</button>
-            
-            <div style="margin-top: 15px;">
-                <a href="#" onclick="showForgotPassword()" style="color: var(--primary); font-size: 12px;">पासवर्ड भूल गए?</a>
+            <div style="margin-top: 15px; text-align: center;">
+                <a href="#" onclick="showForgotPassword()" style="color: var(--primary); font-size: 14px;">पासवर्ड भूल गए?</a>
             </div>
         </div>
     </div>
@@ -202,22 +222,27 @@
                 </div>
             </div>
             <div class="header-actions">
-                <div class="dark-toggle" onclick="toggleDarkMode()" style="background: rgba(255,255,255,0.2); padding: 6px 12px; border-radius: 40px; cursor: pointer;">🌙</div>
+                <div class="lang-btn" onclick="toggleLanguage()" style="background: rgba(255,255,255,0.2); padding: 8px 14px; border-radius: 40px; cursor: pointer;">🌐 हिंदी</div>
+                <div class="dark-toggle" onclick="toggleDarkMode()" style="background: rgba(255,255,255,0.2); padding: 8px 14px; border-radius: 40px; cursor: pointer;">🌙</div>
             </div>
         </div>
         
         <div class="top-bar">
-            <div><i class="fas fa-user-circle"></i> <span id="userName">Loading...</span> <span class="user-badge" id="userRoleBadge"></span></div>
-            <div><i class="fas fa-key" onclick="showChangePassword()" style="cursor: pointer;"></i> <i class="fas fa-sign-out-alt" onclick="logout()" style="cursor: pointer; margin-left: 12px;"></i></div>
+            <div><i class="fas fa-user-circle"></i> <span id="userName" style="font-weight: 600; font-size: 16px;">Loading...</span> <span class="user-badge" id="userRoleBadge"></span></div>
+            <div><i class="fas fa-key" onclick="showChangePassword()" style="cursor: pointer; font-size: 16px;"></i> <i class="fas fa-sign-out-alt" onclick="logout()" style="cursor: pointer; margin-left: 18px; font-size: 16px;"></i></div>
         </div>
         
-        <div class="nav-tabs">
+        <div class="nav-tabs" id="navTabs">
             <button class="nav-tab active" data-tab="dashboard">🏠 डैशबोर्ड</button>
             <button class="nav-tab" data-tab="members">👥 दानदाता</button>
             <button class="nav-tab" data-tab="payments">💰 भुगतान</button>
             <button class="nav-tab" data-tab="pending">⏰ बकाया</button>
-            <button class="nav-tab" data-tab="expenses">📉 खर्च</button>
-            <button class="nav-tab" data-tab="users">👑 यूजर</button>
+            <button class="nav-tab" data-tab="incomeExpense">📈 आय-व्यय रिपोर्ट</button>
+            <button class="nav-tab" data-tab="committee">🏛️ समिति सदस्य</button>
+            <button class="nav-tab" data-tab="expenses">📉 खर्च प्रबंधन</button>
+            <button class="nav-tab" data-tab="social">🌐 सोशल मीडिया</button>
+            <button class="nav-tab" data-tab="about">ℹ️ समिति के बारे में</button>
+            <button class="nav-tab" data-tab="users">👑 यूजर प्रबंधन</button>
             <button class="nav-tab" data-tab="settings">⚙️ सेटिंग्स</button>
         </div>
         
@@ -235,9 +260,35 @@
             { id: 3, username: "operator", password: "Seva@2026", role: "operator", name: "ऑपरेटर", mobile: "9876543212" }
         ];
         
+        let currentLang = "hi";
         let currentUser = null;
         let currentTab = "dashboard";
         let currentYear = new Date().getFullYear();
+        
+        const translations = {
+            hi: {
+                dashboard: "🏠 डैशबोर्ड", members: "👥 दानदाता", payments: "💰 भुगतान", pending: "⏰ बकाया",
+                incomeExpense: "📈 आय-व्यय रिपोर्ट", committee: "🏛️ समिति सदस्य", expenses: "📉 खर्च प्रबंधन", 
+                social: "🌐 सोशल मीडिया", about: "ℹ️ समिति के बारे में", users: "👑 यूजर प्रबंधन", settings: "⚙️ सेटिंग्स",
+                totalDonors: "कुल दानदाता", totalIncome: "कुल आय", totalPending: "कुल बकाया", totalExpense: "कुल व्यय",
+                netBalance: "नेट बैलेंस", pendingDonors: "बकाया दानदाता", addDonor: "दानदाता जोड़ें", addPayment: "भुगतान जोड़ें",
+                name: "नाम", mobile: "मोबाइल", village: "गांव", monthlyAmount: "मासिक राशि", status: "स्थिति", actions: "कार्य",
+                paid: "जमा", pending_status: "बकाया", collectPayment: "जमा करें", sendReminder: "रिमाइंडर भेजें", receipt: "रसीद",
+                edit: "संपादित करें", delete: "हटाएं", view: "देखें", save: "सेव करें", cancel: "रद्द करें", confirm: "पुष्टि करें"
+            },
+            en: {
+                dashboard: "🏠 Dashboard", members: "👥 Donors", payments: "💰 Payments", pending: "⏰ Pending",
+                incomeExpense: "📈 Income-Expense Report", committee: "🏛️ Committee Members", expenses: "📉 Expense Management",
+                social: "🌐 Social Media", about: "ℹ️ About Committee", users: "👑 User Management", settings: "⚙️ Settings",
+                totalDonors: "Total Donors", totalIncome: "Total Income", totalPending: "Total Pending", totalExpense: "Total Expense",
+                netBalance: "Net Balance", pendingDonors: "Pending Donors", addDonor: "Add Donor", addPayment: "Add Payment",
+                name: "Name", mobile: "Mobile", village: "Village", monthlyAmount: "Monthly Amount", status: "Status", actions: "Actions",
+                paid: "Paid", pending_status: "Pending", collectPayment: "Collect", sendReminder: "Send Reminder", receipt: "Receipt",
+                edit: "Edit", delete: "Delete", view: "View", save: "Save", cancel: "Cancel", confirm: "Confirm"
+            }
+        };
+        
+        function t(key) { return translations[currentLang][key] || translations.hi[key] || key; }
         
         let appData = {
             settings: {
@@ -248,22 +299,31 @@
                 secretaryName: "अरविंद सिंह यादव",
                 defaultMonthlyAmount: 200,
                 darkMode: false,
-                logo: ""
+                logo: "",
+                currentCommitteeYear: "2025-26",
+                whatsappLink: "https://chat.whatsapp.com/",
+                telegramLink: "https://t.me/",
+                facebookLink: "https://facebook.com/",
+                instagramLink: "https://instagram.com/",
+                youtubeLink: "https://youtube.com/",
+                googleSheetLink: "https://docs.google.com/spreadsheets/d/1WOep56-06ncO-yv9rAmDfVKnuw1cn-98sF4ltPGCLlE/view?usp=sharing",
+                aboutText: "🚩 भव्य मंदिर निर्माण समिति का स्थापना 2020 में हुई थी। हमारा उद्देश्य भव्य मंदिर का निर्माण करना और समाज सेवा करना है।"
             },
-            members: [
-                { id: 1, name: "राम प्रसाद", fatherName: "सीता राम", mobile: "9876543210", village: "अयोध्या", address: "मंदिर के पास", monthlyAmount: 200, joinDate: "2024-01-01", photo: "" },
-                { id: 2, name: "हरि शंकर", fatherName: "राम शंकर", mobile: "9876543211", village: "वृंदावन", address: "मेन बाजार", monthlyAmount: 150, joinDate: "2024-01-15", photo: "" },
-                { id: 3, name: "सीता देवी", fatherName: "राम प्रसाद", mobile: "9876543212", village: "अयोध्या", address: "हनुमान गली", monthlyAmount: 300, joinDate: "2024-02-01", photo: "" }
+            committeeMembers: [
+                { id: 1, name: "राजेंद्र यादव", position: "अध्यक्ष", mobile: "9876543210", year: "2025-26", photo: "" },
+                { id: 2, name: "अरविंद सिंह यादव", position: "सचिव", mobile: "9876543211", year: "2025-26", photo: "" },
+                { id: 3, name: "राम प्रसाद", position: "कोषाध्यक्ष", mobile: "9876543212", year: "2025-26", photo: "" }
             ],
+            members: [],
             payments: [],
-            expenses: [
-                { id: 1, category: "निर्माण", amount: 5000, description: "मंदिर नवीनीकरण", date: "2025-01-10", year: 2025, month: "जनवरी", addedBy: "सिस्टम" }
-            ]
+            expenses: [],
+            users: USERS.map(u => ({ ...u }))
         };
         
         const monthNames = ["जनवरी", "फरवरी", "मार्च", "अप्रैल", "मई", "जून", "जुलाई", "अगस्त", "सितंबर", "अक्टूबर", "नवंबर", "दिसंबर"];
+        const years = [2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030, 2031, 2032];
         
-        // ==================== INIT ====================
+        // ==================== INITIALIZATION ====================
         function init() {
             loadData();
             checkAuth();
@@ -277,7 +337,15 @@
                 try {
                     const parsed = JSON.parse(saved);
                     appData = { ...appData, ...parsed };
-                } catch(e) {}
+                } catch(e) { console.log("Error loading data"); }
+            }
+            
+            if (appData.members.length === 0) {
+                appData.members = [
+                    { id: 1, name: "राम प्रसाद", fatherName: "सीता राम", mobile: "9876543210", village: "अयोध्या", address: "मंदिर के पास", monthlyAmount: 200, joinDate: "2024-01-01", photo: "" },
+                    { id: 2, name: "हरि शंकर", fatherName: "राम शंकर", mobile: "9876543211", village: "वृंदावन", address: "मेन बाजार", monthlyAmount: 150, joinDate: "2024-01-15", photo: "" },
+                    { id: 3, name: "सीता देवी", fatherName: "राम प्रसाद", mobile: "9876543212", village: "अयोध्या", address: "हनुमान गली", monthlyAmount: 300, joinDate: "2024-02-01", photo: "" }
+                ];
             }
             
             if (appData.payments.length === 0) {
@@ -290,24 +358,32 @@
                             memberName: member.name,
                             month: monthNames[m],
                             monthIndex: m,
-                            year: 2025,
+                            year: currentDate.getFullYear(),
                             amountPaid: m === 0 ? member.monthlyAmount : 0,
                             pendingAmount: m === 0 ? 0 : member.monthlyAmount,
                             status: m === 0 ? "Paid" : "Pending",
-                            receiptNo: m === 0 ? `BHAVYA-2025-${member.id}` : "",
-                            paymentDate: m === 0 ? "2025-01-15" : "",
+                            receiptNo: m === 0 ? `BHAVYA-${currentDate.getFullYear()}-${member.id}` : "",
+                            paymentDate: m === 0 ? new Date().toISOString().split('T')[0] : "",
                             paymentMode: m === 0 ? "UPI" : "",
-                            addedBy: "सिस्टम"
+                            addedBy: "system",
+                            addedByName: "सिस्टम"
                         });
                     }
                 });
+            }
+            
+            if (appData.expenses.length === 0) {
+                appData.expenses = [
+                    { id: 1, category: "निर्माण", amount: 5000, description: "मंदिर नवीनीकरण कार्य", date: "2025-01-10", year: 2025, month: "जनवरी", addedBy: "system", addedByName: "सिस्टम" },
+                    { id: 2, category: "उत्सव", amount: 2000, description: "हनुमान जयंती", date: "2025-01-20", year: 2025, month: "जनवरी", addedBy: "system", addedByName: "सिस्टम" }
+                ];
             }
             saveData();
         }
         
         function saveData() { localStorage.setItem("templeAppData", JSON.stringify(appData)); }
         
-        // ==================== AUTH ====================
+        // ==================== AUTHENTICATION ====================
         function checkAuth() {
             const savedUser = sessionStorage.getItem("currentUser");
             if (savedUser) {
@@ -324,7 +400,6 @@
         function doLogin() {
             const username = document.getElementById("loginUsername").value.trim();
             const password = document.getElementById("loginPassword").value;
-            
             const user = USERS.find(u => u.username === username && u.password === password);
             
             if (user) {
@@ -348,11 +423,8 @@
                     const user = USERS.find(u => u.mobile === mobile);
                     if (user) {
                         user.password = newPassword;
-                        // Update in appData.users if exists
-                        if (appData.users) {
-                            const appUser = appData.users.find(u => u.id === user.id);
-                            if (appUser) appUser.password = newPassword;
-                        }
+                        const appUser = appData.users.find(u => u.id === user.id);
+                        if (appUser) appUser.password = newPassword;
                         saveData();
                         alert(`✅ ${user.username} का पासवर्ड बदल गया!\nनया पासवर्ड: ${newPassword}`);
                     } else {
@@ -376,10 +448,8 @@
                         const mobile = prompt("अपना रजिस्टर्ड मोबाइल नंबर डालें:");
                         if (mobile === user.mobile) {
                             user.password = newPass;
-                            if (appData.users) {
-                                const appUser = appData.users.find(u => u.id === user.id);
-                                if (appUser) appUser.password = newPass;
-                            }
+                            const appUser = appData.users.find(u => u.id === user.id);
+                            if (appUser) appUser.password = newPass;
                             saveData();
                             alert("✅ पासवर्ड बदल गया! कृपया फिर से लॉगिन करें।");
                             logout();
@@ -404,11 +474,9 @@
             if(newPass && newPass.length >= 4) {
                 const user = USERS.find(u => u.id === userId);
                 if(user) { 
-                    user.password = newPass; 
-                    if (appData.users) {
-                        const appUser = appData.users.find(u => u.id === userId);
-                        if (appUser) appUser.password = newPass;
-                    }
+                    user.password = newPass;
+                    const appUser = appData.users.find(u => u.id === userId);
+                    if (appUser) appUser.password = newPass;
                     saveData(); 
                     alert(`✅ ${user.username} का पासवर्ड बदल गया!`); 
                     renderUsers(); 
@@ -420,57 +488,121 @@
             document.getElementById("userName").innerText = currentUser?.name || currentUser?.username;
             const badge = document.getElementById("userRoleBadge");
             if (currentUser?.role === "super_admin") {
-                badge.innerText = "🇮🇳 सुपर एडमिन";
+                badge.innerText = "🇮🇳 सुपर एडमिन / अध्यक्ष";
                 badge.className = "user-badge badge-super-admin";
             } else if (currentUser?.role === "admin") {
-                badge.innerText = "👑 एडमिन";
+                badge.innerText = "👑 एडमिन / सचिव";
                 badge.className = "user-badge badge-admin";
-            } else {
+            } else if (currentUser?.role === "operator") {
                 badge.innerText = "🔧 ऑपरेटर";
                 badge.className = "user-badge badge-operator";
+            } else {
+                badge.innerText = "👁️ दर्शक";
+                badge.className = "user-badge badge-viewer";
             }
         }
         
         function hasPermission(action) {
             if (!currentUser) return false;
-            if (currentUser.role === "super_admin") return true;
-            if (currentUser.role === "admin") return ["view", "add", "edit", "delete", "manage_users", "manage_settings", "add_payment", "add_member", "edit_payment"].includes(action);
-            if (currentUser.role === "operator") return ["view", "add_payment", "add_member"].includes(action);
+            const role = currentUser.role;
+            if (role === "super_admin") return true;
+            if (role === "admin") return ["view", "add", "edit", "delete", "manage_users", "manage_settings", "add_payment", "add_member", "edit_payment", "manage_committee", "manage_expenses", "manage_social"].includes(action);
+            if (role === "operator") return ["view", "add_payment", "add_member", "send_message"].includes(action);
+            if (role === "viewer") return ["view"].includes(action);
             return false;
         }
         
-        function logout() {
-            currentUser = null;
-            sessionStorage.removeItem("currentUser");
-            document.getElementById("loginContainer").style.display = "flex";
-            document.getElementById("mainApp").style.display = "none";
-            document.getElementById("loginUsername").value = "";
-            document.getElementById("loginPassword").value = "";
+        function logout() { 
+            currentUser = null; 
+            sessionStorage.removeItem("currentUser"); 
+            location.reload();
         }
         
-        // ==================== WHATSAPP ====================
-        function sendWhatsAppReceipt(member, payment, amount) {
-            const message = `🚩 *जय श्री राम* 🚩\n\n✅ *भुगतान रसीद*\n*${appData.settings.committeeName}*\n\nआदरणीय *${member.name} जी*,\nआपका भुगतान सफलतापूर्वक प्राप्त हुआ। 🙏\n\n📋 *रसीद नंबर:* ${payment.receiptNo}\n💰 *राशि:* ₹${amount}\n📅 *दिनांक:* ${payment.paymentDate}\n💸 UPI: ${appData.settings.upiId}\n\n*हनुमान जी आप पर अपनी कृपा बनाए रखें।* 🙏`;
-            if(member.mobile && member.mobile.length === 10) {
+        // ==================== WHATSAPP MESSAGES ====================
+        function sendPaymentReceipt(member, payment, amount) {
+            const message = `🚩 *जय श्री राम* 🚩\n\n✅ *भुगतान रसीद*\n*${appData.settings.committeeName}*\n\nआदरणीय *${member.name} जी*,\nआपका भुगतान सफलतापूर्वक प्राप्त हुआ। 🙏\n\n📋 *रसीद नंबर:* ${payment.receiptNo}\n💰 *राशि:* ₹${amount}\n📅 *दिनांक:* ${payment.paymentDate}\n💸 UPI: ${appData.settings.upiId}\n\n*हनुमान जी आप पर अपनी कृपा बनाए रखें।* 🙏\n\nभवदीय,\n${appData.settings.presidentName} (अध्यक्ष)\n${appData.settings.secretaryName} (सचिव)`;
+            if(member.mobile && member.mobile.length === 10) { 
                 window.open(`https://wa.me/91${member.mobile}?text=${encodeURIComponent(message)}`, '_blank');
+            } else {
+                alert("⚠️ मोबाइल नंबर सही नहीं है!");
             }
         }
         
-        function sendWhatsAppReminder(memberId) {
+        function sendPendingReminder(member) {
+            const memberPayments = appData.payments.filter(p => p.memberId === member.id).sort((a,b) => {
+                if(a.year !== b.year) return a.year - b.year;
+                return a.monthIndex - b.monthIndex;
+            });
+            let monthStatus = "";
+            let totalPaid = 0;
+            let totalPending = 0;
+            memberPayments.forEach(p => {
+                if(p.status === "Paid") {
+                    monthStatus += `🗓️ ${p.month}: ✅ ₹${p.amountPaid} (जमा है)\n`;
+                    totalPaid += p.amountPaid;
+                } else {
+                    monthStatus += `🗓️ ${p.month}: ⭕ ₹${p.pendingAmount} शेष राशि (देय है)\n`;
+                    totalPending += p.pendingAmount;
+                }
+            });
+            
+            const message = `🚩 *जय श्री राम* 🚩\n\nआदरणीय *${member.name} जी*,\nभव्य मंदिर निर्माण समिति आपके निरंतर सहयोग हेतु हृदय से आभारी है। *आप पर और आपके परिवार पर हनुमान जी की कृपा और आशीर्वाद हमेशा बना रहे।* \n\nवर्ष 2025 का आपका मासिक विवरण इस प्रकार है:\n\n${monthStatus}\n--------------------------------\n💰 *कुल प्राप्त सहयोग: ₹${totalPaid}*\n⚠️ *कुल शेष बकाया: ₹${totalPending}*\n💸 *UPI ID: ${appData.settings.upiId}*\n--------------------------------\n🙏 *करबद्ध निवेदन:* धर्म की इस पावन ज्योति को प्रज्वलित रखने हेतु अपनी शेष राशि *₹${totalPending}* जमा कर समिति को अनुग्रहित करें।\n\n👇 *सहयोग राशि यहाँ से प्रेषित करें:* \nupi://pay?pa=${appData.settings.upiId}&pn=${encodeURIComponent(member.name)}&am=${totalPending}&cu=INR\n\n📊 *पूरा विवरण (केवल देखने हेतु):*\n${appData.settings.googleSheetLink}\n\nभवदीय,\n${appData.settings.presidentName} (अध्यक्ष)\n${appData.settings.secretaryName} (सचिव)`;
+            if(member.mobile && member.mobile.length === 10) { 
+                window.open(`https://wa.me/91${member.mobile}?text=${encodeURIComponent(message)}`, '_blank');
+            } else {
+                alert("⚠️ मोबाइल नंबर सही नहीं है!");
+            }
+        }
+        
+        function sendReminderToMember(memberId) {
             const member = appData.members.find(m => m.id === memberId);
-            if(!member) return;
-            const pendingPayments = appData.payments.filter(p => p.memberId === memberId && p.status === "Pending");
-            const totalPending = pendingPayments.reduce((s,p) => s + p.pendingAmount, 0);
-            const message = `🚩 *जय श्री राम* 🚩\n\nआदरणीय *${member.name} जी*,\nआपका मासिक दान बकाया है।\n\n💰 *कुल बकाया: ₹${totalPending}*\n💸 *UPI: ${appData.settings.upiId}*\n\n👇 *भुगतान यहाँ करें:*\nupi://pay?pa=${appData.settings.upiId}&pn=${encodeURIComponent(member.name)}&am=${totalPending}&cu=INR\n\nभवदीय,\n${appData.settings.presidentName}`;
-            if(member.mobile && member.mobile.length === 10) {
-                window.open(`https://wa.me/91${member.mobile}?text=${encodeURIComponent(message)}`, '_blank');
-            }
+            if(member) sendPendingReminder(member);
         }
         
         function sendBulkReminders() {
             const pendingMembers = appData.members.filter(m => appData.payments.some(p => p.memberId === m.id && p.status === "Pending"));
-            pendingMembers.forEach((member, idx) => setTimeout(() => sendWhatsAppReminder(member.id), idx * 500));
+            if(pendingMembers.length === 0) {
+                alert("🎉 कोई बकाया दानदाता नहीं है!");
+                return;
+            }
+            pendingMembers.forEach((member, idx) => setTimeout(() => sendPendingReminder(member), idx * 800));
             showToast(`📱 ${pendingMembers.length} दानदाताओं को रिमाइंडर भेज रहे हैं...`);
+        }
+        
+        // ==================== PAYMENT FUNCTIONS ====================
+        function addPayment(memberId, monthIndex, year, amount, mode, addedByUser) {
+            const member = appData.members.find(m => m.id === memberId);
+            const month = monthNames[monthIndex];
+            const receiptNo = `BHAVYA-${year}-${memberId}-${Date.now()}`;
+            const paymentDate = new Date().toISOString().split('T')[0];
+            
+            let payment = appData.payments.find(p => p.memberId === memberId && p.year === year && p.monthIndex === monthIndex);
+            if(payment) {
+                payment.amountPaid += amount;
+                payment.pendingAmount = Math.max(0, member.monthlyAmount - payment.amountPaid);
+                payment.status = payment.pendingAmount <= 0 ? "Paid" : "Pending";
+                payment.receiptNo = receiptNo;
+                payment.paymentDate = paymentDate;
+                payment.paymentMode = mode;
+                payment.addedBy = addedByUser.username;
+                payment.addedByName = addedByUser.name;
+            } else {
+                payment = {
+                    id: Date.now(),
+                    memberId, memberName: member.name, month, monthIndex, year,
+                    amountPaid: amount,
+                    pendingAmount: Math.max(0, member.monthlyAmount - amount),
+                    status: amount >= member.monthlyAmount ? "Paid" : "Pending",
+                    receiptNo: receiptNo,
+                    paymentDate: paymentDate,
+                    paymentMode: mode,
+                    addedBy: addedByUser.username,
+                    addedByName: addedByUser.name
+                };
+                appData.payments.push(payment);
+            }
+            saveData();
+            return payment;
         }
         
         // ==================== DASHBOARD ====================
@@ -484,36 +616,62 @@
             const monthlyData = {};
             appData.payments.filter(p => p.status === "Paid").forEach(p => { monthlyData[p.month] = (monthlyData[p.month] || 0) + p.amountPaid; });
             
+            const yearlyData = {};
+            years.forEach(y => {
+                yearlyData[y] = appData.payments.filter(p => p.status === "Paid" && p.year === y).reduce((s,p) => s + p.amountPaid, 0);
+            });
+            
             const html = `
                 <div class="stats-grid">
-                    <div class="card" onclick="switchTab('members')"><div class="card-icon"><i class="fas fa-users"></i></div><div class="card-title">कुल दानदाता</div><div class="card-value">${totalMembers}</div></div>
-                    <div class="card"><div class="card-icon"><i class="fas fa-rupee-sign"></i></div><div class="card-title">कुल आय</div><div class="card-value">₹${totalIncome.toLocaleString()}</div></div>
-                    <div class="card" onclick="switchTab('pending')"><div class="card-icon"><i class="fas fa-clock"></i></div><div class="card-title">कुल बकाया</div><div class="card-value" style="color: var(--danger);">₹${totalPending.toLocaleString()}</div></div>
-                    <div class="card"><div class="card-icon"><i class="fas fa-chart-line"></i></div><div class="card-title">कुल व्यय</div><div class="card-value">₹${totalExpense.toLocaleString()}</div></div>
+                    <div class="card" onclick="switchTab('members')"><div class="card-icon"><i class="fas fa-users"></i></div><div class="card-title">${t("totalDonors")}</div><div class="card-value">${totalMembers}</div></div>
+                    <div class="card"><div class="card-icon"><i class="fas fa-rupee-sign"></i></div><div class="card-title">${t("totalIncome")}</div><div class="card-value">₹${totalIncome.toLocaleString()}</div></div>
+                    <div class="card" onclick="switchTab('pending')"><div class="card-icon"><i class="fas fa-clock"></i></div><div class="card-title">${t("totalPending")}</div><div class="card-value" style="color: var(--danger);">₹${totalPending.toLocaleString()}</div></div>
+                    <div class="card"><div class="card-icon"><i class="fas fa-chart-line"></i></div><div class="card-title">${t("totalExpense")}</div><div class="card-value">₹${totalExpense.toLocaleString()}</div></div>
                 </div>
                 <div class="stats-grid">
-                    <div class="card"><div class="card-icon"><i class="fas fa-user-clock"></i></div><div class="card-title">बकाया दानदाता</div><div class="card-value">${pendingCount}</div></div>
-                    <div class="card"><div class="card-icon"><i class="fas fa-wallet"></i></div><div class="card-title">नेट बैलेंस</div><div class="card-value">₹${(totalIncome - totalExpense).toLocaleString()}</div></div>
+                    <div class="card"><div class="card-icon"><i class="fas fa-user-clock"></i></div><div class="card-title">${t("pendingDonors")}</div><div class="card-value">${pendingCount}</div></div>
+                    <div class="card"><div class="card-icon"><i class="fas fa-wallet"></i></div><div class="card-title">${t("netBalance")}</div><div class="card-value">₹${(totalIncome - totalExpense).toLocaleString()}</div></div>
                 </div>
-                <div class="card"><h4>📊 मासिक आय चार्ट</h4><canvas id="incomeChart" style="max-height: 250px;"></canvas></div>
-                <div class="card"><h4>📋 हाल के भुगतान</h4><div class="table-container"><tr><thead><tr><th>दानदाता</th><th>महीना</th><th>राशि</th><th>तारीख</th><th>जमा कर्ता</th></tr></thead>
-                <tbody>${appData.payments.filter(p => p.status === "Paid").slice(-5).reverse().map(p => `<tr class="${p.status === 'Pending' ? 'pending-row' : ''}"><td class="${p.status === 'Pending' ? 'pending-row' : ''}">${p.memberName}<td class="${p.status === 'Pending' ? 'pending-row' : ''}">${p.month} ${p.year}<td class="${p.status === 'Pending' ? 'pending-row' : ''}">₹${p.amountPaid}<td class="${p.status === 'Pending' ? 'pending-row' : ''}">${p.paymentDate || '-'}<td class="${p.status === 'Pending' ? 'pending-row' : ''}">${p.addedBy || '-'}<tr>`).join('')}</tbody>}</div></div>`;
+                <div class="card"><h4>📊 मासिक आय चार्ट</h4><canvas id="monthlyChart" style="max-height: 280px;"></canvas></div>
+                <div class="card" style="margin-top: 20px;"><h4>📊 वार्षिक आय चार्ट</h4><canvas id="yearlyChart" style="max-height: 280px;"></canvas></div>
+                <div class="card" style="margin-top: 20px;"><h4>📋 हाल के भुगतान</h4>
+                    <div class="table-container">
+                        <table>
+                            <thead><tr><th>दानदाता</th><th>महीना</th><th>राशि</th><th>तारीख</th><th>जमा कर्ता</th></tr></thead>
+                            <tbody>${appData.payments.filter(p => p.status === "Paid").slice(-8).reverse().map(p => `<tr class="${p.status === 'Pending' ? 'pending-row' : ''}"><td class="${p.status === 'Pending' ? 'pending-row' : ''}">${p.memberName}<td class="${p.status === 'Pending' ? 'pending-row' : ''}">${p.month} ${p.year}<td class="${p.status === 'Pending' ? 'pending-row' : ''}">₹${p.amountPaid}<td class="${p.status === 'Pending' ? 'pending-row' : ''}">${p.paymentDate || '-'}<td class="${p.status === 'Pending' ? 'pending-row' : ''}">${p.addedByName || '-'}</td>`).join('')}</tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
             document.getElementById("pageContent").innerHTML = html;
             
-            const ctx = document.getElementById('incomeChart')?.getContext('2d');
-            if(ctx) {
-                new Chart(ctx, { type: 'bar', data: { labels: Object.keys(monthlyData), datasets: [{ label: 'आय (₹)', data: Object.values(monthlyData), backgroundColor: '#FF9933', borderRadius: 8 }] }, options: { responsive: true } });
+            const monthlyCtx = document.getElementById('monthlyChart')?.getContext('2d');
+            if(monthlyCtx) {
+                new Chart(monthlyCtx, { type: 'bar', data: { labels: Object.keys(monthlyData), datasets: [{ label: 'आय (₹)', data: Object.values(monthlyData), backgroundColor: '#FF9933', borderRadius: 8 }] }, options: { responsive: true } });
+            }
+            
+            const yearlyCtx = document.getElementById('yearlyChart')?.getContext('2d');
+            if(yearlyCtx) {
+                new Chart(yearlyCtx, { type: 'line', data: { labels: Object.keys(yearlyData), datasets: [{ label: 'आय (₹)', data: Object.values(yearlyData), borderColor: '#FF9933', backgroundColor: 'rgba(255,153,51,0.1)', fill: true, tension: 0.3 }] }, options: { responsive: true } });
             }
         }
         
         // ==================== MEMBERS ====================
         function renderMembers() {
-            const html = `<div style="margin-bottom: 16px; display: flex; gap: 10px; flex-wrap: wrap;">
-                ${hasPermission("add_member") ? `<button class="btn btn-primary" onclick="showAddMemberModal()"><i class="fas fa-plus"></i> दानदाता जोड़ें</button>` : ''}
-                <input type="text" id="searchMember" placeholder="🔍 नाम या मोबाइल से खोजें..." style="flex: 1; max-width: 200px;">
-            </div>
-            <div class="card"><div class="table-container"><table><thead><tr><th>फोटो</th><th>नाम</th><th>मोबाइल</th><th>गांव</th><th>मासिक</th><th>स्थिति</th><th>कार्य</th></tr></thead>
-            <tbody id="membersTableBody">${renderMembersTable()}</tbody></table></div></div>`;
+            const html = `
+                <div style="margin-bottom: 20px; display: flex; gap: 12px; flex-wrap: wrap;">
+                    ${hasPermission("add_member") ? `<button class="btn btn-primary" onclick="showAddMemberModal()"><i class="fas fa-plus"></i> ${t("addDonor")}</button>` : ''}
+                    <input type="text" id="searchMember" placeholder="🔍 ${t("name")} / ${t("mobile")} से खोजें..." style="flex: 1; max-width: 280px;">
+                </div>
+                <div class="card">
+                    <div class="table-container">
+                        <table>
+                            <thead><tr><th>फोटो</th><th>${t("name")}</th><th>${t("mobile")}</th><th>${t("village")}</th><th>${t("monthlyAmount")}</th><th>जॉइन तिथि</th><th>${t("status")}</th><th>${t("actions")}</th></tr></thead>
+                            <tbody id="membersTableBody">${renderMembersTable()}</tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
             document.getElementById("pageContent").innerHTML = html;
             document.getElementById("searchMember")?.addEventListener("input", () => renderMembersTable());
         }
@@ -524,65 +682,140 @@
             return filtered.map(member => {
                 const pendingAmount = appData.payments.filter(p => p.memberId === member.id && p.status === "Pending").reduce((s,p) => s + p.pendingAmount, 0);
                 const hasPending = pendingAmount > 0;
-                return `<tr class="${hasPending ? 'pending-row' : ''}"><td><div class="member-photo">${member.photo ? `<img src="${member.photo}">` : member.name.charAt(0)}</div></td>
-                <td><strong>${member.name}</strong><br><small>${member.fatherName || ''}</small></td>
-                <td>${member.mobile}${member.village}${member.monthlyAmount}
-                <td>${hasPending ? `<span class="badge badge-pending">बकाया: ₹${pendingAmount}</span>` : `<span class="badge badge-paid">जमा</span>`}</td>
-                <td class="action-btns"><button class="btn btn-primary" onclick="viewMember(${member.id})" style="padding: 4px 8px;"><i class="fas fa-eye"></i></button>
-                ${hasPermission("edit") ? `<button class="btn btn-primary" onclick="editMember(${member.id})" style="padding: 4px 8px;"><i class="fas fa-edit"></i></button>` : ''}
-                ${currentUser?.role === "super_admin" ? `<button class="btn btn-danger" onclick="deleteMember(${member.id})" style="padding: 4px 8px;"><i class="fas fa-trash"></i></button>` : ''}
-                <button class="btn btn-primary" onclick="sendWhatsAppReminder(${member.id})" style="padding: 4px 8px;"><i class="fab fa-whatsapp"></i></button>
-                </td>`;
+                return `<tr class="${hasPending ? 'pending-row' : ''}">
+                    <td><div class="member-photo">${member.photo ? `<img src="${member.photo}">` : member.name.charAt(0)}</div></td>
+                    <td><strong>${member.name}</strong><br><small>${member.fatherName || ''}</small></td>
+                    <td>${member.mobile}${member.village}${member.monthlyAmount}${member.joinDate}
+                    <td>${hasPending ? `<span class="badge badge-pending">बकाया: ₹${pendingAmount}</span>` : `<span class="badge badge-paid">${t("paid")}</span>`}</td>
+                    <td class="action-btns">
+                        <button class="btn btn-primary" onclick="viewMember(${member.id})" style="padding: 6px 12px;"><i class="fas fa-eye"></i></button>
+                        ${hasPermission("edit") ? `<button class="btn btn-primary" onclick="editMember(${member.id})" style="padding: 6px 12px;"><i class="fas fa-edit"></i></button>` : ''}
+                        ${currentUser?.role === "super_admin" ? `<button class="btn btn-danger" onclick="deleteMember(${member.id})" style="padding: 6px 12px;"><i class="fas fa-trash"></i></button>` : ''}
+                        <button class="btn btn-primary" onclick="sendReminderToMember(${member.id})" style="padding: 6px 12px;"><i class="fab fa-whatsapp"></i></button>
+                    </td>
+                </tr>`;
             }).join('');
         }
         
         function showAddMemberModal() {
             const modalBody = document.getElementById("modalBody");
-            modalBody.innerHTML = `<h3>➕ नया दानदाता जोड़ें</h3>
-                <div class="form-group"><label>नाम *</label><input type="text" id="memberName"></div>
+            modalBody.innerHTML = `<h3>➕ ${t("addDonor")}</h3>
+                <div class="form-group"><label>${t("name")} *</label><input type="text" id="memberName"></div>
                 <div class="form-group"><label>पिता का नाम</label><input type="text" id="fatherName"></div>
-                <div class="form-group"><label>मोबाइल *</label><input type="tel" id="mobile"></div>
-                <div class="form-group"><label>गांव</label><input type="text" id="village"></div>
+                <div class="form-group"><label>${t("mobile")} *</label><input type="tel" id="mobile"></div>
+                <div class="form-group"><label>${t("village")}</label><input type="text" id="village"></div>
                 <div class="form-group"><label>पता</label><textarea id="address" rows="2"></textarea></div>
-                <div class="form-group"><label>मासिक राशि (₹)</label><input type="number" id="monthlyAmount" value="200"></div>
+                <div class="form-group"><label>${t("monthlyAmount")} (₹)</label><input type="number" id="monthlyAmount" value="${appData.settings.defaultMonthlyAmount}"></div>
                 <div class="form-group"><label>जॉइन तिथि</label><input type="date" id="joinDate" value="${new Date().toISOString().split('T')[0]}"></div>
                 <div class="form-group"><label>फोटो</label><input type="file" id="photoInput" accept="image/*"></div>
                 <div id="photoPreview"></div>`;
+            
             document.getElementById("photoInput")?.addEventListener("change", (e) => {
                 const file = e.target.files[0];
-                if(file) { const reader = new FileReader(); reader.onload = (ev) => { document.getElementById("photoPreview").innerHTML = `<img src="${ev.target.result}" style="width:60px;height:60px;border-radius:50%;margin-top:10px;">`; window.tempPhoto = ev.target.result; }; reader.readAsDataURL(file); }
+                if(file) {
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        document.getElementById("photoPreview").innerHTML = `<img src="${ev.target.result}" style="width:80px;height:80px;border-radius:50%;margin-top:10px;">`;
+                        window.tempPhoto = ev.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
             });
+            
             document.getElementById("modalConfirmBtn").onclick = () => {
-                if(!document.getElementById("memberName").value || !document.getElementById("mobile").value) { alert("❌ नाम और मोबाइल नंबर जरूरी है!"); return; }
-                const newMember = { id: Date.now(), name: document.getElementById("memberName").value, fatherName: document.getElementById("fatherName").value, mobile: document.getElementById("mobile").value, village: document.getElementById("village").value, address: document.getElementById("address").value, monthlyAmount: parseInt(document.getElementById("monthlyAmount").value), joinDate: document.getElementById("joinDate").value, photo: window.tempPhoto || "" };
+                if(!document.getElementById("memberName").value || !document.getElementById("mobile").value) {
+                    alert("❌ नाम और मोबाइल नंबर जरूरी है!");
+                    return;
+                }
+                const newMember = {
+                    id: Date.now(),
+                    name: document.getElementById("memberName").value,
+                    fatherName: document.getElementById("fatherName").value,
+                    mobile: document.getElementById("mobile").value,
+                    village: document.getElementById("village").value,
+                    address: document.getElementById("address").value,
+                    monthlyAmount: parseInt(document.getElementById("monthlyAmount").value),
+                    joinDate: document.getElementById("joinDate").value,
+                    photo: window.tempPhoto || ""
+                };
                 appData.members.push(newMember);
                 const joinDate = new Date(newMember.joinDate);
                 const currentDate = new Date();
                 let year = joinDate.getFullYear();
                 let month = joinDate.getMonth();
                 while (year < currentDate.getFullYear() || (year === currentDate.getFullYear() && month <= currentDate.getMonth())) {
-                    appData.payments.push({ id: Date.now() + month + year, memberId: newMember.id, memberName: newMember.name, month: monthNames[month], monthIndex: month, year: year, amountPaid: 0, pendingAmount: newMember.monthlyAmount, status: "Pending", receiptNo: "", paymentDate: "", paymentMode: "", addedBy: currentUser.username });
-                    month++; if(month > 11) { month = 0; year++; }
+                    appData.payments.push({
+                        id: Date.now() + month + year,
+                        memberId: newMember.id,
+                        memberName: newMember.name,
+                        month: monthNames[month],
+                        monthIndex: month,
+                        year: year,
+                        amountPaid: 0,
+                        pendingAmount: newMember.monthlyAmount,
+                        status: "Pending",
+                        receiptNo: "",
+                        paymentDate: "",
+                        paymentMode: "",
+                        addedBy: currentUser.username,
+                        addedByName: currentUser.name
+                    });
+                    month++;
+                    if(month > 11) {
+                        month = 0;
+                        year++;
+                    }
                 }
-                saveData(); closeModal(); renderMembers(); showToast("✅ दानदाता जुड़ गया!"); window.tempPhoto = null;
+                saveData();
+                closeModal();
+                renderMembers();
+                showToast("✅ दानदाता सफलतापूर्वक जुड़ गया!");
+                window.tempPhoto = null;
             };
             document.getElementById("modal").style.display = "flex";
         }
         
         function viewMember(id) {
             const member = appData.members.find(m => m.id === id);
-            const memberPayments = appData.payments.filter(p => p.memberId === id);
+            const memberPayments = appData.payments.filter(p => p.memberId === id).sort((a,b) => {
+                if(a.year !== b.year) return a.year - b.year;
+                return a.monthIndex - b.monthIndex;
+            });
             const totalPaid = memberPayments.filter(p => p.status === "Paid").reduce((s,p) => s + p.amountPaid, 0);
             const totalPending = memberPayments.filter(p => p.status === "Pending").reduce((s,p) => s + p.pendingAmount, 0);
+            
             const modalBody = document.getElementById("modalBody");
-            modalBody.innerHTML = `<h3>👤 दानदाता प्रोफाइल</h3>
-                <div style="text-align:center;"><div class="member-photo" style="width:70px;height:70px;margin:0 auto 15px;font-size:28px;">${member.photo ? `<img src="${member.photo}" style="width:100%;height:100%;border-radius:50%;">` : member.name.charAt(0)}</div></div>
-                <p><strong>नाम:</strong> ${member.name}</p><p><strong>पिता:</strong> ${member.fatherName || '-'}</p>
-                <p><strong>मोबाइल:</strong> ${member.mobile}</p><p><strong>गांव:</strong> ${member.village}</p>
-                <p><strong>मासिक राशि:</strong> ₹${member.monthlyAmount}</p><p><strong>जॉइन तिथि:</strong> ${member.joinDate}</p>
-                <p><strong>कुल जमा:</strong> ₹${totalPaid}</p><p><strong>कुल बकाया:</strong> ₹${totalPending}</p>
-                <hr><h4>भुगतान इतिहास</h4><div class="table-container"><table style="font-size:11px;"><thead><tr><th>महीना</th><th>जमा</th><th>बकाया</th><th>स्थिति</th><th>रसीद</th></tr></thead>
-                <tbody>${memberPayments.map(p => `<tr class="${p.status === 'Pending' ? 'pending-row' : ''}"><td class="${p.status === 'Pending' ? 'pending-row' : ''}">${p.month} ${p.year}<td class="${p.status === 'Pending' ? 'pending-row' : ''}">₹${p.amountPaid}<td class="${p.status === 'Pending' ? 'pending-row' : ''}">₹${p.pendingAmount}<td class="${p.status === 'Pending' ? 'pending-row' : ''}"><span class="badge ${p.status === 'Paid' ? 'badge-paid' : 'badge-pending'}">${p.status === 'Paid' ? 'जमा' : 'बकाया'}</span><td class="${p.status === 'Pending' ? 'pending-row' : ''}">${p.receiptNo ? `<button class="btn btn-primary" onclick="generateReceipt(${p.id})" style="padding:2px 6px;">PDF</button>` : '-'}`).join('')}</tbody>}</div>`;
+            modalBody.innerHTML = `
+                <h3>👤 दानदाता प्रोफाइल</h3>
+                <div style="text-align:center;">
+                    <div class="member-photo" style="width:80px;height:80px;margin:0 auto 15px;font-size:32px;">
+                        ${member.photo ? `<img src="${member.photo}" style="width:100%;height:100%;border-radius:50%;">` : member.name.charAt(0)}
+                    </div>
+                </div>
+                <p><strong>${t("name")}:</strong> ${member.name}</p>
+                <p><strong>पिता:</strong> ${member.fatherName || '-'}</p>
+                <p><strong>${t("mobile")}:</strong> ${member.mobile}</p>
+                <p><strong>${t("village")}:</strong> ${member.village}</p>
+                <p><strong>${t("monthlyAmount")}:</strong> ₹${member.monthlyAmount}</p>
+                <p><strong>जॉइन तिथि:</strong> ${member.joinDate}</p>
+                <p><strong>कुल जमा:</strong> ₹${totalPaid}</p>
+                <p><strong>कुल बकाया:</strong> ₹${totalPending}</p>
+                <hr><h4>भुगतान इतिहास</h4>
+                <div class="table-container">
+                    <table style="font-size:12px;">
+                        <thead><tr><th>महीना</th><th>जमा राशि</th><th>बकाया</th><th>स्थिति</th><th>रसीद</th></tr></thead>
+                        <tbody>${memberPayments.map(p => `
+                            <tr class="${p.status === 'Pending' ? 'pending-row' : ''}">
+                                <td class="${p.status === 'Pending' ? 'pending-row' : ''}">${p.month} ${p.year}</td>
+                                <td class="${p.status === 'Pending' ? 'pending-row' : ''}">₹${p.amountPaid}</td>
+                                <td class="${p.status === 'Pending' ? 'pending-row' : ''}">₹${p.pendingAmount}</td>
+                                <td class="${p.status === 'Pending' ? 'pending-row' : ''}"><span class="badge ${p.status === 'Paid' ? 'badge-paid' : 'badge-pending'}">${p.status === 'Paid' ? 'जमा' : 'बकाया'}</span></td>
+                                <td class="${p.status === 'Pending' ? 'pending-row' : ''}">${p.receiptNo ? `<button class="btn btn-primary" onclick="generateReceiptForPayment(${p.id})" style="padding:4px 10px;">PDF</button>` : '-'}</td>
+                            </tr>
+                        `).join('')}</tbody>
+                    </table>
+                </div>
+            `;
             document.getElementById("modalConfirmBtn").style.display = "none";
             document.getElementById("modal").style.display = "flex";
         }
@@ -591,21 +824,39 @@
             const member = appData.members.find(m => m.id === id);
             if(!member) return;
             const modalBody = document.getElementById("modalBody");
-            modalBody.innerHTML = `<h3>✏️ दानदाता संपादित करें</h3>
-                <div class="form-group"><label>नाम</label><input type="text" id="memberName" value="${member.name}"></div>
-                <div class="form-group"><label>मोबाइल</label><input type="text" id="mobile" value="${member.mobile}"></div>
-                <div class="form-group"><label>मासिक राशि (₹)</label><input type="number" id="monthlyAmount" value="${member.monthlyAmount}"></div>
-                <div class="form-group"><label>फोटो</label><input type="file" id="photoInput" accept="image/*"></div><div id="photoPreview">${member.photo ? `<img src="${member.photo}" style="width:60px;height:60px;border-radius:50%;margin-top:10px;">` : ''}</div>`;
+            modalBody.innerHTML = `<h3>✏️ ${t("edit")}</h3>
+                <div class="form-group"><label>${t("name")}</label><input type="text" id="memberName" value="${member.name}"></div>
+                <div class="form-group"><label>पिता का नाम</label><input type="text" id="fatherName" value="${member.fatherName || ''}"></div>
+                <div class="form-group"><label>${t("mobile")}</label><input type="text" id="mobile" value="${member.mobile}"></div>
+                <div class="form-group"><label>${t("village")}</label><input type="text" id="village" value="${member.village}"></div>
+                <div class="form-group"><label>${t("monthlyAmount")} (₹)</label><input type="number" id="monthlyAmount" value="${member.monthlyAmount}"></div>
+                <div class="form-group"><label>फोटो</label><input type="file" id="photoInput" accept="image/*"></div>
+                <div id="photoPreview">${member.photo ? `<img src="${member.photo}" style="width:80px;height:80px;border-radius:50%;margin-top:10px;">` : ''}</div>`;
+            
             document.getElementById("photoInput")?.addEventListener("change", (e) => {
                 const file = e.target.files[0];
-                if(file) { const reader = new FileReader(); reader.onload = (ev) => { document.getElementById("photoPreview").innerHTML = `<img src="${ev.target.result}" style="width:60px;height:60px;border-radius:50%;margin-top:10px;">`; window.tempPhoto = ev.target.result; }; reader.readAsDataURL(file); }
+                if(file) {
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        document.getElementById("photoPreview").innerHTML = `<img src="${ev.target.result}" style="width:80px;height:80px;border-radius:50%;margin-top:10px;">`;
+                        window.tempPhoto = ev.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
             });
+            
             document.getElementById("modalConfirmBtn").onclick = () => {
                 member.name = document.getElementById("memberName").value;
+                member.fatherName = document.getElementById("fatherName").value;
                 member.mobile = document.getElementById("mobile").value;
+                member.village = document.getElementById("village").value;
                 member.monthlyAmount = parseInt(document.getElementById("monthlyAmount").value);
                 if(window.tempPhoto) member.photo = window.tempPhoto;
-                saveData(); closeModal(); renderMembers(); showToast("✅ दानदाता अपडेट हुआ!"); window.tempPhoto = null;
+                saveData();
+                closeModal();
+                renderMembers();
+                showToast("✅ दानदाता अपडेट हुआ!");
+                window.tempPhoto = null;
             };
             document.getElementById("modal").style.display = "flex";
         }
@@ -614,69 +865,81 @@
             if(confirm("⚠️ क्या आप सच में इस दानदाता को हटाना चाहते हैं?")) {
                 appData.members = appData.members.filter(m => m.id !== id);
                 appData.payments = appData.payments.filter(p => p.memberId !== id);
-                saveData(); renderMembers(); showToast("🗑️ दानदाता हटा दिया गया!");
+                saveData();
+                renderMembers();
+                showToast("🗑️ दानदाता हटा दिया गया!");
             }
         }
         
         // ==================== PAYMENTS ====================
         function renderPayments() {
-            const html = `<div style="margin-bottom:16px; display:flex; gap:10px; flex-wrap:wrap;">
-                ${hasPermission("add_payment") ? `<button class="btn btn-primary" onclick="showAddPaymentModal()"><i class="fas fa-plus"></i> भुगतान जोड़ें</button>` : ''}
-                <select id="filterStatus" style="width:auto;"><option value="">सभी</option><option value="Pending">बकाया</option><option value="Paid">जमा</option></select>
-            </div>
-            <div class="card"><div class="table-container"></tr><thead><tr><th>दानदाता</th><th>महीना</th><th>जमा</th><th>बकाया</th><th>स्थिति</th><th>कार्य</th></tr></thead>
-            <tbody id="paymentsTableBody">${renderPaymentsTable()}</tbody>}</div></div>`;
+            const html = `
+                <div style="margin-bottom:20px;display:flex;gap:12px;flex-wrap:wrap;">
+                    ${hasPermission("add_payment") ? `<button class="btn btn-primary" onclick="showAddPaymentModal()"><i class="fas fa-plus"></i> ${t("addPayment")}</button>` : ''}
+                    <select id="filterYear" style="width:auto;padding:10px;">${years.map(y => `<option value="${y}" ${y === currentYear ? 'selected' : ''}>${y}</option>`).join('')}</select>
+                    <select id="filterStatus" style="width:auto;padding:10px;"><option value="">सभी</option><option value="Pending">${t("pending_status")}</option><option value="Paid">${t("paid")}</option></select>
+                </div>
+                <div class="card">
+                    <div class="table-container">
+                        <table>
+                            <thead><tr><th>दानदाता</th><th>महीना</th><th>जमा राशि</th><th>बकाया</th><th>स्थिति</th><th>जमा कर्ता</th><th>कार्य</th></tr></thead>
+                            <tbody id="paymentsTableBody">${renderPaymentsTable()}</tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
             document.getElementById("pageContent").innerHTML = html;
+            document.getElementById("filterYear")?.addEventListener("change", () => renderPaymentsTable());
             document.getElementById("filterStatus")?.addEventListener("change", () => renderPaymentsTable());
         }
         
         function renderPaymentsTable() {
+            const yearFilter = parseInt(document.getElementById("filterYear")?.value) || currentYear;
             const statusFilter = document.getElementById("filterStatus")?.value;
-            let filtered = appData.payments;
+            let filtered = appData.payments.filter(p => p.year === yearFilter);
             if(statusFilter) filtered = filtered.filter(p => p.status === statusFilter);
             filtered.sort((a,b) => b.monthIndex - a.monthIndex);
+            
             return filtered.map(p => {
                 const member = appData.members.find(m => m.id === p.memberId);
-                return `<tr class="${p.status === 'Pending' ? 'pending-row' : ''}"><td class="${p.status === 'Pending' ? 'pending-row' : ''}">${member?.name || p.memberName}<td class="${p.status === 'Pending' ? 'pending-row' : ''}">${p.month} ${p.year}<td class="${p.status === 'Pending' ? 'pending-row' : ''}">₹${p.amountPaid}<td class="${p.status === 'Pending' ? 'pending-row' : ''}">₹${p.pendingAmount}<td class="${p.status === 'Pending' ? 'pending-row' : ''}"><span class="badge ${p.status === 'Paid' ? 'badge-paid' : 'badge-pending'}">${p.status === 'Paid' ? 'जमा' : 'बकाया'}</span><td class="action-btns">
-                ${p.status === "Pending" && hasPermission("add_payment") ? `<button class="btn btn-success" onclick="collectPayment(${p.id})">जमा करें</button>` : ''}
-                ${p.receiptNo ? `<button class="btn btn-primary" onclick="generateReceipt(${p.id})">रसीद</button>` : ''}
-                ${hasPermission("edit") ? `<button class="btn btn-warning" onclick="editPayment(${p.id})">सुधारें</button>` : ''}
+                return `<tr class="${p.status === 'Pending' ? 'pending-row' : ''}">
+                    <td class="${p.status === 'Pending' ? 'pending-row' : ''}">${member?.name || p.memberName}</td>
+                    <td class="${p.status === 'Pending' ? 'pending-row' : ''}">${p.month} ${p.year}</td>
+                    <td class="${p.status === 'Pending' ? 'pending-row' : ''}">₹${p.amountPaid}</td>
+                    <td class="${p.status === 'Pending' ? 'pending-row' : ''}">₹${p.pendingAmount}</td>
+                    <td class="${p.status === 'Pending' ? 'pending-row' : ''}"><span class="badge ${p.status === 'Paid' ? 'badge-paid' : 'badge-pending'}">${p.status === 'Paid' ? 'जमा' : 'बकाया'}</span></td>
+                    <td class="${p.status === 'Pending' ? 'pending-row' : ''}">${p.addedByName || '-'}</td>
+                    <td class="action-btns">
+                        ${p.status === "Pending" && hasPermission("add_payment") ? `<button class="btn btn-success" onclick="collectPayment(${p.id})">${t("collectPayment")}</button>` : ''}
+                        ${p.receiptNo ? `<button class="btn btn-primary" onclick="generateReceiptForPayment(${p.id})">${t("receipt")}</button>` : ''}
+                        ${hasPermission("edit_payment") ? `<button class="btn btn-warning" onclick="editPayment(${p.id})">${t("edit")}</button>` : ''}
+                    </td>
                 </td>`;
             }).join('');
         }
         
         function showAddPaymentModal() {
             const modalBody = document.getElementById("modalBody");
-            modalBody.innerHTML = `<h3>💰 भुगतान जोड़ें</h3>
+            modalBody.innerHTML = `<h3>💰 ${t("addPayment")}</h3>
                 <div class="form-group"><label>दानदाता</label><select id="memberId">${appData.members.map(m => `<option value="${m.id}">${m.name} (मासिक: ₹${m.monthlyAmount})</option>`).join('')}</select></div>
                 <div class="form-group"><label>महीना</label><select id="month">${monthNames.map((m, i) => `<option value="${i}">${m}</option>`).join('')}</select></div>
-                <div class="form-group"><label>साल</label><select id="year"><option>2025</option><option>2026</option></select></div>
-                <div class="form-group"><label>जमा राशि (₹)</label><input type="number" id="amount"></div>
+                <div class="form-group"><label>साल</label><select id="year">${years.map(y => `<option value="${y}" ${y === new Date().getFullYear() ? 'selected' : ''}>${y}</option>`).join('')}</select></div>
+                <div class="form-group"><label>जमा राशि (₹)</label><input type="number" id="amount" value="${appData.settings.defaultMonthlyAmount}"></div>
                 <div class="form-group"><label>भुगतान मोड</label><select id="mode"><option>नकद</option><option>UPI</option><option>बैंक ट्रांसफर</option></select></div>`;
+            
             document.getElementById("modalConfirmBtn").onclick = () => {
                 const memberId = parseInt(document.getElementById("memberId").value);
                 const member = appData.members.find(m => m.id === memberId);
                 const monthIndex = parseInt(document.getElementById("month").value);
-                const month = monthNames[monthIndex];
                 const year = parseInt(document.getElementById("year").value);
                 const amount = parseFloat(document.getElementById("amount").value);
-                const receiptNo = `BHAVYA-${year}-${memberId}-${Date.now()}`;
-                const paymentDate = new Date().toISOString().split('T')[0];
+                const mode = document.getElementById("mode").value;
                 
-                let payment = appData.payments.find(p => p.memberId === memberId && p.year === year && p.monthIndex === monthIndex);
-                if(payment) {
-                    payment.amountPaid += amount;
-                    payment.pendingAmount = Math.max(0, member.monthlyAmount - payment.amountPaid);
-                    payment.status = payment.pendingAmount <= 0 ? "Paid" : "Pending";
-                    payment.receiptNo = receiptNo;
-                    payment.paymentDate = paymentDate;
-                    payment.paymentMode = document.getElementById("mode").value;
-                    payment.addedBy = currentUser.username;
-                } else {
-                    payment = { id: Date.now(), memberId, memberName: member.name, month, monthIndex, year, amountPaid: amount, pendingAmount: Math.max(0, member.monthlyAmount - amount), status: amount >= member.monthlyAmount ? "Paid" : "Pending", receiptNo, paymentDate, paymentMode: document.getElementById("mode").value, addedBy: currentUser.username };
-                    appData.payments.push(payment);
-                }
-                saveData(); closeModal(); renderPayments(); sendWhatsAppReceipt(member, payment, amount); showToast("✅ भुगतान दर्ज हो गया!");
+                const payment = addPayment(memberId, monthIndex, year, amount, mode, currentUser);
+                closeModal();
+                renderPayments();
+                sendPaymentReceipt(member, payment, amount);
+                showToast("✅ भुगतान सफलतापूर्वक दर्ज हो गया!");
             };
             document.getElementById("modal").style.display = "flex";
         }
@@ -686,11 +949,13 @@
             if(!payment) return;
             const member = appData.members.find(m => m.id === payment.memberId);
             const modalBody = document.getElementById("modalBody");
-            modalBody.innerHTML = `<h3>💰 भुगतान लें</h3>
-                <p><strong>दानदाता:</strong> ${member?.name}</p><p><strong>महीना:</strong> ${payment.month} ${payment.year}</p>
+            modalBody.innerHTML = `<h3>💰 ${t("collectPayment")}</h3>
+                <p><strong>दानदाता:</strong> ${member?.name}</p>
+                <p><strong>महीना:</strong> ${payment.month} ${payment.year}</p>
                 <p><strong>बकाया राशि:</strong> ₹${payment.pendingAmount}</p>
                 <div class="form-group"><label>जमा राशि (₹)</label><input type="number" id="collectAmount" value="${payment.pendingAmount}"></div>
                 <div class="form-group"><label>भुगतान मोड</label><select id="mode"><option>नकद</option><option>UPI</option><option>बैंक ट्रांसफर</option></select></div>`;
+            
             document.getElementById("modalConfirmBtn").onclick = () => {
                 const amount = parseFloat(document.getElementById("collectAmount").value);
                 const mode = document.getElementById("mode").value;
@@ -701,28 +966,39 @@
                 payment.paymentDate = new Date().toISOString().split('T')[0];
                 payment.paymentMode = mode;
                 payment.addedBy = currentUser.username;
-                saveData(); closeModal(); renderPayments(); sendWhatsAppReceipt(member, payment, amount); showToast("✅ भुगतान जमा हो गया!");
+                payment.addedByName = currentUser.name;
+                saveData();
+                closeModal();
+                renderPayments();
+                sendPaymentReceipt(member, payment, amount);
+                showToast("✅ भुगतान सफलतापूर्वक जमा हो गया!");
             };
             document.getElementById("modal").style.display = "flex";
         }
         
         function editPayment(paymentId) {
-            if (!hasPermission("edit")) { alert("❌ केवल एडमिन ही भुगतान सुधार सकता है!"); return; }
+            if (!hasPermission("edit_payment")) { alert("❌ केवल एडमिन ही भुगतान सुधार सकता है!"); return; }
             const payment = appData.payments.find(p => p.id === paymentId);
             if(!payment) return;
             const member = appData.members.find(m => m.id === payment.memberId);
             const modalBody = document.getElementById("modalBody");
             modalBody.innerHTML = `<h3>✏️ गलत राशि सुधारें</h3>
-                <p><strong>दानदाता:</strong> ${member?.name}</p><p><strong>महीना:</strong> ${payment.month} ${payment.year}</p>
+                <p><strong>दानदाता:</strong> ${member?.name}</p>
+                <p><strong>महीना:</strong> ${payment.month} ${payment.year}</p>
                 <div class="form-group"><label>जमा राशि (₹)</label><input type="number" id="editAmount" value="${payment.amountPaid}"></div>
-                <div class="form-group"><label>भुगतान मोड</label><select id="editMode"><option ${payment.paymentMode === 'नकद' ? 'selected' : ''}>नकद</option><option ${payment.paymentMode === 'UPI' ? 'selected' : ''}>UPI</option></select></div>`;
+                <div class="form-group"><label>भुगतान मोड</label><select id="editMode"><option ${payment.paymentMode === 'नकद' ? 'selected' : ''}>नकद</option><option ${payment.paymentMode === 'UPI' ? 'selected' : ''}>UPI</option><option ${payment.paymentMode === 'बैंक ट्रांसफर' ? 'selected' : ''}>बैंक ट्रांसफर</option></select></div>`;
+            
             document.getElementById("modalConfirmBtn").onclick = () => {
                 payment.amountPaid = parseFloat(document.getElementById("editAmount").value);
                 payment.pendingAmount = Math.max(0, (member?.monthlyAmount || 200) - payment.amountPaid);
                 payment.status = payment.pendingAmount <= 0 ? "Paid" : "Pending";
                 payment.paymentMode = document.getElementById("editMode").value;
                 payment.addedBy = currentUser.username;
-                saveData(); closeModal(); renderPayments(); showToast("✅ राशि सुधार दी गई!");
+                payment.addedByName = currentUser.name;
+                saveData();
+                closeModal();
+                renderPayments();
+                showToast("✅ राशि सफलतापूर्वक सुधार दी गई!");
             };
             document.getElementById("modal").style.display = "flex";
         }
@@ -730,66 +1006,401 @@
         // ==================== PENDING ====================
         function renderPending() {
             const pendingMembers = appData.members.filter(m => appData.payments.some(p => p.memberId === m.id && p.status === "Pending"));
-            const html = `<div class="card"><h3>⚠️ बकाया दानदाता (${pendingMembers.length})</h3>
-                <button class="btn btn-primary" onclick="sendBulkReminders()"><i class="fab fa-whatsapp"></i> सभी को WhatsApp भेजें</button></div>
+            const html = `
+                <div class="card">
+                    <h3>⚠️ बकाया दानदाता (${pendingMembers.length})</h3>
+                    <button class="btn btn-primary" onclick="sendBulkReminders()" style="margin-top: 10px;"><i class="fab fa-whatsapp"></i> सभी बकाया दानदाताओं को WhatsApp भेजें</button>
+                </div>
                 ${pendingMembers.map(member => {
                     const pendingPayments = appData.payments.filter(p => p.memberId === member.id && p.status === "Pending");
                     const totalPending = pendingPayments.reduce((s,p) => s + p.pendingAmount, 0);
-                    return `<div class="card" style="margin-top:16px; border-left: 4px solid var(--danger);">
-                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
-                            <div><h4>${member.name}</h4><p>📱 ${member.mobile} | मासिक: ₹${member.monthlyAmount}</p>
-                            <p><strong>कुल बकाया: ₹${totalPending}</strong> | ${pendingPayments.length} महीने</p></div>
-                            <div><button class="btn btn-success" onclick="collectPayment(${pendingPayments[0].id})">जमा करें</button>
-                            <button class="btn btn-primary" onclick="sendWhatsAppReminder(${member.id})"><i class="fab fa-whatsapp"></i> रिमाइंडर</button></div>
+                    return `
+                        <div class="card" style="margin-top: 20px; border-left: 4px solid var(--danger);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+                                <div>
+                                    <h4>${member.name}</h4>
+                                    <p>📱 ${member.mobile} | मासिक: ₹${member.monthlyAmount}</p>
+                                    <p><strong>कुल बकाया: ₹${totalPending}</strong> | ${pendingPayments.length} महीने</p>
+                                </div>
+                                <div class="action-btns">
+                                    <button class="btn btn-success" onclick="showPaymentForMember(${member.id})">जमा करें</button>
+                                    <button class="btn btn-primary" onclick="sendReminderToMember(${member.id})"><i class="fab fa-whatsapp"></i> रिमाइंडर भेजें</button>
+                                </div>
+                            </div>
+                            <div class="table-container" style="margin-top: 15px;">
+                                <table style="font-size: 13px;">
+                                    <thead><tr><th>महीना</th><th>बकाया</th><th>कार्य</th></tr></thead>
+                                    <tbody>${pendingPayments.map(p => `
+                                        <tr class="pending-row">
+                                            <td class="pending-row">${p.month} ${p.year}</td>
+                                            <td class="pending-row">₹${p.pendingAmount}</td>
+                                            <td class="pending-row"><button class="btn btn-success" onclick="collectPayment(${p.id})">जमा करें</button></td>
+                                        </tr>
+                                    `).join('')}</tbody>
+                                </table>
+                            </div>
                         </div>
-                        <div class="table-container"><td><thead><tr><th>महीना</th><th>बकाया</th><th>कार्य</th></tr></thead>
-                        <tbody>${pendingPayments.map(p => `<tr class="pending-row"><td class="pending-row">${p.month} ${p.year}<td class="pending-row">₹${p.pendingAmount}<td class="pending-row"><button class="btn btn-success" onclick="collectPayment(${p.id})">जमा करें</button>`).join('')}</tbody>}</div>
-                    </div>`;
+                    `;
                 }).join('')}
-                ${pendingMembers.length === 0 ? '<div class="card"><h3>🎉 सभी दानदाताओं ने भुगतान कर दिया है!</h3></div>' : ''}`;
+                ${pendingMembers.length === 0 ? '<div class="card"><h3>🎉 सभी दानदाताओं ने समय पर भुगतान कर दिया है!</h3></div>' : ''}
+            `;
             document.getElementById("pageContent").innerHTML = html;
         }
         
+        function showPaymentForMember(memberId) {
+            const member = appData.members.find(m => m.id === memberId);
+            const pendingPayments = appData.payments.filter(p => p.memberId === memberId && p.status === "Pending");
+            if(pendingPayments.length === 0) return;
+            const modalBody = document.getElementById("modalBody");
+            modalBody.innerHTML = `<h3>💰 ${member.name} के लिए भुगतान</h3>
+                <p>मासिक राशि: ₹${member.monthlyAmount}</p>
+                <div class="form-group"><label>महीना</label><select id="monthSelect">${pendingPayments.map(p => `<option value="${p.id}">${p.month} ${p.year} - बकाया ₹${p.pendingAmount}</option>`).join('')}</select></div>
+                <div class="form-group"><label>जमा राशि (₹)</label><input type="number" id="paymentAmount" value="${pendingPayments[0].pendingAmount}"></div>
+                <div class="form-group"><label>भुगतान मोड</label><select id="paymentMode"><option>नकद</option><option>UPI</option><option>बैंक ट्रांसफर</option></select></div>`;
+            
+            document.getElementById("modalConfirmBtn").onclick = () => {
+                const paymentId = parseInt(document.getElementById("monthSelect").value);
+                const payment = appData.payments.find(p => p.id === paymentId);
+                const amount = parseFloat(document.getElementById("paymentAmount").value);
+                const mode = document.getElementById("paymentMode").value;
+                if(payment && amount > 0) {
+                    payment.amountPaid += amount;
+                    payment.pendingAmount = Math.max(0, payment.pendingAmount - amount);
+                    payment.status = payment.pendingAmount <= 0 ? "Paid" : "Pending";
+                    payment.receiptNo = `BHAVYA-${payment.year}-${payment.memberId}-${Date.now()}`;
+                    payment.paymentDate = new Date().toISOString().split('T')[0];
+                    payment.paymentMode = mode;
+                    payment.addedBy = currentUser.username;
+                    payment.addedByName = currentUser.name;
+                    saveData();
+                    closeModal();
+                    renderPending();
+                    sendPaymentReceipt(member, payment, amount);
+                    showToast("✅ भुगतान सफलतापूर्वक जमा हो गया!");
+                }
+            };
+            document.getElementById("modal").style.display = "flex";
+        }
+        
         // ==================== RECEIPTS ====================
-        function generateReceipt(paymentId) {
+        function generateReceiptForPayment(paymentId) {
             const payment = appData.payments.find(p => p.id === paymentId);
             if(payment) {
                 const member = appData.members.find(m => m.id === payment.memberId);
-                const receiptHTML = `<div style="max-width:450px;margin:0 auto;background:white;border-radius:16px;overflow:hidden;font-family:Arial,sans-serif;">
-                    <div style="background:linear-gradient(135deg,#FF9933,#e67e22);color:white;padding:15px;text-align:center;">
-                        <div style="display:flex;align-items:center;justify-content:center;gap:10px;">
-                            ${appData.settings.logo ? `<img src="${appData.settings.logo}" style="width:40px;height:40px;border-radius:50%;">` : '<i class="fas fa-temple" style="font-size:28px;"></i>'}
-                            <div><strong>${appData.settings.committeeName}</strong><br><small>${appData.settings.committeeBanner}</small></div>
+                const receiptHTML = `
+                    <div style="max-width: 500px; margin: 0 auto; background: white; border-radius: 20px; overflow: hidden; font-family: Arial, sans-serif; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+                        <div style="background: linear-gradient(135deg, #FF9933, #e67e22); color: white; padding: 20px; text-align: center;">
+                            <div style="display: flex; align-items: center; justify-content: center; gap: 12px;">
+                                ${appData.settings.logo ? `<img src="${appData.settings.logo}" style="width: 50px; height: 50px; border-radius: 50%;">` : '<i class="fas fa-temple" style="font-size: 35px;"></i>'}
+                                <div>
+                                    <strong style="font-size: 18px;">${appData.settings.committeeName}</strong><br>
+                                    <small style="font-size: 12px;">${appData.settings.committeeBanner}</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="padding: 25px;">
+                            <h3 style="text-align: center; color: #FF9933; margin-bottom: 20px;">💰 भुगतान रसीद</h3>
+                            <hr style="margin: 15px 0;">
+                            <div style="display: flex; gap: 20px; margin: 20px 0;">
+                                <div style="width: 70px; height: 70px; border-radius: 50%; background: #FF9933; display: flex; align-items: center; justify-content: center; font-size: 28px; color: white; overflow: hidden;">
+                                    ${member.photo ? `<img src="${member.photo}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">` : member.name.charAt(0)}
+                                </div>
+                                <div>
+                                    <strong style="font-size: 16px;">${member.name}</strong><br>
+                                    ${member.fatherName || ''}<br>
+                                    📱 ${member.mobile}
+                                </div>
+                            </div>
+                            <p><strong>📋 रसीद नंबर:</strong> ${payment.receiptNo}</p>
+                            <p><strong>📅 दिनांक:</strong> ${payment.paymentDate}</p>
+                            <p><strong>📆 महीना:</strong> ${payment.month} ${payment.year}</p>
+                            <p><strong>💰 जमा राशि:</strong> ₹${payment.amountPaid}</p>
+                            <p><strong>💳 भुगतान मोड:</strong> ${payment.paymentMode}</p>
+                            <p><strong>💸 UPI ID:</strong> ${appData.settings.upiId}</p>
+                            <hr style="margin: 15px 0;">
+                            <p style="text-align: center; font-style: italic;">हनुमान जी आप पर अपनी कृपा बनाए रखें। 🙏</p>
+                            <hr style="margin: 15px 0;">
+                            <div style="display: flex; justify-content: space-between;">
+                                <div><strong>${appData.settings.presidentName}</strong><br>अध्यक्ष</div>
+                                <div><strong>${appData.settings.secretaryName}</strong><br>सचिव</div>
+                            </div>
                         </div>
                     </div>
-                    <div style="padding:20px;">
-                        <h3 style="text-align:center;color:#FF9933;">💰 भुगतान रसीद</h3><hr>
-                        <p><strong>रसीद नंबर:</strong> ${payment.receiptNo}</p>
-                        <p><strong>दिनांक:</strong> ${payment.paymentDate}</p>
-                        <p><strong>दानदाता:</strong> ${member?.name}</p>
-                        <p><strong>महीना:</strong> ${payment.month} ${payment.year}</p>
-                        <p><strong>जमा राशि:</strong> ₹${payment.amountPaid}</p>
-                        <p><strong>भुगतान मोड:</strong> ${payment.paymentMode}</p>
-                        <p><strong>UPI ID:</strong> ${appData.settings.upiId}</p>
-                        <hr><p style="text-align:center;">हनुमान जी आप पर अपनी कृपा बनाए रखें। 🙏</p>
-                        <div style="display:flex;justify-content:space-between;margin-top:15px;">
-                            <div><strong>${appData.settings.presidentName}</strong><br>अध्यक्ष</div>
-                            <div><strong>${appData.settings.secretaryName}</strong><br>सचिव</div>
-                        </div>
-                    </div>
-                </div>`;
+                `;
                 const win = window.open();
-                win.document.write(`<html><head><title>रसीद ${payment.receiptNo}</title><style>body{font-family:Arial;padding:15px;}</style></head><body>${receiptHTML}<div style="text-align:center;margin-top:15px;"><button onclick="window.print()">🖨️ प्रिंट करें</button><button onclick="window.close()">❌ बंद करें</button></div></body></html>`);
+                win.document.write(`
+                    <html>
+                        <head><title>रसीद ${payment.receiptNo}</title>
+                        <style>body{font-family:Arial;padding:20px;background:#f0f0f0;}</style>
+                        </head>
+                        <body>
+                            ${receiptHTML}
+                            <div style="text-align: center; margin-top: 20px;">
+                                <button onclick="window.print()" style="padding: 10px 20px; background: #FF9933; color: white; border: none; border-radius: 40px; cursor: pointer;">🖨️ प्रिंट करें</button>
+                                <button onclick="window.close()" style="padding: 10px 20px; background: #666; color: white; border: none; border-radius: 40px; cursor: pointer; margin-left: 10px;">❌ बंद करें</button>
+                            </div>
+                        </body>
+                    </html>
+                `);
                 win.document.close();
             }
         }
         
+        // ==================== INCOME EXPENSE ====================
+        function renderIncomeExpense() {
+            const yearData = appData.payments.filter(p => p.year === currentYear);
+            const yearExpenses = appData.expenses.filter(e => e.year === currentYear);
+            
+            const monthlyReport = [];
+            let totalYearIncome = 0, totalYearExpense = 0;
+            
+            monthNames.forEach((month, idx) => {
+                const monthIncome = yearData.filter(p => p.monthIndex === idx).reduce((s,p) => s + p.amountPaid, 0);
+                const monthExpense = yearExpenses.filter(e => e.month === month).reduce((s,e) => s + e.amount, 0);
+                totalYearIncome += monthIncome;
+                totalYearExpense += monthExpense;
+                monthlyReport.push({ month, income: monthIncome, expense: monthExpense, profit: monthIncome - monthExpense });
+            });
+            
+            const html = `
+                <div class="year-selector">
+                    <label style="font-weight: 600;">वर्ष चुनें:</label>
+                    <select id="reportYear" onchange="changeReportYear()" style="width: auto; padding: 10px;">${years.map(y => `<option value="${y}" ${y === currentYear ? 'selected' : ''}>${y}</option>`).join('')}</select>
+                    <button class="btn btn-success" onclick="sendReportToPresident()"><i class="fab fa-whatsapp"></i> अध्यक्ष को रिपोर्ट भेजें</button>
+                </div>
+                <div class="stats-grid">
+                    <div class="card"><div class="card-title">वर्ष ${currentYear} कुल आय</div><div class="card-value" style="color: var(--success);">₹${totalYearIncome.toLocaleString()}</div></div>
+                    <div class="card"><div class="card-title">वर्ष ${currentYear} कुल व्यय</div><div class="card-value" style="color: var(--danger);">₹${totalYearExpense.toLocaleString()}</div></div>
+                    <div class="card"><div class="card-title">वर्ष ${currentYear} शेष</div><div class="card-value">₹${(totalYearIncome - totalYearExpense).toLocaleString()}</div></div>
+                </div>
+                <div class="card">
+                    <h4>📈 ${currentYear} मासिक आय-व्यय रिपोर्ट</h4>
+                    <div class="table-container">
+                        <table style="font-size: 13px;">
+                            <thead><tr><th>महीना</th><th>आय (₹)</th><th>व्यय (₹)</th><th>शेष (₹)</th><th>स्थिति</th></tr></thead>
+                            <tbody>${monthlyReport.map(r => `
+                                <tr class="${r.profit < 0 ? 'pending-row' : ''}">
+                                    <td><strong>${r.month}</strong></td>
+                                    <td style="color: var(--success);">₹${r.income.toLocaleString()}</td>
+                                    <td style="color: var(--danger);">₹${r.expense.toLocaleString()}</td>
+                                    <td>₹${r.profit.toLocaleString()}</td>
+                                    <td><span class="badge ${r.profit >= 0 ? 'badge-paid' : 'badge-pending'}">${r.profit >= 0 ? 'लाभ' : 'घाटा'}</span></td>
+                                </tr>
+                            `).join('')}</tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card" style="margin-top: 20px;">
+                    <h4>📊 ${currentYear} आय-व्यय चार्ट</h4>
+                    <canvas id="incomeExpenseChart" style="max-height: 300px;"></canvas>
+                </div>
+            `;
+            document.getElementById("pageContent").innerHTML = html;
+            
+            const ctx = document.getElementById('incomeExpenseChart')?.getContext('2d');
+            if(ctx) {
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: monthlyReport.map(r => r.month),
+                        datasets: [
+                            { label: 'आय (₹)', data: monthlyReport.map(r => r.income), borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.1)', fill: true, tension: 0.3 },
+                            { label: 'व्यय (₹)', data: monthlyReport.map(r => r.expense), borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.1)', fill: true, tension: 0.3 }
+                        ]
+                    },
+                    options: { responsive: true, maintainAspectRatio: true }
+                });
+            }
+        }
+        
+        function changeReportYear() { 
+            currentYear = parseInt(document.getElementById("reportYear").value); 
+            renderIncomeExpense(); 
+        }
+        
+        function sendReportToPresident() {
+            const president = appData.committeeMembers.find(m => m.position === "अध्यक्ष");
+            if(president && president.mobile) {
+                const totalIncome = appData.payments.filter(p => p.status === "Paid").reduce((s, p) => s + p.amountPaid, 0);
+                const totalExpense = appData.expenses.reduce((s, e) => s + e.amount, 0);
+                const totalPending = appData.payments.filter(p => p.status === "Pending").reduce((s, p) => s + p.pendingAmount, 0);
+                const message = `🚩 *भव्य मंदिर निर्माण समिति* 🚩\n\n📊 *मासिक रिपोर्ट - ${monthNames[new Date().getMonth()]} ${new Date().getFullYear()}*\n\n💰 *कुल आय:* ₹${totalIncome}\n📉 *कुल व्यय:* ₹${totalExpense}\n✅ *शेष बचत:* ₹${totalIncome - totalExpense}\n⚠️ *कुल बकाया:* ₹${totalPending}\n\n🙏 *जय श्री राम* 🙏`;
+                window.open(`https://wa.me/91${president.mobile}?text=${encodeURIComponent(message)}`, '_blank');
+            } else {
+                alert("❌ अध्यक्ष का मोबाइल नंबर नहीं मिला! कृपया समिति सदस्य में अध्यक्ष जोड़ें।");
+            }
+        }
+        
+        // ==================== COMMITTEE ====================
+        function renderCommittee() {
+            const currentYearComm = appData.settings.currentCommitteeYear || "2025-26";
+            const html = `
+                <div class="card">
+                    <h3>🏛️ समिति सदस्य - वर्ष ${currentYearComm}</h3>
+                    ${hasPermission("manage_committee") ? `
+                        <button class="btn btn-primary" onclick="showAddCommitteeMemberModal()" style="margin-top: 10px;"><i class="fas fa-plus"></i> समिति सदस्य जोड़ें</button>
+                        <button class="btn btn-outline" onclick="showNewCommitteeModal()" style="margin-top: 10px; margin-left: 10px;"><i class="fas fa-calendar-alt"></i> नई समिति (नया सत्र)</button>
+                    ` : ''}
+                </div>
+                <div class="stats-grid">
+                    ${appData.committeeMembers.filter(m => m.year === currentYearComm).map(member => `
+                        <div class="card" style="text-align: center;">
+                            <div class="member-photo" style="margin: 0 auto 10px; width: 70px; height: 70px; font-size: 28px;">
+                                ${member.photo ? `<img src="${member.photo}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">` : member.name.charAt(0)}
+                            </div>
+                            <h4>${member.name}</h4>
+                            <p style="font-size: 13px; color: var(--primary);">${member.position}</p>
+                            <p style="font-size: 12px;">📱 ${member.mobile}</p>
+                            ${hasPermission("manage_committee") ? `
+                                <div style="display: flex; gap: 8px; margin-top: 12px;">
+                                    <button class="btn btn-warning" onclick="editCommitteeMember(${member.id})" style="flex: 1; padding: 6px;">संपादित करें</button>
+                                    <button class="btn btn-danger" onclick="deleteCommitteeMember(${member.id})" style="flex: 1; padding: 6px;">हटाएं</button>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            document.getElementById("pageContent").innerHTML = html;
+        }
+        
+        function showAddCommitteeMemberModal() {
+            const modalBody = document.getElementById("modalBody");
+            modalBody.innerHTML = `<h3>➕ समिति सदस्य जोड़ें</h3>
+                <div class="form-group"><label>नाम</label><input type="text" id="memberName"></div>
+                <div class="form-group"><label>पद</label><input type="text" id="position" placeholder="अध्यक्ष, सचिव, कोषाध्यक्ष"></div>
+                <div class="form-group"><label>मोबाइल</label><input type="tel" id="mobile"></div>
+                <div class="form-group"><label>फोटो</label><input type="file" id="photoInput" accept="image/*"></div>
+                <div id="photoPreview"></div>`;
+            
+            document.getElementById("photoInput")?.addEventListener("change", (e) => {
+                const file = e.target.files[0];
+                if(file) {
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        document.getElementById("photoPreview").innerHTML = `<img src="${ev.target.result}" style="width:80px;height:80px;border-radius:50%;margin-top:10px;">`;
+                        window.tempPhoto = ev.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            document.getElementById("modalConfirmBtn").onclick = () => {
+                if(!document.getElementById("memberName").value) { alert("❌ नाम जरूरी है!"); return; }
+                appData.committeeMembers.push({
+                    id: Date.now(),
+                    name: document.getElementById("memberName").value,
+                    position: document.getElementById("position").value,
+                    mobile: document.getElementById("mobile").value,
+                    year: appData.settings.currentCommitteeYear || "2025-26",
+                    photo: window.tempPhoto || ""
+                });
+                saveData();
+                closeModal();
+                renderCommittee();
+                showToast("✅ समिति सदस्य जुड़ गया!");
+                window.tempPhoto = null;
+            };
+            document.getElementById("modal").style.display = "flex";
+        }
+        
+        function editCommitteeMember(id) {
+            const member = appData.committeeMembers.find(m => m.id === id);
+            if(!member) return;
+            const modalBody = document.getElementById("modalBody");
+            modalBody.innerHTML = `<h3>✏️ समिति सदस्य संपादित करें</h3>
+                <div class="form-group"><label>नाम</label><input type="text" id="memberName" value="${member.name}"></div>
+                <div class="form-group"><label>पद</label><input type="text" id="position" value="${member.position}"></div>
+                <div class="form-group"><label>मोबाइल</label><input type="tel" id="mobile" value="${member.mobile}"></div>
+                <div class="form-group"><label>फोटो</label><input type="file" id="photoInput" accept="image/*"></div>
+                <div id="photoPreview">${member.photo ? `<img src="${member.photo}" style="width:80px;height:80px;border-radius:50%;margin-top:10px;">` : ''}</div>`;
+            
+            document.getElementById("photoInput")?.addEventListener("change", (e) => {
+                const file = e.target.files[0];
+                if(file) {
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        document.getElementById("photoPreview").innerHTML = `<img src="${ev.target.result}" style="width:80px;height:80px;border-radius:50%;margin-top:10px;">`;
+                        window.tempPhoto = ev.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            document.getElementById("modalConfirmBtn").onclick = () => {
+                member.name = document.getElementById("memberName").value;
+                member.position = document.getElementById("position").value;
+                member.mobile = document.getElementById("mobile").value;
+                if(window.tempPhoto) member.photo = window.tempPhoto;
+                saveData();
+                closeModal();
+                renderCommittee();
+                showToast("✅ समिति सदस्य अपडेट हुआ!");
+                window.tempPhoto = null;
+            };
+            document.getElementById("modal").style.display = "flex";
+        }
+        
+        function deleteCommitteeMember(id) {
+            if(confirm("⚠️ क्या आप सच में इस समिति सदस्य को हटाना चाहते हैं?")) {
+                appData.committeeMembers = appData.committeeMembers.filter(m => m.id !== id);
+                saveData();
+                renderCommittee();
+                showToast("✅ समिति सदस्य हटा दिया गया!");
+            }
+        }
+        
+        function showNewCommitteeModal() {
+            const modalBody = document.getElementById("modalBody");
+            modalBody.innerHTML = `<h3>🏛️ नई समिति (नया सत्र)</h3>
+                <div class="form-group"><label>वर्ष (जैसे: 2026-27)</label><input type="text" id="newYear" placeholder="2026-27"></div>
+                <p style="font-size: 13px; color: #666; margin-top: 10px;">⚠️ नई समिति बनाने पर पुरानी समिति के सदस्य archive हो जाएंगे।</p>`;
+            document.getElementById("modalConfirmBtn").onclick = () => {
+                const newYear = document.getElementById("newYear").value;
+                if(newYear) {
+                    appData.settings.currentCommitteeYear = newYear;
+                    saveData();
+                    closeModal();
+                    renderCommittee();
+                    showToast(`✅ नई समिति वर्ष ${newYear} सफलतापूर्वक बन गई!`);
+                } else {
+                    alert("❌ कृपया वर्ष डालें!");
+                }
+            };
+            document.getElementById("modal").style.display = "flex";
+        }
+        
         // ==================== EXPENSES ====================
         function renderExpenses() {
-            const html = `<div style="margin-bottom:16px;">${hasPermission("add") ? `<button class="btn btn-primary" onclick="showAddExpenseModal()"><i class="fas fa-plus"></i> खर्च जोड़ें</button>` : ''}</div>
-                <div class="card"><div class="table-container"><table><thead><tr><th>श्रेणी</th><th>राशि</th><th>विवरण</th><th>तारीख</th><th>कार्य</th></tr></thead>
-                <tbody>${appData.expenses.map(e => `<tr class="${e.amount > 0 ? 'pending-row' : ''}"><td class="${e.amount > 0 ? 'pending-row' : ''}">${e.category}<td class="${e.amount > 0 ? 'pending-row' : ''}">₹${e.amount}<td class="${e.amount > 0 ? 'pending-row' : ''}">${e.description}<td class="${e.amount > 0 ? 'pending-row' : ''}">${e.date}<td class="${e.amount > 0 ? 'pending-row' : ''}">${hasPermission("delete") ? `<button class="btn btn-danger" onclick="deleteExpense(${e.id})">हटाएं</button>` : ''}`).join('')}</tbody>}</div></div>`;
+            const html = `
+                <div style="margin-bottom: 20px; display: flex; gap: 12px; flex-wrap: wrap;">
+                    ${hasPermission("manage_expenses") ? `<button class="btn btn-primary" onclick="showAddExpenseModal()"><i class="fas fa-plus"></i> खर्च जोड़ें</button>` : ''}
+                    <select id="expenseYear" style="width: auto; padding: 10px;">${years.map(y => `<option value="${y}" ${y === currentYear ? 'selected' : ''}>${y}</option>`).join('')}</select>
+                </div>
+                <div class="stats-grid">
+                    <div class="card"><div class="card-title">${currentYear} में कुल खर्च</div><div class="card-value" style="color: var(--danger);">₹${appData.expenses.filter(e => e.year === currentYear).reduce((s,e) => s + e.amount, 0).toLocaleString()}</div></div>
+                </div>
+                <div class="card">
+                    <div class="table-container">
+                        <table style="font-size: 13px;">
+                            <thead><tr><th>श्रेणी</th><th>महीना</th><th>राशि</th><th>विवरण</th><th>तारीख</th><th>जोड़ा</th><th>कार्य</th></tr></thead>
+                            <tbody>${appData.expenses.filter(e => e.year === currentYear).map(e => `
+                                <tr class="${e.amount > 0 ? 'pending-row' : ''}">
+                                    <td class="${e.amount > 0 ? 'pending-row' : ''}">${e.category}</td>
+                                    <td class="${e.amount > 0 ? 'pending-row' : ''}">${e.month} ${e.year}</td>
+                                    <td class="${e.amount > 0 ? 'pending-row' : ''}" style="color: var(--danger);">₹${e.amount}</td>
+                                    <td class="${e.amount > 0 ? 'pending-row' : ''}">${e.description}</td>
+                                    <td class="${e.amount > 0 ? 'pending-row' : ''}">${e.date}</td>
+                                    <td class="${e.amount > 0 ? 'pending-row' : ''}">${e.addedByName || '-'}</td>
+                                    <td class="${e.amount > 0 ? 'pending-row' : ''}">${hasPermission("manage_expenses") ? `<button class="btn btn-danger" onclick="deleteExpense(${e.id})" style="padding: 5px 12px;">हटाएं</button>` : ''}</td>
+                                </tr>
+                            `).join('')}</tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
             document.getElementById("pageContent").innerHTML = html;
+            document.getElementById("expenseYear")?.addEventListener("change", (e) => { currentYear = parseInt(e.target.value); renderExpenses(); });
         }
         
         function showAddExpenseModal() {
@@ -812,6 +1423,7 @@
                 <div class="form-group"><label>राशि (₹)</label><input type="number" id="amount"></div>
                 <div class="form-group"><label>विवरण</label><textarea id="description" rows="2"></textarea></div>
                 <div class="form-group"><label>तारीख</label><input type="date" id="expenseDate" value="${new Date().toISOString().split('T')[0]}"></div>`;
+            
             document.getElementById("modalConfirmBtn").onclick = () => {
                 if(!document.getElementById("amount").value) { alert("❌ राशि जरूरी है!"); return; }
                 let category = document.getElementById("categorySelect").value;
@@ -820,17 +1432,21 @@
                     if(!customCat) { alert("❌ कृपया Custom श्रेणी का नाम डालें!"); return; }
                     category = customCat;
                 }
-                appData.expenses.push({ 
-                    id: Date.now(), 
-                    category: category, 
-                    amount: parseFloat(document.getElementById("amount").value), 
-                    description: document.getElementById("description").value, 
-                    date: document.getElementById("expenseDate").value, 
-                    year: new Date(document.getElementById("expenseDate").value).getFullYear(), 
-                    month: monthNames[new Date(document.getElementById("expenseDate").value).getMonth()], 
-                    addedBy: currentUser.username 
+                appData.expenses.push({
+                    id: Date.now(),
+                    category: category,
+                    amount: parseFloat(document.getElementById("amount").value),
+                    description: document.getElementById("description").value,
+                    date: document.getElementById("expenseDate").value,
+                    year: new Date(document.getElementById("expenseDate").value).getFullYear(),
+                    month: monthNames[new Date(document.getElementById("expenseDate").value).getMonth()],
+                    addedBy: currentUser.username,
+                    addedByName: currentUser.name
                 });
-                saveData(); closeModal(); renderExpenses(); showToast("✅ खर्च जुड़ गया!");
+                saveData();
+                closeModal();
+                renderExpenses();
+                showToast("✅ खर्च सफलतापूर्वक जुड़ गया!");
             };
             document.getElementById("modal").style.display = "flex";
         }
@@ -846,20 +1462,130 @@
         }
         
         function deleteExpense(id) {
-            if(confirm("खर्च हटाएं?")) { appData.expenses = appData.expenses.filter(e => e.id !== id); saveData(); renderExpenses(); showToast("✅ खर्च हट गया!"); }
+            if(confirm("⚠️ क्या आप सच में यह खर्च हटाना चाहते हैं?")) {
+                appData.expenses = appData.expenses.filter(e => e.id !== id);
+                saveData();
+                renderExpenses();
+                showToast("✅ खर्च हटा दिया गया!");
+            }
         }
         
-        // ==================== USERS MANAGEMENT ====================
+        // ==================== SOCIAL MEDIA ====================
+        function renderSocial() {
+            const html = `
+                <div class="card">
+                    <h3>🌐 हमसे जुड़ें</h3>
+                    <div class="social-links">
+                        <div class="social-icon social-wa" onclick="openLink('${appData.settings.whatsappLink}')"><i class="fab fa-whatsapp"></i></div>
+                        <div class="social-icon social-tg" onclick="openLink('${appData.settings.telegramLink}')"><i class="fab fa-telegram"></i></div>
+                        <div class="social-icon social-fb" onclick="openLink('${appData.settings.facebookLink}')"><i class="fab fa-facebook-f"></i></div>
+                        <div class="social-icon social-ig" onclick="openLink('${appData.settings.instagramLink}')"><i class="fab fa-instagram"></i></div>
+                        <div class="social-icon social-yt" onclick="openLink('${appData.settings.youtubeLink}')"><i class="fab fa-youtube"></i></div>
+                    </div>
+                    ${hasPermission("manage_social") ? `
+                        <hr style="margin: 20px 0;">
+                        <h4>⚙️ सोशल मीडिया लिंक एडिट करें</h4>
+                        <div class="form-group"><label>WhatsApp Group Link</label><input type="text" id="waLink" value="${appData.settings.whatsappLink}" placeholder="WhatsApp Group Invite Link"></div>
+                        <div class="form-group"><label>Telegram Channel Link</label><input type="text" id="tgLink" value="${appData.settings.telegramLink}" placeholder="Telegram Channel Link"></div>
+                        <div class="form-group"><label>Facebook Page Link</label><input type="text" id="fbLink" value="${appData.settings.facebookLink}" placeholder="Facebook Page URL"></div>
+                        <div class="form-group"><label>Instagram Page Link</label><input type="text" id="igLink" value="${appData.settings.instagramLink}" placeholder="Instagram Profile URL"></div>
+                        <div class="form-group"><label>YouTube Channel Link</label><input type="text" id="ytLink" value="${appData.settings.youtubeLink}" placeholder="YouTube Channel URL"></div>
+                        <button class="btn btn-primary" onclick="saveSocialLinks()"><i class="fas fa-save"></i> लिंक सेव करें</button>
+                    ` : ''}
+                    <hr style="margin: 20px 0;">
+                    <h4>📢 समिति के ग्रुप में जुड़ें</h4>
+                    <button class="btn btn-success" onclick="joinWhatsAppGroup()"><i class="fab fa-whatsapp"></i> WhatsApp Group जॉइन करें</button>
+                    <button class="btn btn-info" onclick="joinTelegramChannel()" style="background: #0088cc; color: white; margin-left: 10px;"><i class="fab fa-telegram"></i> Telegram जॉइन करें</button>
+                </div>
+            `;
+            document.getElementById("pageContent").innerHTML = html;
+        }
+        
+        function openLink(url) { if(url && url !== "#" && url !== "") window.open(url, '_blank'); else alert("⚠️ लिंक सेट नहीं है! कृपया एडमिन से संपर्क करें।"); }
+        function joinWhatsAppGroup() { openLink(appData.settings.whatsappLink); }
+        function joinTelegramChannel() { openLink(appData.settings.telegramLink); }
+        
+        function saveSocialLinks() {
+            appData.settings.whatsappLink = document.getElementById("waLink").value;
+            appData.settings.telegramLink = document.getElementById("tgLink").value;
+            appData.settings.facebookLink = document.getElementById("fbLink").value;
+            appData.settings.instagramLink = document.getElementById("igLink").value;
+            appData.settings.youtubeLink = document.getElementById("ytLink").value;
+            saveData();
+            showToast("✅ सोशल मीडिया लिंक सेव हो गए!");
+        }
+        
+        // ==================== ABOUT ====================
+        function renderAbout() {
+            const html = `
+                <div class="card">
+                    <h3>ℹ️ समिति के बारे में</h3>
+                    <div class="about-section">
+                        <p>${appData.settings.aboutText}</p>
+                        <hr style="margin: 20px 0;">
+                        <h4>📞 संपर्क सूत्र</h4>
+                        <p><strong>🏛️ अध्यक्ष:</strong> ${appData.settings.presidentName}</p>
+                        <p><strong>📝 सचिव:</strong> ${appData.settings.secretaryName}</p>
+                        <p><strong>💸 UPI ID:</strong> ${appData.settings.upiId}</p>
+                        <p><strong>📧 Email:</strong> bhavyamandir@gmail.com</p>
+                        <hr style="margin: 20px 0;">
+                        <h4>📊 Google Sheet लिंक</h4>
+                        <p><a href="${appData.settings.googleSheetLink}" target="_blank" style="color: var(--primary);">${appData.settings.googleSheetLink}</a></p>
+                        ${hasPermission("manage_settings") ? `
+                            <hr style="margin: 20px 0;">
+                            <h4>✏️ समिति की जानकारी एडिट करें</h4>
+                            <div class="form-group"><label>समिति के बारे में</label><textarea id="aboutText" rows="5">${appData.settings.aboutText}</textarea></div>
+                            <div class="form-group"><label>Google Sheet Link</label><input type="text" id="sheetLink" value="${appData.settings.googleSheetLink}"></div>
+                            <button class="btn btn-primary" onclick="saveAboutText()"><i class="fas fa-save"></i> जानकारी सेव करें</button>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+            document.getElementById("pageContent").innerHTML = html;
+        }
+        
+        function saveAboutText() {
+            appData.settings.aboutText = document.getElementById("aboutText").value;
+            appData.settings.googleSheetLink = document.getElementById("sheetLink").value;
+            saveData();
+            showToast("✅ जानकारी सेव हो गई!");
+        }
+        
+        // ==================== USERS ====================
         function renderUsers() {
-            if (currentUser?.role !== "super_admin" && currentUser?.role !== "admin") {
-                document.getElementById("pageContent").innerHTML = "<div class='card'><h3>🔒 Access Denied</h3><p>केवल एडमिन ही यूजर देख सकते हैं।</p></div>";
+            if (!hasPermission("manage_users")) {
+                document.getElementById("pageContent").innerHTML = "<div class='card'><h3>🔒 Access Denied</h3><p>केवल एडमिन ही यूजर प्रबंधन कर सकते हैं।</p></div>";
                 return;
             }
-            const html = `<div style="margin-bottom:16px;"><button class="btn btn-primary" onclick="showAddUserModal()"><i class="fas fa-user-plus"></i> यूजर जोड़ें</button></div>
-                <div class="card"><div class="table-container"><table><thead><tr><th>यूजरनेम</th><th>नाम</th><th>रोल</th><th>कार्य</th></tr></thead>
-                <tbody>${USERS.map(u => `<tr><td class="${u.role === 'operator' ? 'pending-row' : ''}">${u.username}<td class="${u.role === 'operator' ? 'pending-row' : ''}">${u.name}<td class="${u.role === 'operator' ? 'pending-row' : ''}"><span class="badge ${u.role === 'super_admin' ? 'badge-paid' : 'badge-pending'}">${u.role === 'super_admin' ? 'सुपर एडमिन' : (u.role === 'admin' ? 'एडमिन' : 'ऑपरेटर')}</span><td class="action-btns"><button class="btn btn-warning" onclick="resetUserPassword(${u.id})">पासवर्ड रीसेट</button>
-                ${u.username !== 'superadmin' ? `<button class="btn btn-danger" onclick="deleteUser(${u.id})">हटाएं</button>` : ''}
-                ${u.role === 'operator' && currentUser?.role === 'super_admin' ? `<button class="btn btn-primary" onclick="makeAdmin(${u.id})">एडमिन बनाएं</button>` : ''} </td>`).join('')}</tbody>}</div></div>`;
+            const html = `
+                <div style="margin-bottom: 20px;">
+                    <button class="btn btn-primary" onclick="showAddUserModal()"><i class="fas fa-user-plus"></i> नया यूजर जोड़ें</button>
+                </div>
+                <div class="card">
+                    <div class="table-container">
+                        <table style="font-size: 13px;">
+                            <thead><tr><th>यूजरनेम</th><th>नाम</th><th>मोबाइल</th><th>रोल</th><th>अधिकार</th><th>कार्य</th></tr></thead>
+                            <tbody>${USERS.map(u => `
+                                <tr>
+                                    <td>${u.username}</td>
+                                    <td>${u.name}</td>
+                                    <td>${u.mobile}</td>
+                                    <td><span class="badge ${u.role === 'super_admin' ? 'badge-paid' : (u.role === 'admin' ? 'badge-pending' : 'badge-pending')}">
+                                        ${u.role === 'super_admin' ? '🇮🇳 सुपर एडमिन / अध्यक्ष' : (u.role === 'admin' ? '👑 एडमिन / सचिव' : (u.role === 'operator' ? '🔧 ऑपरेटर' : '👁️ दर्शक'))}
+                                    </span></td>
+                                    <td>${u.role === 'operator' ? 'दानदाता जोड़ें, भुगतान करें, मैसेज भेजें' : (u.role === 'admin' ? 'पूरा कंट्रोल (सेटिंग्स, यूजर, सब कुछ)' : (u.role === 'super_admin' ? 'पूरा कंट्रोल' : 'केवल देख सकते हैं'))}</td>
+                                    <td class="action-btns">
+                                        <button class="btn btn-warning" onclick="resetUserPassword(${u.id})" style="padding: 6px 12px;">पासवर्ड रीसेट</button>
+                                        ${u.username !== 'superadmin' ? `<button class="btn btn-danger" onclick="deleteUser(${u.id})" style="padding: 6px 12px;">हटाएं</button>` : ''}
+                                        ${u.role === 'operator' && currentUser?.role === 'super_admin' ? `<button class="btn btn-primary" onclick="makeAdmin(${u.id})" style="padding: 6px 12px;">एडमिन बनाएं</button>` : ''}
+                                        ${u.role === 'admin' && currentUser?.role === 'super_admin' && u.username !== 'admin' ? `<button class="btn btn-warning" onclick="makeOperator(${u.id})" style="padding: 6px 12px;">ऑपरेटर बनाएं</button>` : ''}
+                                    </td>
+                                </tr>
+                            `).join('')}</tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
             document.getElementById("pageContent").innerHTML = html;
         }
         
@@ -868,27 +1594,58 @@
             modalBody.innerHTML = `<h3>➕ नया यूजर जोड़ें</h3>
                 <div class="form-group"><label>यूजरनेम</label><input type="text" id="username"></div>
                 <div class="form-group"><label>नाम</label><input type="text" id="name"></div>
-                <div class="form-group"><label>मोबाइल नंबर</label><input type="tel" id="mobile" placeholder="10 अंक"></div>
+                <div class="form-group"><label>मोबाइल नंबर *</label><input type="tel" id="mobile" placeholder="10 अंकों का मोबाइल नंबर"></div>
                 <div class="form-group"><label>पासवर्ड</label><input type="password" id="password"></div>
-                <div class="form-group"><label>रोल</label><select id="role"><option value="operator">ऑपरेटर</option><option value="admin">एडमिन</option></select></div>`;
+                <div class="form-group"><label>रोल</label><select id="role">
+                    <option value="viewer">👁️ दर्शक (केवल देखें)</option>
+                    <option value="operator">🔧 ऑपरेटर (दानदाता + भुगतान + मैसेज)</option>
+                    <option value="admin">👑 एडमिन (पूरा कंट्रोल)</option>
+                </select></div>
+                <p style="font-size: 12px; color: #666; margin-top: 10px;">⚠️ मोबाइल नंबर पासवर्ड रीसेट के लिए आवश्यक है</p>`;
+            
             document.getElementById("modalConfirmBtn").onclick = () => {
-                if(!document.getElementById("username").value || !document.getElementById("password").value) { alert("❌ यूजरनेम और पासवर्ड जरूरी है!"); return; }
+                if(!document.getElementById("username").value || !document.getElementById("password").value || !document.getElementById("mobile").value) {
+                    alert("❌ यूजरनेम, पासवर्ड और मोबाइल नंबर सभी जरूरी हैं!");
+                    return;
+                }
+                if(document.getElementById("mobile").value.length !== 10) {
+                    alert("❌ मोबाइल नंबर 10 अंकों का होना चाहिए!");
+                    return;
+                }
                 const newId = USERS.length + 1;
-                USERS.push({ id: newId, username: document.getElementById("username").value, name: document.getElementById("name").value, mobile: document.getElementById("mobile").value, password: document.getElementById("password").value, role: document.getElementById("role").value });
-                if (!appData.users) appData.users = [];
-                appData.users.push({ id: newId, username: document.getElementById("username").value, name: document.getElementById("name").value, mobile: document.getElementById("mobile").value, password: document.getElementById("password").value, role: document.getElementById("role").value });
-                saveData(); closeModal(); renderUsers(); showToast("✅ यूजर जुड़ गया!");
+                USERS.push({
+                    id: newId,
+                    username: document.getElementById("username").value,
+                    name: document.getElementById("name").value,
+                    mobile: document.getElementById("mobile").value,
+                    password: document.getElementById("password").value,
+                    role: document.getElementById("role").value
+                });
+                appData.users.push({
+                    id: newId,
+                    username: document.getElementById("username").value,
+                    name: document.getElementById("name").value,
+                    mobile: document.getElementById("mobile").value,
+                    password: document.getElementById("password").value,
+                    role: document.getElementById("role").value
+                });
+                saveData();
+                closeModal();
+                renderUsers();
+                showToast("✅ नया यूजर सफलतापूर्वक जुड़ गया!");
             };
             document.getElementById("modal").style.display = "flex";
         }
         
         function deleteUser(userId) {
-            if(confirm("यूजर हटाएं?")) { 
+            if(confirm("⚠️ क्या आप सच में इस यूजर को हटाना चाहते हैं?")) {
                 const index = USERS.findIndex(u => u.id === userId);
                 if (index !== -1 && USERS[index].username !== 'superadmin') {
                     USERS.splice(index, 1);
-                    if (appData.users) appData.users = appData.users.filter(u => u.id !== userId);
-                    saveData(); renderUsers(); showToast("✅ यूजर हट गया!");
+                    appData.users = appData.users.filter(u => u.id !== userId);
+                    saveData();
+                    renderUsers();
+                    showToast("✅ यूजर हटा दिया गया!");
                 } else {
                     alert("❌ सुपर एडमिन को नहीं हटा सकते!");
                 }
@@ -898,13 +1655,29 @@
         function makeAdmin(userId) {
             if(confirm("इस ऑपरेटर को एडमिन बनाएं?")) {
                 const user = USERS.find(u => u.id === userId);
-                if(user && user.role === "operator") { 
-                    user.role = "admin"; 
-                    if (appData.users) {
-                        const appUser = appData.users.find(u => u.id === userId);
-                        if (appUser) appUser.role = "admin";
-                    }
-                    saveData(); renderUsers(); showToast("✅ अब यह एडमिन है!"); 
+                if(user && user.role === "operator") {
+                    user.role = "admin";
+                    const appUser = appData.users.find(u => u.id === userId);
+                    if (appUser) appUser.role = "admin";
+                    saveData();
+                    renderUsers();
+                    showToast("✅ अब यह यूजर एडमिन है!");
+                }
+            }
+        }
+        
+        function makeOperator(userId) {
+            if(confirm("इस एडमिन को ऑपरेटर बनाएं?")) {
+                const user = USERS.find(u => u.id === userId);
+                if(user && user.role === "admin" && user.username !== 'admin') {
+                    user.role = "operator";
+                    const appUser = appData.users.find(u => u.id === userId);
+                    if (appUser) appUser.role = "operator";
+                    saveData();
+                    renderUsers();
+                    showToast("✅ अब यह यूजर ऑपरेटर है!");
+                } else {
+                    alert("❌ डिफॉल्ट एडमिन को नहीं बदला जा सकता!");
                 }
             }
         }
@@ -915,20 +1688,31 @@
                 document.getElementById("pageContent").innerHTML = "<div class='card'><h3>🔒 Access Denied</h3><p>केवल एडमिन ही सेटिंग्स बदल सकते हैं।</p></div>";
                 return;
             }
-            const html = `<div class="card"><h3>⚙️ सेटिंग्स</h3>
-                <div class="form-group"><label>समिति का नाम</label><input type="text" id="committeeName" value="${appData.settings.committeeName}"></div>
-                <div class="form-group"><label>बैनर</label><input type="text" id="committeeBanner" value="${appData.settings.committeeBanner}"></div>
-                <div class="form-group"><label>UPI ID</label><input type="text" id="upiId" value="${appData.settings.upiId}"></div>
-                <div class="form-group"><label>अध्यक्ष का नाम</label><input type="text" id="presidentName" value="${appData.settings.presidentName}"></div>
-                <div class="form-group"><label>सचिव का नाम</label><input type="text" id="secretaryName" value="${appData.settings.secretaryName}"></div>
-                <div class="form-group"><label>डिफॉल्ट मासिक राशि</label><input type="number" id="defaultMonthlyAmount" value="${appData.settings.defaultMonthlyAmount}"></div>
-                <button class="btn btn-primary" onclick="saveSettings()"><i class="fas fa-save"></i> सेव करें</button></div>
-                <div class="card" style="margin-top:16px;"><h3>🖼️ लोगो बदलें</h3><input type="file" id="logoInput" accept="image/*"><div id="logoPreview"></div>
-                <button class="btn btn-primary" onclick="changeLogo()">लोगो अपलोड करें</button></div>
-                <div class="card" style="margin-top:16px;"><h3>🔄 डेटा मैनेजमेंट</h3>
-                <button class="btn btn-success" onclick="downloadBackup()"><i class="fas fa-download"></i> बैकअप डाउनलोड</button>
-                <button class="btn btn-danger" onclick="resetAllData()"><i class="fas fa-trash"></i> सभी डेटा रीसेट</button></div>`;
+            const html = `
+                <div class="card">
+                    <h3>⚙️ समिति सेटिंग्स</h3>
+                    <div class="form-group"><label>समिति का नाम</label><input type="text" id="committeeName" value="${appData.settings.committeeName}"></div>
+                    <div class="form-group"><label>समिति का बैनर/टैगलाइन</label><input type="text" id="committeeBanner" value="${appData.settings.committeeBanner}"></div>
+                    <div class="form-group"><label>UPI ID</label><input type="text" id="upiId" value="${appData.settings.upiId}"></div>
+                    <div class="form-group"><label>अध्यक्ष का नाम</label><input type="text" id="presidentName" value="${appData.settings.presidentName}"></div>
+                    <div class="form-group"><label>सचिव का नाम</label><input type="text" id="secretaryName" value="${appData.settings.secretaryName}"></div>
+                    <div class="form-group"><label>डिफॉल्ट मासिक राशि (नए दानदाता के लिए)</label><input type="number" id="defaultMonthlyAmount" value="${appData.settings.defaultMonthlyAmount}"></div>
+                    <button class="btn btn-primary" onclick="saveSettings()"><i class="fas fa-save"></i> सेटिंग्स सेव करें</button>
+                </div>
+                <div class="card" style="margin-top: 20px;">
+                    <h3>🖼️ समिति का लोगो बदलें</h3>
+                    <input type="file" id="logoInput" accept="image/*">
+                    <div id="logoPreview" style="margin-top: 10px;">${appData.settings.logo ? `<img src="${appData.settings.logo}" style="width: 80px; height: 80px; border-radius: 50%;">` : ''}</div>
+                    <button class="btn btn-primary" onclick="changeLogo()" style="margin-top: 10px;">लोगो अपलोड करें</button>
+                </div>
+                <div class="card" style="margin-top: 20px;">
+                    <h3>🔄 डेटा प्रबंधन</h3>
+                    <button class="btn btn-success" onclick="downloadBackup()"><i class="fas fa-download"></i> बैकअप डाउनलोड करें</button>
+                    <button class="btn btn-danger" onclick="resetAllData()" style="margin-left: 10px;"><i class="fas fa-trash"></i> सभी डेटा रीसेट करें</button>
+                </div>
+            `;
             document.getElementById("pageContent").innerHTML = html;
+            if(appData.settings.logo) document.getElementById("logoPreview").innerHTML = `<img src="${appData.settings.logo}" style="width: 80px; height: 80px; border-radius: 50%; margin-top: 10px;">`;
         }
         
         function saveSettings() {
@@ -940,33 +1724,51 @@
             appData.settings.defaultMonthlyAmount = parseInt(document.getElementById("defaultMonthlyAmount").value);
             document.getElementById("committeeName").innerText = appData.settings.committeeName;
             document.getElementById("committeeBanner").innerText = appData.settings.committeeBanner;
-            saveData(); showToast("✅ सेटिंग्स सेव हो गई!");
+            saveData();
+            showToast("✅ सेटिंग्स सफलतापूर्वक सेव हो गई!");
         }
         
         function changeLogo() {
             const input = document.getElementById("logoInput");
             if(input && input.files[0]) {
                 const reader = new FileReader();
-                reader.onload = (ev) => { 
-                    appData.settings.logo = ev.target.result; 
-                    saveData(); 
-                    document.getElementById("templeLogo").innerHTML = `<img src="${ev.target.result}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`; 
-                    showToast("✅ लोगो बदल गया!"); 
+                reader.onload = (ev) => {
+                    appData.settings.logo = ev.target.result;
+                    saveData();
+                    document.getElementById("templeLogo").innerHTML = `<img src="${ev.target.result}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+                    showToast("✅ लोगो सफलतापूर्वक बदल गया!");
                 };
                 reader.readAsDataURL(input.files[0]);
-            } else { alert("❌ कृपया पहले फोटो select करें!"); }
+            } else {
+                alert("❌ कृपया पहले फोटो select करें!");
+            }
         }
         
         function downloadBackup() {
-            const backup = { members: appData.members, payments: appData.payments, expenses: appData.expenses, settings: appData.settings };
+            const backup = {
+                members: appData.members,
+                payments: appData.payments,
+                expenses: appData.expenses,
+                settings: appData.settings,
+                committeeMembers: appData.committeeMembers,
+                users: USERS.map(u => ({ ...u, password: undefined })),
+                backupDate: new Date().toISOString()
+            };
             const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
             const url = URL.createObjectURL(blob);
-            const a = document.createElement('a'); a.href = url; a.download = `temple_backup_${new Date().toISOString().split('T')[0]}.json`; a.click(); URL.revokeObjectURL(url);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `temple_backup_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
             showToast("✅ बैकअप डाउनलोड हो गया!");
         }
         
         function resetAllData() {
-            if(confirm("⚠️ सभी डेटा डिलीट हो जाएगा!")) { localStorage.removeItem("templeAppData"); location.reload(); }
+            if(confirm("⚠️ चेतावनी: इससे सारा डेटा डिलीट हो जाएगा! क्या आप सच में रीसेट करना चाहते हैं?")) {
+                localStorage.removeItem("templeAppData");
+                location.reload();
+            }
         }
         
         // ==================== HELPERS ====================
@@ -989,11 +1791,29 @@
                 case "members": renderMembers(); break;
                 case "payments": renderPayments(); break;
                 case "pending": renderPending(); break;
+                case "incomeExpense": renderIncomeExpense(); break;
+                case "committee": renderCommittee(); break;
                 case "expenses": renderExpenses(); break;
+                case "social": renderSocial(); break;
+                case "about": renderAbout(); break;
                 case "users": renderUsers(); break;
                 case "settings": renderSettings(); break;
                 default: renderDashboard();
             }
+        }
+        
+        function toggleLanguage() { 
+            currentLang = currentLang === "hi" ? "en" : "hi";
+            document.querySelector(".lang-btn").innerHTML = currentLang === "hi" ? "🌐 हिंदी" : "🌐 English";
+            renderCurrentPage();
+            updateNavTexts();
+        }
+        
+        function updateNavTexts() {
+            const tabs = ["dashboard", "members", "payments", "pending", "incomeExpense", "committee", "expenses", "social", "about", "users", "settings"];
+            document.querySelectorAll(".nav-tab").forEach((tab, i) => {
+                if(tabs[i]) tab.innerHTML = tab.innerHTML.replace(/[^<]*/, t(tabs[i]));
+            });
         }
         
         function toggleDarkMode() { document.body.classList.toggle('dark'); appData.settings.darkMode = document.body.classList.contains('dark'); saveData(); }
