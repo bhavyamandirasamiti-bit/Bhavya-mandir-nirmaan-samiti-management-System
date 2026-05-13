@@ -71,7 +71,6 @@
         .badge-super-admin { background: #dc2626; color: white; }
         .badge-admin { background: #f59e0b; color: white; }
         .badge-operator { background: #3b82f6; color: white; }
-        .badge-viewer { background: #6b7280; color: white; }
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 16px; margin-bottom: 24px; }
         .card {
             background: var(--light-surface); border-radius: 20px; padding: 20px;
@@ -172,7 +171,7 @@
             
             <div class="form-group">
                 <label>यूजरनेम / Username</label>
-                <input type="text" id="loginUsername" placeholder="superadmin / admin / operator">
+                <input type="text" id="loginUsername" placeholder="admin / superadmin / operator">
             </div>
             <div class="form-group">
                 <label>पासवर्ड / Password</label>
@@ -222,7 +221,11 @@
     <div class="modal" id="modal"><div class="modal-content"><div id="modalBody"></div><div style="margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;"><button class="btn btn-outline" onclick="closeModal()">रद्द करें</button><button class="btn btn-primary" id="modalConfirmBtn">पुष्टि करें</button></div></div></div>
 
     <script>
-        // ==================== DATA ====================
+        // ==================== USERS WITH CORRECT PASSWORDS ====================
+        // ✅ admin / ramram123
+        // ✅ superadmin / Bhavya@2026  
+        // ✅ operator / Seva@2026
+        
         let currentUser = null;
         let currentTab = "dashboard";
         let currentYear = new Date().getFullYear();
@@ -249,12 +252,13 @@
             ],
             users: [
                 { id: 1, username: "superadmin", password: "Bhavya@2026", role: "super_admin", name: "राजेंद्र यादव", mobile: "9876543210" },
-                { id: 2, username: "admin", password: "Mandir@2026", role: "admin", name: "अरविंद सिंह यादव", mobile: "9876543211" },
+                { id: 2, username: "admin", password: "ramram123", role: "admin", name: "अरविंद सिंह यादव", mobile: "9876543211" },
                 { id: 3, username: "operator", password: "Seva@2026", role: "operator", name: "ऑपरेटर", mobile: "9876543212" }
             ]
         };
         
         const monthNames = ["जनवरी", "फरवरी", "मार्च", "अप्रैल", "मई", "जून", "जुलाई", "अगस्त", "सितंबर", "अक्टूबर", "नवंबर", "दिसंबर"];
+        const expenseCategories = ["निर्माण", "उत्सव", "बिजली", "सजावट", "वेतन", "Custom"];
         
         // ==================== INIT ====================
         function init() {
@@ -328,7 +332,7 @@
                 renderCurrentPage();
                 showToast("✅ लॉगिन सफल! स्वागत है " + user.name);
             } else {
-                alert("❌ गलत यूजरनेम या पासवर्ड!");
+                alert("❌ गलत यूजरनेम या पासवर्ड!\n\n✅ सही लॉगिन जानकारी:\n\n🔑 admin / ramram123\n🔑 superadmin / Bhavya@2026\n🔑 operator / Seva@2026");
             }
         }
         
@@ -475,7 +479,7 @@
                 </div>
                 <div class="card"><h4>📊 मासिक आय चार्ट</h4><canvas id="incomeChart" style="max-height: 250px;"></canvas></div>
                 <div class="card"><h4>📋 हाल के भुगतान</h4><div class="table-container"><table><thead><tr><th>दानदाता</th><th>महीना</th><th>राशि</th><th>तारीख</th><th>जमा कर्ता</th></tr></thead>
-                <tbody>${appData.payments.filter(p => p.status === "Paid").slice(-5).reverse().map(p => `<tr><td class="${p.status === 'Pending' ? 'pending-row' : ''}">${p.memberName}<td class="${p.status === 'Pending' ? 'pending-row' : ''}">${p.month} ${p.year}<td class="${p.status === 'Pending' ? 'pending-row' : ''}">₹${p.amountPaid}<td class="${p.status === 'Pending' ? 'pending-row' : ''}">${p.paymentDate || '-'}<td class="${p.status === 'Pending' ? 'pending-row' : ''}">${p.addedBy || '-'}</td>`).join('')}</tbody></tr></div></div>`;
+                <tbody>${appData.payments.filter(p => p.status === "Paid").slice(-5).reverse().map(p => `<tr><td class="${p.status === 'Pending' ? 'pending-row' : ''}">${p.memberName}<td class="${p.status === 'Pending' ? 'pending-row' : ''}">${p.month} ${p.year}<td class="${p.status === 'Pending' ? 'pending-row' : ''}">₹${p.amountPaid}<td class="${p.status === 'Pending' ? 'pending-row' : ''}">${p.paymentDate || '-'}<td class="${p.status === 'Pending' ? 'pending-row' : ''}">${p.addedBy || '-'}</td>`).join('')}</tbody></table></div></div>`;
             document.getElementById("pageContent").innerHTML = html;
             
             const ctx = document.getElementById('incomeChart')?.getContext('2d');
@@ -502,7 +506,7 @@
             return filtered.map(member => {
                 const pendingAmount = appData.payments.filter(p => p.memberId === member.id && p.status === "Pending").reduce((s,p) => s + p.pendingAmount, 0);
                 const hasPending = pendingAmount > 0;
-                return `<tr class="${hasPending ? 'pending-row' : ''}"><tr><div class="member-photo">${member.photo ? `<img src="${member.photo}">` : member.name.charAt(0)}</div></td>
+                return `<tr class="${hasPending ? 'pending-row' : ''}"><td><div class="member-photo">${member.photo ? `<img src="${member.photo}">` : member.name.charAt(0)}</div></td>
                 <td><strong>${member.name}</strong><br><small>${member.fatherName || ''}</small></td>
                 <td>${member.mobile}${member.village}${member.monthlyAmount}
                 <td>${hasPending ? `<span class="badge badge-pending">बकाया: ₹${pendingAmount}</span>` : `<span class="badge badge-paid">जमा</span>`}</td>
@@ -602,7 +606,7 @@
                 ${hasPermission("add_payment") ? `<button class="btn btn-primary" onclick="showAddPaymentModal()"><i class="fas fa-plus"></i> भुगतान जोड़ें</button>` : ''}
                 <select id="filterStatus" style="width:auto;"><option value="">सभी</option><option value="Pending">बकाया</option><option value="Paid">जमा</option></select>
             </div>
-            <div class="card"><div class="table-container"><table><thead><tr><th>दानदाता</th><th>महीना</th><th>जमा राशि</th><th>बकाया</th><th>स्थिति</th><th>कार्य</th></tr></thead>
+            <div class="card"><div class="table-container"></table><thead><tr><th>दानदाता</th><th>महीना</th><th>जमा राशि</th><th>बकाया</th><th>स्थिति</th><th>कार्य</th></tr></thead>
             <tbody id="paymentsTableBody">${renderPaymentsTable()}</tbody>}</div></div>`;
             document.getElementById("pageContent").innerHTML = html;
             document.getElementById("filterStatus")?.addEventListener("change", () => renderPaymentsTable());
@@ -720,7 +724,7 @@
                             <div><button class="btn btn-success" onclick="collectPayment(${pendingPayments[0].id})">जमा करें</button>
                             <button class="btn btn-primary" onclick="sendWhatsAppReminder(${member.id})"><i class="fab fa-whatsapp"></i> रिमाइंडर</button></div>
                         </div>
-                        <div class="table-container"><table><thead><tr><th>महीना</th><th>बकाया</th><th>कार्य</th></tr></thead>
+                        <div class="table-container"><tr><thead><tr><th>महीना</th><th>बकाया</th><th>कार्य</th></tr></thead>
                         <tbody>${pendingPayments.map(p => `<tr class="pending-row"><td class="pending-row">${p.month} ${p.year}<td class="pending-row">₹${p.pendingAmount}<td class="pending-row"><button class="btn btn-success" onclick="collectPayment(${p.id})">जमा करें</button>`).join('')}</tbody>}</div>
                     </div>`;
                 }).join('')}
@@ -762,10 +766,10 @@
             }
         }
         
-        // ==================== EXPENSES ====================
+        // ==================== EXPENSES WITH CUSTOM CATEGORY ====================
         function renderExpenses() {
             const html = `<div style="margin-bottom:16px;">${hasPermission("add") ? `<button class="btn btn-primary" onclick="showAddExpenseModal()"><i class="fas fa-plus"></i> खर्च जोड़ें</button>` : ''}</div>
-                <div class="card"><div class="table-container"><td><thead><tr><th>श्रेणी</th><th>राशि</th><th>विवरण</th><th>तारीख</th><th>कार्य</th></tr></thead>
+                <div class="card"><div class="table-container"><table><thead><tr><th>श्रेणी</th><th>राशि</th><th>विवरण</th><th>तारीख</th><th>कार्य</th></tr></thead>
                 <tbody>${appData.expenses.map(e => `<tr class="${e.amount > 0 ? 'pending-row' : ''}"><td class="${e.amount > 0 ? 'pending-row' : ''}">${e.category}<td class="${e.amount > 0 ? 'pending-row' : ''}">₹${e.amount}<td class="${e.amount > 0 ? 'pending-row' : ''}">${e.description}<td class="${e.amount > 0 ? 'pending-row' : ''}">${e.date}<td class="${e.amount > 0 ? 'pending-row' : ''}">${hasPermission("delete") ? `<button class="btn btn-danger" onclick="deleteExpense(${e.id})">हटाएं</button>` : ''}`).join('')}</tbody>}</div></div>`;
             document.getElementById("pageContent").innerHTML = html;
         }
@@ -773,14 +777,54 @@
         function showAddExpenseModal() {
             const modalBody = document.getElementById("modalBody");
             modalBody.innerHTML = `<h3>➕ खर्च जोड़ें</h3>
-                <div class="form-group"><label>श्रेणी</label><select id="category"><option>निर्माण</option><option>उत्सव</option><option>बिजली</option><option>सजावट</option><option>वेतन</option><option>अन्य</option></select></div>
+                <div class="form-group"><label>श्रेणी</label>
+                    <select id="categorySelect" onchange="toggleCustomCategory()">
+                        <option value="निर्माण">निर्माण</option>
+                        <option value="उत्सव">उत्सव</option>
+                        <option value="बिजली">बिजली</option>
+                        <option value="सजावट">सजावट</option>
+                        <option value="वेतन">वेतन</option>
+                        <option value="Custom">⚙️ Custom (अपनी श्रेणी)</option>
+                    </select>
+                </div>
+                <div class="form-group" id="customCategoryDiv" style="display:none;">
+                    <label>Custom श्रेणी का नाम</label>
+                    <input type="text" id="customCategory" placeholder="जैसे: प्रसाद, पूजा सामग्री, आदि">
+                </div>
                 <div class="form-group"><label>राशि (₹)</label><input type="number" id="amount"></div>
-                <div class="form-group"><label>विवरण</label><textarea id="description" rows="2"></textarea></div>`;
+                <div class="form-group"><label>विवरण</label><textarea id="description" rows="2"></textarea></div>
+                <div class="form-group"><label>तारीख</label><input type="date" id="expenseDate" value="${new Date().toISOString().split('T')[0]}"></div>`;
             document.getElementById("modalConfirmBtn").onclick = () => {
-                appData.expenses.push({ id: Date.now(), category: document.getElementById("category").value, amount: parseFloat(document.getElementById("amount").value), description: document.getElementById("description").value, date: new Date().toISOString().split('T')[0], year: new Date().getFullYear(), month: monthNames[new Date().getMonth()], addedBy: currentUser.username });
+                if(!document.getElementById("amount").value) { alert("❌ राशि जरूरी है!"); return; }
+                let category = document.getElementById("categorySelect").value;
+                if(category === "Custom") {
+                    const customCat = document.getElementById("customCategory").value;
+                    if(!customCat) { alert("❌ कृपया Custom श्रेणी का नाम डालें!"); return; }
+                    category = customCat;
+                }
+                appData.expenses.push({ 
+                    id: Date.now(), 
+                    category: category, 
+                    amount: parseFloat(document.getElementById("amount").value), 
+                    description: document.getElementById("description").value, 
+                    date: document.getElementById("expenseDate").value, 
+                    year: new Date(document.getElementById("expenseDate").value).getFullYear(), 
+                    month: monthNames[new Date(document.getElementById("expenseDate").value).getMonth()], 
+                    addedBy: currentUser.username 
+                });
                 saveData(); closeModal(); renderExpenses(); showToast("✅ खर्च जुड़ गया!");
             };
             document.getElementById("modal").style.display = "flex";
+        }
+        
+        function toggleCustomCategory() {
+            const select = document.getElementById("categorySelect");
+            const customDiv = document.getElementById("customCategoryDiv");
+            if(select.value === "Custom") {
+                customDiv.style.display = "block";
+            } else {
+                customDiv.style.display = "none";
+            }
         }
         
         function deleteExpense(id) {
@@ -794,10 +838,10 @@
                 return;
             }
             const html = `<div style="margin-bottom:16px;"><button class="btn btn-primary" onclick="showAddUserModal()"><i class="fas fa-user-plus"></i> यूजर जोड़ें</button></div>
-                <div class="card"><div class="table-container"></table><thead><tr><th>यूजरनेम</th><th>नाम</th><th>रोल</th><th>कार्य</th></tr></thead>
+                <div class="card"><div class="table-container"><table><thead><tr><th>यूजरनेम</th><th>नाम</th><th>रोल</th><th>कार्य</th></tr></thead>
                 <tbody>${appData.users.map(u => `<tr><td class="${u.role === 'operator' ? 'pending-row' : ''}">${u.username}<td class="${u.role === 'operator' ? 'pending-row' : ''}">${u.name}<td class="${u.role === 'operator' ? 'pending-row' : ''}"><span class="badge ${u.role === 'super_admin' ? 'badge-paid' : 'badge-pending'}">${u.role === 'super_admin' ? 'सुपर एडमिन' : (u.role === 'admin' ? 'एडमिन' : 'ऑपरेटर')}</span><td class="action-btns"><button class="btn btn-warning" onclick="resetUserPassword(${u.id})">पासवर्ड रीसेट</button>
                 ${u.username !== 'superadmin' ? `<button class="btn btn-danger" onclick="deleteUser(${u.id})">हटाएं</button>` : ''}
-                ${u.role === 'operator' && currentUser?.role === 'super_admin' ? `<button class="btn btn-primary" onclick="makeAdmin(${u.id})">एडमिन बनाएं</button>` : ''} </tr>`).join('')}</tbody>}</div></div>`;
+                ${u.role === 'operator' && currentUser?.role === 'super_admin' ? `<button class="btn btn-primary" onclick="makeAdmin(${u.id})">एडमिन बनाएं</button>` : ''} </td>`).join('')}</tbody>}</div></div>`;
             document.getElementById("pageContent").innerHTML = html;
         }
         
@@ -907,4 +951,4 @@
         init();
     </script>
 </body>
-</html>
+    </html>
