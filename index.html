@@ -2,953 +2,124 @@
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="#FF9933">
-    <title>🚩 Bhavya Mandir - Complete Temple Management System</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔐 Login Test - Bhavya Mandir</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root {
-            --primary: #FF9933;
-            --primary-dark: #e67e22;
-            --success: #10b981;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --dark-bg: #0f172a;
-            --dark-surface: #1e293b;
-            --light-bg: #fef7e8;
-            --light-surface: #ffffff;
-            --text-dark: #1e293b;
-            --text-light: #f1f5f9;
-            --border: #e2e8f0;
-        }
         body {
             font-family: 'Poppins', sans-serif;
-            background: var(--light-bg);
-            color: var(--text-dark);
-            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #fef7e8, #ffe8d6);
             min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
-        body.dark {
-            background: var(--dark-bg);
-            color: var(--text-light);
-        }
-        body.dark .card, body.dark .modal-content, body.dark .top-bar, body.dark .nav-tabs, body.dark .login-card {
-            background: var(--dark-surface);
-            color: var(--text-light);
-        }
-        body.dark input, body.dark select, body.dark textarea {
-            background: #334155;
-            color: var(--text-light);
-            border-color: #475569;
-        }
-        .app-container { max-width: 1400px; margin: 0 auto; padding: 16px; }
-        .header {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            border-radius: 24px; padding: 20px 24px; margin-bottom: 20px;
-            color: white; display: flex; align-items: center; justify-content: space-between;
-            flex-wrap: wrap; gap: 15px; position: relative; overflow: hidden;
-        }
-        .header::before { content: "🕉️"; position: absolute; font-size: 100px; opacity: 0.1; right: -10px; bottom: -20px; }
-        .header-left { display: flex; align-items: center; gap: 15px; z-index: 1; }
-        .temple-logo {
-            width: 60px; height: 60px; background: rgba(255,255,255,0.2);
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-size: 32px; cursor: pointer; transition: all 0.3s ease; overflow: hidden;
-        }
-        .temple-logo:hover { background: rgba(255,255,255,0.3); transform: scale(1.05); }
-        .temple-logo img { width: 100%; height: 100%; object-fit: cover; }
-        .header-text h1 { font-size: 1.3rem; font-weight: bold; }
-        .header-text p { font-size: 0.8rem; opacity: 0.9; margin-top: 4px; }
-        .top-bar {
-            background: var(--light-surface); border-radius: 16px; padding: 12px 20px;
-            margin-bottom: 20px; display: flex; justify-content: space-between;
-            align-items: center; flex-wrap: wrap; gap: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-        .user-badge { padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; }
-        .badge-super-admin { background: #dc2626; color: white; }
-        .badge-admin { background: #f59e0b; color: white; }
-        .badge-operator { background: #3b82f6; color: white; }
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 16px; margin-bottom: 24px; }
-        .card {
-            background: var(--light-surface); border-radius: 20px; padding: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08); transition: transform 0.2s ease;
-            cursor: pointer;
-        }
-        .card:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.12); }
-        .card-icon { font-size: 32px; color: var(--primary); margin-bottom: 12px; }
-        .card-title { font-size: 13px; font-weight: 500; opacity: 0.7; margin-bottom: 5px; }
-        .card-value { font-size: 28px; font-weight: bold; }
-        .nav-tabs {
-            display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px;
-            background: var(--light-surface); padding: 10px; border-radius: 50px;
-        }
-        .nav-tab {
-            padding: 10px 20px; border: none; background: transparent; border-radius: 40px;
-            cursor: pointer; font-weight: 600; transition: all 0.3s ease;
-            color: inherit; font-size: 13px;
-        }
-        .nav-tab.active { background: var(--primary); color: white; }
-        .form-group { margin-bottom: 18px; }
-        label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 13px; }
-        input, select, textarea {
-            width: 100%; padding: 12px 14px; border: 2px solid var(--border);
-            border-radius: 12px; font-size: 14px; background: var(--light-surface);
-        }
-        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); }
-        .btn {
-            padding: 10px 22px; border: none; border-radius: 40px; cursor: pointer;
-            font-weight: 600; transition: all 0.3s ease; display: inline-flex;
-            align-items: center; gap: 8px; font-size: 13px;
-        }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-primary:hover { background: var(--primary-dark); transform: scale(0.98); }
-        .btn-danger { background: var(--danger); color: white; }
-        .btn-success { background: var(--success); color: white; }
-        .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
-        .table-container { overflow-x: auto; border-radius: 16px; max-height: 500px; overflow-y: auto; }
-        table { width: 100%; border-collapse: collapse; font-size: 13px; }
-        th, td { padding: 12px 10px; text-align: left; border-bottom: 1px solid var(--border); }
-        th { background: var(--primary); color: white; font-weight: 600; position: sticky; top: 0; }
-        .badge { padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; display: inline-block; }
-        .badge-paid { background: #d1fae5; color: #065f46; }
-        body.dark .badge-paid { background: #064e3b; color: #a7f3d0; }
-        .badge-pending { background: #fee2e2; color: #991b1b; }
-        body.dark .badge-pending { background: #7f1d1d; color: #fecaca; }
-        .modal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6); z-index: 2000; justify-content: center;
-            align-items: center; backdrop-filter: blur(4px);
-        }
-        .modal-content {
-            background: var(--light-surface); border-radius: 24px;
-            max-width: 90%; width: 500px; max-height: 85vh; overflow-y: auto;
-            padding: 24px; animation: modalSlideIn 0.3s ease;
-        }
-        @keyframes modalSlideIn {
-            from { transform: translateY(-30px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-        .toast {
-            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-            background: var(--dark-surface); color: white; padding: 12px 24px;
-            border-radius: 50px; z-index: 2100; animation: toastSlide 0.3s ease; font-size: 14px;
-        }
-        @keyframes toastSlide {
-            from { bottom: -60px; opacity: 0; }
-            to { bottom: 20px; opacity: 1; }
-        }
-        .member-photo {
-            width: 45px; height: 45px; border-radius: 50%; object-fit: cover;
-            background: var(--primary); display: flex; align-items: center;
-            justify-content: center; font-size: 18px; color: white;
-        }
-        .pending-row { background: rgba(239, 68, 68, 0.08); border-left: 3px solid var(--danger); }
-        .action-btns { display: flex; gap: 8px; flex-wrap: wrap; }
         .login-card {
-            background: var(--light-surface); border-radius: 28px; padding: 40px 35px;
-            max-width: 450px; margin: 60px auto; box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+            background: white;
+            border-radius: 28px;
+            padding: 40px 35px;
+            max-width: 450px;
+            width: 90%;
+            margin: 20px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
             text-align: center;
         }
-        @media (max-width: 768px) {
-            .app-container { padding: 12px; }
-            .header-text h1 { font-size: 1rem; }
-            .nav-tab { padding: 8px 12px; font-size: 11px; }
-            .card-value { font-size: 22px; }
-            .login-card { margin: 30px 16px; padding: 30px 20px; }
+        h2 { color: #FF9933; margin: 15px 0 5px; }
+        .form-group { margin-bottom: 20px; text-align: left; }
+        label { display: block; margin-bottom: 6px; font-weight: 600; }
+        input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 16px;
         }
+        input:focus { outline: none; border-color: #FF9933; }
+        button {
+            width: 100%;
+            padding: 14px;
+            background: #FF9933;
+            color: white;
+            border: none;
+            border-radius: 40px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        button:hover { background: #e67e22; }
+        .error { color: red; margin-top: 15px; font-size: 14px; }
+        .success { color: green; margin-top: 15px; font-size: 14px; }
+        hr { margin: 20px 0; }
     </style>
 </head>
 <body>
-    <!-- LOGIN SCREEN -->
-    <div id="loginContainer" style="display: flex; justify-content: center; align-items: center; min-height: 100vh;">
-        <div class="login-card">
-            <div style="font-size: 60px;">🕉️</div>
-            <h2 style="color: var(--primary); margin-top: 10px;">Bhavya Mandir</h2>
-            <p style="opacity: 0.7; margin-bottom: 25px;">Nirman Samiti</p>
-            
-            <div class="form-group">
-                <label>यूजरनेम / Username</label>
-                <input type="text" id="loginUsername" placeholder="admin / superadmin / operator">
-            </div>
-            <div class="form-group">
-                <label>पासवर्ड / Password</label>
-                <input type="password" id="loginPassword" placeholder="••••••••">
-            </div>
-            <button class="btn btn-primary" onclick="doLogin()" style="width: 100%; justify-content: center;">🔐 लॉगिन करें</button>
-            
-            <div style="margin-top: 15px;">
-                <a href="#" onclick="showForgotPassword()" style="color: var(--primary); font-size: 13px;">पासवर्ड भूल गए?</a>
-            </div>
+    <div class="login-card">
+        <div style="font-size: 60px;">🕉️</div>
+        <h2>Bhavya Mandir</h2>
+        <p style="opacity: 0.7; margin-bottom: 25px;">Nirman Samiti</p>
+        
+        <div class="form-group">
+            <label>यूजरनेम / Username</label>
+            <input type="text" id="username" placeholder="admin / superadmin / operator">
+        </div>
+        <div class="form-group">
+            <label>पासवर्ड / Password</label>
+            <input type="password" id="password" placeholder="••••••••">
+        </div>
+        <button onclick="doLogin()">🔐 लॉगिन करें</button>
+        
+        <div id="message" class="error"></div>
+        
+        <hr>
+        <div style="text-align: left; font-size: 13px; background: #f0f0f0; padding: 12px; border-radius: 12px;">
+            <strong>✅ सही लॉगिन जानकारी:</strong><br><br>
+            🔑 <strong>admin</strong> / <strong>ramram123</strong><br>
+            🔑 <strong>superadmin</strong> / <strong>Bhavya@2026</strong><br>
+            🔑 <strong>operator</strong> / <strong>Seva@2026</strong>
         </div>
     </div>
-
-    <!-- MAIN APP -->
-    <div class="app-container" id="mainApp" style="display: none;">
-        <div class="header">
-            <div class="header-left">
-                <div class="temple-logo" id="templeLogo"><i class="fas fa-temple"></i></div>
-                <div class="header-text">
-                    <h1 id="committeeName">🚩 Bhavya Mandir Nirman Samiti</h1>
-                    <p id="committeeBanner">गुलाबपुरा, मोहनगढ़</p>
-                </div>
-            </div>
-            <div class="header-actions">
-                <div class="dark-toggle" onclick="toggleDarkMode()" style="background: rgba(255,255,255,0.2); padding: 8px 14px; border-radius: 40px; cursor: pointer;">🌙</div>
-            </div>
-        </div>
-        
-        <div class="top-bar">
-            <div><i class="fas fa-user-circle"></i> <span id="userName">Loading...</span> <span class="user-badge" id="userRoleBadge"></span></div>
-            <div><i class="fas fa-key" onclick="showChangePassword()" style="cursor: pointer;"></i> <i class="fas fa-sign-out-alt" onclick="logout()" style="cursor: pointer; margin-left: 15px;"></i></div>
-        </div>
-        
-        <div class="nav-tabs">
-            <button class="nav-tab active" data-tab="dashboard">🏠 डैशबोर्ड</button>
-            <button class="nav-tab" data-tab="members">👥 दानदाता</button>
-            <button class="nav-tab" data-tab="payments">💰 भुगतान</button>
-            <button class="nav-tab" data-tab="pending">⏰ बकाया</button>
-            <button class="nav-tab" data-tab="expenses">📉 खर्च</button>
-            <button class="nav-tab" data-tab="users">👑 यूजर</button>
-            <button class="nav-tab" data-tab="settings">⚙️ सेटिंग्स</button>
-        </div>
-        
-        <div id="pageContent"></div>
-    </div>
-
-    <div class="modal" id="modal"><div class="modal-content"><div id="modalBody"></div><div style="margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;"><button class="btn btn-outline" onclick="closeModal()">रद्द करें</button><button class="btn btn-primary" id="modalConfirmBtn">पुष्टि करें</button></div></div></div>
 
     <script>
-        // ==================== USERS WITH CORRECT PASSWORDS ====================
-        // ✅ admin / ramram123
-        // ✅ superadmin / Bhavya@2026  
-        // ✅ operator / Seva@2026
-        
-        let currentUser = null;
-        let currentTab = "dashboard";
-        let currentYear = new Date().getFullYear();
-        
-        let appData = {
-            settings: {
-                committeeName: "🚩 Bhavya Mandir Nirman Samiti",
-                committeeBanner: "गुलाबपुरा, मोहनगढ़",
-                upiId: "asryadavtkg@ybl",
-                presidentName: "राजेंद्र यादव",
-                secretaryName: "अरविंद सिंह यादव",
-                defaultMonthlyAmount: 200,
-                darkMode: false,
-                logo: ""
-            },
-            members: [
-                { id: 1, name: "राम प्रसाद", fatherName: "सीता राम", mobile: "9876543210", village: "अयोध्या", address: "मंदिर के पास", monthlyAmount: 200, joinDate: "2024-01-01", photo: "" },
-                { id: 2, name: "हरि शंकर", fatherName: "राम शंकर", mobile: "9876543211", village: "वृंदावन", address: "मेन बाजार", monthlyAmount: 150, joinDate: "2024-01-15", photo: "" },
-                { id: 3, name: "सीता देवी", fatherName: "राम प्रसाद", mobile: "9876543212", village: "अयोध्या", address: "हनुमान गली", monthlyAmount: 300, joinDate: "2024-02-01", photo: "" }
-            ],
-            payments: [],
-            expenses: [
-                { id: 1, category: "निर्माण", amount: 5000, description: "मंदिर नवीनीकरण", date: "2025-01-10", year: 2025, month: "जनवरी", addedBy: "सिस्टम" }
-            ],
-            users: [
-                { id: 1, username: "superadmin", password: "Bhavya@2026", role: "super_admin", name: "राजेंद्र यादव", mobile: "9876543210" },
-                { id: 2, username: "admin", password: "ramram123", role: "admin", name: "अरविंद सिंह यादव", mobile: "9876543211" },
-                { id: 3, username: "operator", password: "Seva@2026", role: "operator", name: "ऑपरेटर", mobile: "9876543212" }
-            ]
-        };
-        
-        const monthNames = ["जनवरी", "फरवरी", "मार्च", "अप्रैल", "मई", "जून", "जुलाई", "अगस्त", "सितंबर", "अक्टूबर", "नवंबर", "दिसंबर"];
-        const expenseCategories = ["निर्माण", "उत्सव", "बिजली", "सजावट", "वेतन", "Custom"];
-        
-        // ==================== INIT ====================
-        function init() {
-            loadData();
-            checkAuth();
-            setupEventListeners();
-            applyTheme();
-        }
-        
-        function loadData() {
-            const saved = localStorage.getItem("templeAppData");
-            if (saved) {
-                try {
-                    const parsed = JSON.parse(saved);
-                    appData = { ...appData, ...parsed };
-                } catch(e) {}
-            }
-            
-            if (appData.payments.length === 0) {
-                const currentDate = new Date();
-                appData.members.forEach(member => {
-                    for (let m = 0; m <= currentDate.getMonth(); m++) {
-                        appData.payments.push({
-                            id: Date.now() + m + member.id,
-                            memberId: member.id,
-                            memberName: member.name,
-                            month: monthNames[m],
-                            monthIndex: m,
-                            year: 2025,
-                            amountPaid: m === 0 ? member.monthlyAmount : 0,
-                            pendingAmount: m === 0 ? 0 : member.monthlyAmount,
-                            status: m === 0 ? "Paid" : "Pending",
-                            receiptNo: m === 0 ? `BHAVYA-2025-${member.id}` : "",
-                            paymentDate: m === 0 ? "2025-01-15" : "",
-                            paymentMode: m === 0 ? "UPI" : "",
-                            addedBy: "सिस्टम"
-                        });
-                    }
-                });
-            }
-            saveData();
-        }
-        
-        function saveData() { localStorage.setItem("templeAppData", JSON.stringify(appData)); }
-        
-        // ==================== AUTH ====================
-        function checkAuth() {
-            const savedUser = sessionStorage.getItem("currentUser");
-            if (savedUser) {
-                currentUser = JSON.parse(savedUser);
-                document.getElementById("loginContainer").style.display = "none";
-                document.getElementById("mainApp").style.display = "block";
-                updateUserDisplay();
-                renderCurrentPage();
-                return true;
-            }
-            return false;
-        }
+        // ==================== USERS DATABASE ====================
+        const users = [
+            { username: "superadmin", password: "Bhavya@2026", role: "super_admin", name: "राजेंद्र यादव" },
+            { username: "admin", password: "ramram123", role: "admin", name: "अरविंद सिंह यादव" },
+            { username: "operator", password: "Seva@2026", role: "operator", name: "ऑपरेटर" }
+        ];
         
         function doLogin() {
-            const username = document.getElementById("loginUsername").value.trim();
-            const password = document.getElementById("loginPassword").value;
-            const user = appData.users.find(u => u.username === username && u.password === password);
+            const username = document.getElementById("username").value.trim();
+            const password = document.getElementById("password").value;
+            const messageDiv = document.getElementById("message");
+            
+            // Find user
+            const user = users.find(u => u.username === username && u.password === password);
             
             if (user) {
-                currentUser = { ...user, password: undefined };
-                sessionStorage.setItem("currentUser", JSON.stringify(currentUser));
-                document.getElementById("loginContainer").style.display = "none";
-                document.getElementById("mainApp").style.display = "block";
-                updateUserDisplay();
-                renderCurrentPage();
-                showToast("✅ लॉगिन सफल! स्वागत है " + user.name);
-            } else {
-                alert("❌ गलत यूजरनेम या पासवर्ड!\n\n✅ सही लॉगिन जानकारी:\n\n🔑 admin / ramram123\n🔑 superadmin / Bhavya@2026\n🔑 operator / Seva@2026");
-            }
-        }
-        
-        function showForgotPassword() {
-            const modalBody = document.getElementById("modalBody");
-            modalBody.innerHTML = `<h3>🔐 पासवर्ड रीसेट</h3>
-                <div class="form-group"><label>यूजरनेम</label><input type="text" id="forgotUser" placeholder="अपना यूजरनेम डालें"></div>
-                <div class="form-group"><label>रजिस्टर्ड मोबाइल नंबर</label><input type="tel" id="forgotMobile" placeholder="10 अंकों का मोबाइल नंबर"></div>
-                <div class="form-group"><label>नया पासवर्ड</label><input type="password" id="newPassword" placeholder="नया पासवर्ड"></div>
-                <div class="form-group"><label>नया पासवर्ड दोबारा</label><input type="password" id="confirmPassword" placeholder="पासवर्ड दोबारा डालें"></div>`;
-            document.getElementById("modalConfirmBtn").onclick = () => {
-                const username = document.getElementById("forgotUser").value;
-                const mobile = document.getElementById("forgotMobile").value;
-                const newPass = document.getElementById("newPassword").value;
-                const confirmPass = document.getElementById("confirmPassword").value;
-                const user = appData.users.find(u => u.username === username && u.mobile === mobile);
-                if (!user) { alert("❌ यूजरनेम और मोबाइल नंबर मैच नहीं कर रहे!"); return; }
-                if (newPass !== confirmPass) { alert("❌ पासवर्ड मैच नहीं कर रहे!"); return; }
-                if (newPass.length < 4) { alert("❌ पासवर्ड कम से कम 4 अक्षर का होना चाहिए!"); return; }
-                user.password = newPass;
-                saveData();
-                closeModal();
-                alert("✅ पासवर्ड बदल गया! अब नए पासवर्ड से लॉगिन करें।");
-            };
-            document.getElementById("modal").style.display = "flex";
-        }
-        
-        function showChangePassword() {
-            const modalBody = document.getElementById("modalBody");
-            modalBody.innerHTML = `<h3>🔐 अपना पासवर्ड बदलें</h3>
-                <div class="form-group"><label>पुराना पासवर्ड</label><input type="password" id="oldPass"></div>
-                <div class="form-group"><label>नया पासवर्ड</label><input type="password" id="newPass1"></div>
-                <div class="form-group"><label>नया पासवर्ड दोबारा</label><input type="password" id="newPass2"></div>
-                <div class="form-group"><label>आपका मोबाइल नंबर</label><input type="tel" id="verifyMobile" placeholder="रजिस्टर्ड मोबाइल नंबर"></div>`;
-            document.getElementById("modalConfirmBtn").onclick = () => {
-                const oldPass = document.getElementById("oldPass").value;
-                const newPass1 = document.getElementById("newPass1").value;
-                const newPass2 = document.getElementById("newPass2").value;
-                const verifyMobile = document.getElementById("verifyMobile").value;
-                const user = appData.users.find(u => u.id === currentUser.id);
-                if (user.mobile !== verifyMobile) { alert("❌ मोबाइल नंबर मैच नहीं कर रहा!"); return; }
-                if (user.password !== oldPass) { alert("❌ पुराना पासवर्ड गलत है!"); return; }
-                if (newPass1 !== newPass2) { alert("❌ नया पासवर्ड मैच नहीं करता!"); return; }
-                if (newPass1.length < 4) { alert("❌ पासवर्ड कम से कम 4 अक्षर का होना चाहिए!"); return; }
-                user.password = newPass1;
-                saveData();
-                closeModal();
-                alert("✅ पासवर्ड बदल गया! कृपया फिर से लॉगिन करें।");
-                logout();
-            };
-            document.getElementById("modal").style.display = "flex";
-        }
-        
-        function resetUserPassword(userId) {
-            if (currentUser?.role !== "super_admin" && currentUser?.role !== "admin") {
-                alert("❌ आपको permission नहीं है!");
-                return;
-            }
-            const newPass = prompt("नया पासवर्ड डालें (कम से कम 4 अक्षर):");
-            if(newPass && newPass.length >= 4) {
-                const user = appData.users.find(u => u.id === userId);
-                if(user) { user.password = newPass; saveData(); alert(`✅ ${user.username} का पासवर्ड बदल गया!`); renderUsers(); }
-            } else { alert("❌ पासवर्ड 4 अक्षर से कम है!"); }
-        }
-        
-        function updateUserDisplay() {
-            document.getElementById("userName").innerText = currentUser?.name || currentUser?.username;
-            const badge = document.getElementById("userRoleBadge");
-            if (currentUser?.role === "super_admin") {
-                badge.innerText = "🇮🇳 सुपर एडमिन";
-                badge.className = "user-badge badge-super-admin";
-            } else if (currentUser?.role === "admin") {
-                badge.innerText = "👑 एडमिन";
-                badge.className = "user-badge badge-admin";
-            } else {
-                badge.innerText = "🔧 ऑपरेटर";
-                badge.className = "user-badge badge-operator";
-            }
-        }
-        
-        function hasPermission(action) {
-            if (!currentUser) return false;
-            if (currentUser.role === "super_admin") return true;
-            if (currentUser.role === "admin") return ["view", "add", "edit", "delete", "manage_users", "manage_settings", "add_payment", "add_member", "edit_payment"].includes(action);
-            if (currentUser.role === "operator") return ["view", "add_payment", "add_member"].includes(action);
-            return false;
-        }
-        
-        function logout() {
-            currentUser = null;
-            sessionStorage.removeItem("currentUser");
-            document.getElementById("loginContainer").style.display = "flex";
-            document.getElementById("mainApp").style.display = "none";
-            document.getElementById("loginUsername").value = "";
-            document.getElementById("loginPassword").value = "";
-        }
-        
-        // ==================== WHATSAPP ====================
-        function sendWhatsAppReceipt(member, payment, amount) {
-            const message = `🚩 *जय श्री राम* 🚩\n\n✅ *भुगतान रसीद*\n*${appData.settings.committeeName}*\n\nआदरणीय *${member.name} जी*,\nआपका भुगतान सफलतापूर्वक प्राप्त हुआ। 🙏\n\n📋 *रसीद नंबर:* ${payment.receiptNo}\n💰 *राशि:* ₹${amount}\n📅 *दिनांक:* ${payment.paymentDate}\n💸 UPI: ${appData.settings.upiId}\n\n*हनुमान जी आप पर अपनी कृपा बनाए रखें।* 🙏`;
-            if(member.mobile && member.mobile.length === 10) {
-                window.open(`https://wa.me/91${member.mobile}?text=${encodeURIComponent(message)}`, '_blank');
-            }
-        }
-        
-        function sendWhatsAppReminder(memberId) {
-            const member = appData.members.find(m => m.id === memberId);
-            if(!member) return;
-            const pendingPayments = appData.payments.filter(p => p.memberId === memberId && p.status === "Pending");
-            const totalPending = pendingPayments.reduce((s,p) => s + p.pendingAmount, 0);
-            const message = `🚩 *जय श्री राम* 🚩\n\nआदरणीय *${member.name} जी*,\nआपका मासिक दान बकाया है।\n\n💰 *कुल बकाया: ₹${totalPending}*\n💸 *UPI: ${appData.settings.upiId}*\n\n👇 *भुगतान यहाँ करें:*\nupi://pay?pa=${appData.settings.upiId}&pn=${encodeURIComponent(member.name)}&am=${totalPending}&cu=INR\n\nभवदीय,\n${appData.settings.presidentName}`;
-            if(member.mobile && member.mobile.length === 10) {
-                window.open(`https://wa.me/91${member.mobile}?text=${encodeURIComponent(message)}`, '_blank');
-            }
-        }
-        
-        function sendBulkReminders() {
-            const pendingMembers = appData.members.filter(m => appData.payments.some(p => p.memberId === m.id && p.status === "Pending"));
-            pendingMembers.forEach((member, idx) => setTimeout(() => sendWhatsAppReminder(member.id), idx * 500));
-            showToast(`📱 ${pendingMembers.length} दानदाताओं को रिमाइंडर भेज रहे हैं...`);
-        }
-        
-        // ==================== DASHBOARD ====================
-        function renderDashboard() {
-            const totalMembers = appData.members.length;
-            const totalIncome = appData.payments.filter(p => p.status === "Paid").reduce((s, p) => s + p.amountPaid, 0);
-            const totalPending = appData.payments.filter(p => p.status === "Pending").reduce((s, p) => s + p.pendingAmount, 0);
-            const totalExpense = appData.expenses.reduce((s, e) => s + e.amount, 0);
-            const pendingCount = appData.members.filter(m => appData.payments.some(p => p.memberId === m.id && p.status === "Pending")).length;
-            
-            const monthlyData = {};
-            appData.payments.filter(p => p.status === "Paid").forEach(p => { monthlyData[p.month] = (monthlyData[p.month] || 0) + p.amountPaid; });
-            
-            const html = `
-                <div class="stats-grid">
-                    <div class="card" onclick="switchTab('members')"><div class="card-icon"><i class="fas fa-users"></i></div><div class="card-title">कुल दानदाता</div><div class="card-value">${totalMembers}</div></div>
-                    <div class="card"><div class="card-icon"><i class="fas fa-rupee-sign"></i></div><div class="card-title">कुल आय</div><div class="card-value">₹${totalIncome.toLocaleString()}</div></div>
-                    <div class="card" onclick="switchTab('pending')"><div class="card-icon"><i class="fas fa-clock"></i></div><div class="card-title">कुल बकाया</div><div class="card-value" style="color: var(--danger);">₹${totalPending.toLocaleString()}</div></div>
-                    <div class="card"><div class="card-icon"><i class="fas fa-chart-line"></i></div><div class="card-title">कुल व्यय</div><div class="card-value">₹${totalExpense.toLocaleString()}</div></div>
-                </div>
-                <div class="stats-grid">
-                    <div class="card"><div class="card-icon"><i class="fas fa-user-clock"></i></div><div class="card-title">बकाया दानदाता</div><div class="card-value">${pendingCount}</div></div>
-                    <div class="card"><div class="card-icon"><i class="fas fa-wallet"></i></div><div class="card-title">नेट बैलेंस</div><div class="card-value">₹${(totalIncome - totalExpense).toLocaleString()}</div></div>
-                </div>
-                <div class="card"><h4>📊 मासिक आय चार्ट</h4><canvas id="incomeChart" style="max-height: 250px;"></canvas></div>
-                <div class="card"><h4>📋 हाल के भुगतान</h4><div class="table-container"><table><thead><tr><th>दानदाता</th><th>महीना</th><th>राशि</th><th>तारीख</th><th>जमा कर्ता</th></tr></thead>
-                <tbody>${appData.payments.filter(p => p.status === "Paid").slice(-5).reverse().map(p => `<tr><td class="${p.status === 'Pending' ? 'pending-row' : ''}">${p.memberName}<td class="${p.status === 'Pending' ? 'pending-row' : ''}">${p.month} ${p.year}<td class="${p.status === 'Pending' ? 'pending-row' : ''}">₹${p.amountPaid}<td class="${p.status === 'Pending' ? 'pending-row' : ''}">${p.paymentDate || '-'}<td class="${p.status === 'Pending' ? 'pending-row' : ''}">${p.addedBy || '-'}</td>`).join('')}</tbody></table></div></div>`;
-            document.getElementById("pageContent").innerHTML = html;
-            
-            const ctx = document.getElementById('incomeChart')?.getContext('2d');
-            if(ctx) {
-                new Chart(ctx, { type: 'bar', data: { labels: Object.keys(monthlyData), datasets: [{ label: 'आय (₹)', data: Object.values(monthlyData), backgroundColor: '#FF9933', borderRadius: 8 }] }, options: { responsive: true } });
-            }
-        }
-        
-        // ==================== MEMBERS ====================
-        function renderMembers() {
-            const html = `<div style="margin-bottom: 16px; display: flex; gap: 10px; flex-wrap: wrap;">
-                ${hasPermission("add_member") ? `<button class="btn btn-primary" onclick="showAddMemberModal()"><i class="fas fa-plus"></i> दानदाता जोड़ें</button>` : ''}
-                <input type="text" id="searchMember" placeholder="🔍 नाम या मोबाइल से खोजें..." style="flex: 1; max-width: 250px;">
-            </div>
-            <div class="card"><div class="table-container"><table><thead><tr><th>फोटो</th><th>नाम</th><th>मोबाइल</th><th>गांव</th><th>मासिक राशि</th><th>स्थिति</th><th>कार्य</th></tr></thead>
-            <tbody id="membersTableBody">${renderMembersTable()}</tbody></table></div></div>`;
-            document.getElementById("pageContent").innerHTML = html;
-            document.getElementById("searchMember")?.addEventListener("input", () => renderMembersTable());
-        }
-        
-        function renderMembersTable() {
-            const search = document.getElementById("searchMember")?.value.toLowerCase() || "";
-            const filtered = appData.members.filter(m => m.name.toLowerCase().includes(search) || m.mobile.includes(search));
-            return filtered.map(member => {
-                const pendingAmount = appData.payments.filter(p => p.memberId === member.id && p.status === "Pending").reduce((s,p) => s + p.pendingAmount, 0);
-                const hasPending = pendingAmount > 0;
-                return `<tr class="${hasPending ? 'pending-row' : ''}"><td><div class="member-photo">${member.photo ? `<img src="${member.photo}">` : member.name.charAt(0)}</div></td>
-                <td><strong>${member.name}</strong><br><small>${member.fatherName || ''}</small></td>
-                <td>${member.mobile}${member.village}${member.monthlyAmount}
-                <td>${hasPending ? `<span class="badge badge-pending">बकाया: ₹${pendingAmount}</span>` : `<span class="badge badge-paid">जमा</span>`}</td>
-                <td class="action-btns"><button class="btn btn-primary" onclick="viewMember(${member.id})" style="padding: 5px 10px;"><i class="fas fa-eye"></i></button>
-                ${hasPermission("edit") ? `<button class="btn btn-primary" onclick="editMember(${member.id})" style="padding: 5px 10px;"><i class="fas fa-edit"></i></button>` : ''}
-                ${currentUser?.role === "super_admin" ? `<button class="btn btn-danger" onclick="deleteMember(${member.id})" style="padding: 5px 10px;"><i class="fas fa-trash"></i></button>` : ''}
-                <button class="btn btn-primary" onclick="sendWhatsAppReminder(${member.id})" style="padding: 5px 10px;"><i class="fab fa-whatsapp"></i></button>
-                </td>`;
-            }).join('');
-        }
-        
-        function showAddMemberModal() {
-            const modalBody = document.getElementById("modalBody");
-            modalBody.innerHTML = `<h3>➕ नया दानदाता जोड़ें</h3>
-                <div class="form-group"><label>नाम *</label><input type="text" id="memberName"></div>
-                <div class="form-group"><label>पिता का नाम</label><input type="text" id="fatherName"></div>
-                <div class="form-group"><label>मोबाइल *</label><input type="tel" id="mobile"></div>
-                <div class="form-group"><label>गांव</label><input type="text" id="village"></div>
-                <div class="form-group"><label>पता</label><textarea id="address" rows="2"></textarea></div>
-                <div class="form-group"><label>मासिक राशि (₹)</label><input type="number" id="monthlyAmount" value="200"></div>
-                <div class="form-group"><label>जॉइन तिथि</label><input type="date" id="joinDate" value="${new Date().toISOString().split('T')[0]}"></div>
-                <div class="form-group"><label>फोटो</label><input type="file" id="photoInput" accept="image/*"></div>
-                <div id="photoPreview"></div>`;
-            document.getElementById("photoInput")?.addEventListener("change", (e) => {
-                const file = e.target.files[0];
-                if(file) { const reader = new FileReader(); reader.onload = (ev) => { document.getElementById("photoPreview").innerHTML = `<img src="${ev.target.result}" style="width:80px;height:80px;border-radius:50%;margin-top:10px;">`; window.tempPhoto = ev.target.result; }; reader.readAsDataURL(file); }
-            });
-            document.getElementById("modalConfirmBtn").onclick = () => {
-                if(!document.getElementById("memberName").value || !document.getElementById("mobile").value) { alert("❌ नाम और मोबाइल नंबर जरूरी है!"); return; }
-                const newMember = { id: Date.now(), name: document.getElementById("memberName").value, fatherName: document.getElementById("fatherName").value, mobile: document.getElementById("mobile").value, village: document.getElementById("village").value, address: document.getElementById("address").value, monthlyAmount: parseInt(document.getElementById("monthlyAmount").value), joinDate: document.getElementById("joinDate").value, photo: window.tempPhoto || "" };
-                appData.members.push(newMember);
-                const joinDate = new Date(newMember.joinDate);
-                const currentDate = new Date();
-                let year = joinDate.getFullYear();
-                let month = joinDate.getMonth();
-                while (year < currentDate.getFullYear() || (year === currentDate.getFullYear() && month <= currentDate.getMonth())) {
-                    appData.payments.push({ id: Date.now() + month + year, memberId: newMember.id, memberName: newMember.name, month: monthNames[month], monthIndex: month, year: year, amountPaid: 0, pendingAmount: newMember.monthlyAmount, status: "Pending", receiptNo: "", paymentDate: "", paymentMode: "", addedBy: currentUser.username });
-                    month++; if(month > 11) { month = 0; year++; }
-                }
-                saveData(); closeModal(); renderMembers(); showToast("✅ दानदाता जुड़ गया!"); window.tempPhoto = null;
-            };
-            document.getElementById("modal").style.display = "flex";
-        }
-        
-        function viewMember(id) {
-            const member = appData.members.find(m => m.id === id);
-            const memberPayments = appData.payments.filter(p => p.memberId === id);
-            const totalPaid = memberPayments.filter(p => p.status === "Paid").reduce((s,p) => s + p.amountPaid, 0);
-            const totalPending = memberPayments.filter(p => p.status === "Pending").reduce((s,p) => s + p.pendingAmount, 0);
-            const modalBody = document.getElementById("modalBody");
-            modalBody.innerHTML = `<h3>👤 दानदाता प्रोफाइल</h3>
-                <div style="text-align:center;"><div class="member-photo" style="width:80px;height:80px;margin:0 auto 15px;font-size:32px;">${member.photo ? `<img src="${member.photo}" style="width:100%;height:100%;border-radius:50%;">` : member.name.charAt(0)}</div></div>
-                <p><strong>नाम:</strong> ${member.name}</p><p><strong>पिता:</strong> ${member.fatherName || '-'}</p>
-                <p><strong>मोबाइल:</strong> ${member.mobile}</p><p><strong>गांव:</strong> ${member.village}</p>
-                <p><strong>मासिक राशि:</strong> ₹${member.monthlyAmount}</p><p><strong>जॉइन तिथि:</strong> ${member.joinDate}</p>
-                <p><strong>कुल जमा:</strong> ₹${totalPaid}</p><p><strong>कुल बकाया:</strong> ₹${totalPending}</p>
-                <hr><h4>भुगतान इतिहास</h4><div class="table-container"><table style="font-size:12px;"><thead><tr><th>महीना</th><th>जमा राशि</th><th>बकाया</th><th>स्थिति</th><th>रसीद</th></tr></thead>
-                <tbody>${memberPayments.map(p => `<tr class="${p.status === 'Pending' ? 'pending-row' : ''}"><td class="${p.status === 'Pending' ? 'pending-row' : ''}">${p.month} ${p.year}<td class="${p.status === 'Pending' ? 'pending-row' : ''}">₹${p.amountPaid}<td class="${p.status === 'Pending' ? 'pending-row' : ''}">₹${p.pendingAmount}<td class="${p.status === 'Pending' ? 'pending-row' : ''}"><span class="badge ${p.status === 'Paid' ? 'badge-paid' : 'badge-pending'}">${p.status === 'Paid' ? 'जमा' : 'बकाया'}</span><td class="${p.status === 'Pending' ? 'pending-row' : ''}">${p.receiptNo ? `<button class="btn btn-primary" onclick="generateReceipt(${p.id})" style="padding:4px 10px;">PDF</button>` : '-'}`).join('')}</tbody>}</div>`;
-            document.getElementById("modalConfirmBtn").style.display = "none";
-            document.getElementById("modal").style.display = "flex";
-        }
-        
-        function editMember(id) {
-            const member = appData.members.find(m => m.id === id);
-            if(!member) return;
-            const modalBody = document.getElementById("modalBody");
-            modalBody.innerHTML = `<h3>✏️ दानदाता संपादित करें</h3>
-                <div class="form-group"><label>नाम</label><input type="text" id="memberName" value="${member.name}"></div>
-                <div class="form-group"><label>मोबाइल</label><input type="text" id="mobile" value="${member.mobile}"></div>
-                <div class="form-group"><label>मासिक राशि (₹)</label><input type="number" id="monthlyAmount" value="${member.monthlyAmount}"></div>
-                <div class="form-group"><label>फोटो</label><input type="file" id="photoInput" accept="image/*"></div><div id="photoPreview">${member.photo ? `<img src="${member.photo}" style="width:80px;height:80px;border-radius:50%;margin-top:10px;">` : ''}</div>`;
-            document.getElementById("photoInput")?.addEventListener("change", (e) => {
-                const file = e.target.files[0];
-                if(file) { const reader = new FileReader(); reader.onload = (ev) => { document.getElementById("photoPreview").innerHTML = `<img src="${ev.target.result}" style="width:80px;height:80px;border-radius:50%;margin-top:10px;">`; window.tempPhoto = ev.target.result; }; reader.readAsDataURL(file); }
-            });
-            document.getElementById("modalConfirmBtn").onclick = () => {
-                member.name = document.getElementById("memberName").value;
-                member.mobile = document.getElementById("mobile").value;
-                member.monthlyAmount = parseInt(document.getElementById("monthlyAmount").value);
-                if(window.tempPhoto) member.photo = window.tempPhoto;
-                saveData(); closeModal(); renderMembers(); showToast("✅ दानदाता अपडेट हुआ!"); window.tempPhoto = null;
-            };
-            document.getElementById("modal").style.display = "flex";
-        }
-        
-        function deleteMember(id) {
-            if(confirm("⚠️ क्या आप सच में इस दानदाता को हटाना चाहते हैं?")) {
-                appData.members = appData.members.filter(m => m.id !== id);
-                appData.payments = appData.payments.filter(p => p.memberId !== id);
-                saveData(); renderMembers(); showToast("🗑️ दानदाता हटा दिया गया!");
-            }
-        }
-        
-        // ==================== PAYMENTS ====================
-        function renderPayments() {
-            const html = `<div style="margin-bottom:16px; display:flex; gap:10px; flex-wrap:wrap;">
-                ${hasPermission("add_payment") ? `<button class="btn btn-primary" onclick="showAddPaymentModal()"><i class="fas fa-plus"></i> भुगतान जोड़ें</button>` : ''}
-                <select id="filterStatus" style="width:auto;"><option value="">सभी</option><option value="Pending">बकाया</option><option value="Paid">जमा</option></select>
-            </div>
-            <div class="card"><div class="table-container"></table><thead><tr><th>दानदाता</th><th>महीना</th><th>जमा राशि</th><th>बकाया</th><th>स्थिति</th><th>कार्य</th></tr></thead>
-            <tbody id="paymentsTableBody">${renderPaymentsTable()}</tbody>}</div></div>`;
-            document.getElementById("pageContent").innerHTML = html;
-            document.getElementById("filterStatus")?.addEventListener("change", () => renderPaymentsTable());
-        }
-        
-        function renderPaymentsTable() {
-            const statusFilter = document.getElementById("filterStatus")?.value;
-            let filtered = appData.payments;
-            if(statusFilter) filtered = filtered.filter(p => p.status === statusFilter);
-            filtered.sort((a,b) => b.monthIndex - a.monthIndex);
-            return filtered.map(p => {
-                const member = appData.members.find(m => m.id === p.memberId);
-                return `<tr class="${p.status === 'Pending' ? 'pending-row' : ''}"><td class="${p.status === 'Pending' ? 'pending-row' : ''}">${member?.name || p.memberName}<td class="${p.status === 'Pending' ? 'pending-row' : ''}">${p.month} ${p.year}<td class="${p.status === 'Pending' ? 'pending-row' : ''}">₹${p.amountPaid}<td class="${p.status === 'Pending' ? 'pending-row' : ''}">₹${p.pendingAmount}<td class="${p.status === 'Pending' ? 'pending-row' : ''}"><span class="badge ${p.status === 'Paid' ? 'badge-paid' : 'badge-pending'}">${p.status === 'Paid' ? 'जमा' : 'बकाया'}</span><td class="action-btns">
-                ${p.status === "Pending" && hasPermission("add_payment") ? `<button class="btn btn-success" onclick="collectPayment(${p.id})">जमा करें</button>` : ''}
-                ${p.receiptNo ? `<button class="btn btn-primary" onclick="generateReceipt(${p.id})">रसीद</button>` : ''}
-                ${hasPermission("edit") ? `<button class="btn btn-warning" onclick="editPayment(${p.id})">सुधारें</button>` : ''}
-                </td>`;
-            }).join('');
-        }
-        
-        function showAddPaymentModal() {
-            const modalBody = document.getElementById("modalBody");
-            modalBody.innerHTML = `<h3>💰 भुगतान जोड़ें</h3>
-                <div class="form-group"><label>दानदाता</label><select id="memberId">${appData.members.map(m => `<option value="${m.id}">${m.name} (मासिक: ₹${m.monthlyAmount})</option>`).join('')}</select></div>
-                <div class="form-group"><label>महीना</label><select id="month">${monthNames.map((m, i) => `<option value="${i}">${m}</option>`).join('')}</select></div>
-                <div class="form-group"><label>साल</label><select id="year"><option>2025</option><option>2026</option></select></div>
-                <div class="form-group"><label>जमा राशि (₹)</label><input type="number" id="amount"></div>
-                <div class="form-group"><label>भुगतान मोड</label><select id="mode"><option>नकद</option><option>UPI</option><option>बैंक ट्रांसफर</option></select></div>`;
-            document.getElementById("modalConfirmBtn").onclick = () => {
-                const memberId = parseInt(document.getElementById("memberId").value);
-                const member = appData.members.find(m => m.id === memberId);
-                const monthIndex = parseInt(document.getElementById("month").value);
-                const month = monthNames[monthIndex];
-                const year = parseInt(document.getElementById("year").value);
-                const amount = parseFloat(document.getElementById("amount").value);
-                const receiptNo = `BHAVYA-${year}-${memberId}-${Date.now()}`;
-                const paymentDate = new Date().toISOString().split('T')[0];
+                messageDiv.style.color = "green";
+                messageDiv.innerHTML = `✅ लॉगिन सफल! स्वागत है ${user.name} (${user.role})<br>अब पूरा ऐप लोड होगा...`;
                 
-                let payment = appData.payments.find(p => p.memberId === memberId && p.year === year && p.monthIndex === monthIndex);
-                if(payment) {
-                    payment.amountPaid += amount;
-                    payment.pendingAmount = Math.max(0, member.monthlyAmount - payment.amountPaid);
-                    payment.status = payment.pendingAmount <= 0 ? "Paid" : "Pending";
-                    payment.receiptNo = receiptNo;
-                    payment.paymentDate = paymentDate;
-                    payment.paymentMode = document.getElementById("mode").value;
-                    payment.addedBy = currentUser.username;
-                } else {
-                    payment = { id: Date.now(), memberId, memberName: member.name, month, monthIndex, year, amountPaid: amount, pendingAmount: Math.max(0, member.monthlyAmount - amount), status: amount >= member.monthlyAmount ? "Paid" : "Pending", receiptNo, paymentDate, paymentMode: document.getElementById("mode").value, addedBy: currentUser.username };
-                    appData.payments.push(payment);
-                }
-                saveData(); closeModal(); renderPayments(); sendWhatsAppReceipt(member, payment, amount); showToast("✅ भुगतान दर्ज हो गया!");
-            };
-            document.getElementById("modal").style.display = "flex";
-        }
-        
-        function collectPayment(paymentId) {
-            const payment = appData.payments.find(p => p.id === paymentId);
-            if(!payment) return;
-            const member = appData.members.find(m => m.id === payment.memberId);
-            const modalBody = document.getElementById("modalBody");
-            modalBody.innerHTML = `<h3>💰 भुगतान लें</h3>
-                <p><strong>दानदाता:</strong> ${member?.name}</p><p><strong>महीना:</strong> ${payment.month} ${payment.year}</p>
-                <p><strong>बकाया राशि:</strong> ₹${payment.pendingAmount}</p>
-                <div class="form-group"><label>जमा राशि (₹)</label><input type="number" id="collectAmount" value="${payment.pendingAmount}"></div>
-                <div class="form-group"><label>भुगतान मोड</label><select id="mode"><option>नकद</option><option>UPI</option><option>बैंक ट्रांसफर</option></select></div>`;
-            document.getElementById("modalConfirmBtn").onclick = () => {
-                const amount = parseFloat(document.getElementById("collectAmount").value);
-                const mode = document.getElementById("mode").value;
-                payment.amountPaid += amount;
-                payment.pendingAmount = Math.max(0, payment.pendingAmount - amount);
-                payment.status = payment.pendingAmount <= 0 ? "Paid" : "Pending";
-                payment.receiptNo = `BHAVYA-${payment.year}-${payment.memberId}-${Date.now()}`;
-                payment.paymentDate = new Date().toISOString().split('T')[0];
-                payment.paymentMode = mode;
-                payment.addedBy = currentUser.username;
-                saveData(); closeModal(); renderPayments(); sendWhatsAppReceipt(member, payment, amount); showToast("✅ भुगतान जमा हो गया!");
-            };
-            document.getElementById("modal").style.display = "flex";
-        }
-        
-        function editPayment(paymentId) {
-            if (!hasPermission("edit")) { alert("❌ केवल एडमिन ही भुगतान सुधार सकता है!"); return; }
-            const payment = appData.payments.find(p => p.id === paymentId);
-            if(!payment) return;
-            const member = appData.members.find(m => m.id === payment.memberId);
-            const modalBody = document.getElementById("modalBody");
-            modalBody.innerHTML = `<h3>✏️ गलत राशि सुधारें</h3>
-                <p><strong>दानदाता:</strong> ${member?.name}</p><p><strong>महीना:</strong> ${payment.month} ${payment.year}</p>
-                <div class="form-group"><label>जमा राशि (₹)</label><input type="number" id="editAmount" value="${payment.amountPaid}"></div>
-                <div class="form-group"><label>भुगतान मोड</label><select id="editMode"><option ${payment.paymentMode === 'नकद' ? 'selected' : ''}>नकद</option><option ${payment.paymentMode === 'UPI' ? 'selected' : ''}>UPI</option></select></div>`;
-            document.getElementById("modalConfirmBtn").onclick = () => {
-                payment.amountPaid = parseFloat(document.getElementById("editAmount").value);
-                payment.pendingAmount = Math.max(0, (member?.monthlyAmount || 200) - payment.amountPaid);
-                payment.status = payment.pendingAmount <= 0 ? "Paid" : "Pending";
-                payment.paymentMode = document.getElementById("editMode").value;
-                payment.addedBy = currentUser.username;
-                saveData(); closeModal(); renderPayments(); showToast("✅ राशि सुधार दी गई!");
-            };
-            document.getElementById("modal").style.display = "flex";
-        }
-        
-        // ==================== PENDING ====================
-        function renderPending() {
-            const pendingMembers = appData.members.filter(m => appData.payments.some(p => p.memberId === m.id && p.status === "Pending"));
-            const html = `<div class="card"><h3>⚠️ बकाया दानदाता (${pendingMembers.length})</h3>
-                <button class="btn btn-primary" onclick="sendBulkReminders()"><i class="fab fa-whatsapp"></i> सभी को WhatsApp भेजें</button></div>
-                ${pendingMembers.map(member => {
-                    const pendingPayments = appData.payments.filter(p => p.memberId === member.id && p.status === "Pending");
-                    const totalPending = pendingPayments.reduce((s,p) => s + p.pendingAmount, 0);
-                    return `<div class="card" style="margin-top:16px; border-left: 4px solid var(--danger);">
-                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
-                            <div><h4>${member.name}</h4><p>📱 ${member.mobile} | मासिक: ₹${member.monthlyAmount}</p>
-                            <p><strong>कुल बकाया: ₹${totalPending}</strong> | ${pendingPayments.length} महीने</p></div>
-                            <div><button class="btn btn-success" onclick="collectPayment(${pendingPayments[0].id})">जमा करें</button>
-                            <button class="btn btn-primary" onclick="sendWhatsAppReminder(${member.id})"><i class="fab fa-whatsapp"></i> रिमाइंडर</button></div>
-                        </div>
-                        <div class="table-container"><tr><thead><tr><th>महीना</th><th>बकाया</th><th>कार्य</th></tr></thead>
-                        <tbody>${pendingPayments.map(p => `<tr class="pending-row"><td class="pending-row">${p.month} ${p.year}<td class="pending-row">₹${p.pendingAmount}<td class="pending-row"><button class="btn btn-success" onclick="collectPayment(${p.id})">जमा करें</button>`).join('')}</tbody>}</div>
-                    </div>`;
-                }).join('')}
-                ${pendingMembers.length === 0 ? '<div class="card"><h3>🎉 सभी दानदाताओं ने भुगतान कर दिया है!</h3></div>' : ''}`;
-            document.getElementById("pageContent").innerHTML = html;
-        }
-        
-        // ==================== RECEIPTS ====================
-        function generateReceipt(paymentId) {
-            const payment = appData.payments.find(p => p.id === paymentId);
-            if(payment) {
-                const member = appData.members.find(m => m.id === payment.memberId);
-                const receiptHTML = `<div style="max-width:500px;margin:0 auto;background:white;border-radius:20px;overflow:hidden;font-family:Arial,sans-serif;">
-                    <div style="background:linear-gradient(135deg,#FF9933,#e67e22);color:white;padding:20px;text-align:center;">
-                        <div style="display:flex;align-items:center;justify-content:center;gap:12px;">
-                            ${appData.settings.logo ? `<img src="${appData.settings.logo}" style="width:50px;height:50px;border-radius:50%;">` : '<i class="fas fa-temple" style="font-size:35px;"></i>'}
-                            <div><strong>${appData.settings.committeeName}</strong><br><small>${appData.settings.committeeBanner}</small></div>
-                        </div>
-                    </div>
-                    <div style="padding:25px;">
-                        <h3 style="text-align:center;color:#FF9933;">💰 भुगतान रसीद</h3><hr>
-                        <p><strong>रसीद नंबर:</strong> ${payment.receiptNo}</p>
-                        <p><strong>दिनांक:</strong> ${payment.paymentDate}</p>
-                        <p><strong>दानदाता:</strong> ${member?.name}</p>
-                        <p><strong>महीना:</strong> ${payment.month} ${payment.year}</p>
-                        <p><strong>जमा राशि:</strong> ₹${payment.amountPaid}</p>
-                        <p><strong>भुगतान मोड:</strong> ${payment.paymentMode}</p>
-                        <p><strong>UPI ID:</strong> ${appData.settings.upiId}</p>
-                        <hr><p style="text-align:center;">हनुमान जी आप पर अपनी कृपा बनाए रखें। 🙏</p>
-                        <div style="display:flex;justify-content:space-between;margin-top:15px;">
-                            <div><strong>${appData.settings.presidentName}</strong><br>अध्यक्ष</div>
-                            <div><strong>${appData.settings.secretaryName}</strong><br>सचिव</div>
-                        </div>
-                    </div>
-                </div>`;
-                const win = window.open();
-                win.document.write(`<html><head><title>रसीद ${payment.receiptNo}</title><style>body{font-family:Arial;padding:20px;}</style></head><body>${receiptHTML}<div style="text-align:center;margin-top:20px;"><button onclick="window.print()">🖨️ प्रिंट करें</button><button onclick="window.close()">❌ बंद करें</button></div></body></html>`);
-                win.document.close();
-            }
-        }
-        
-        // ==================== EXPENSES WITH CUSTOM CATEGORY ====================
-        function renderExpenses() {
-            const html = `<div style="margin-bottom:16px;">${hasPermission("add") ? `<button class="btn btn-primary" onclick="showAddExpenseModal()"><i class="fas fa-plus"></i> खर्च जोड़ें</button>` : ''}</div>
-                <div class="card"><div class="table-container"><table><thead><tr><th>श्रेणी</th><th>राशि</th><th>विवरण</th><th>तारीख</th><th>कार्य</th></tr></thead>
-                <tbody>${appData.expenses.map(e => `<tr class="${e.amount > 0 ? 'pending-row' : ''}"><td class="${e.amount > 0 ? 'pending-row' : ''}">${e.category}<td class="${e.amount > 0 ? 'pending-row' : ''}">₹${e.amount}<td class="${e.amount > 0 ? 'pending-row' : ''}">${e.description}<td class="${e.amount > 0 ? 'pending-row' : ''}">${e.date}<td class="${e.amount > 0 ? 'pending-row' : ''}">${hasPermission("delete") ? `<button class="btn btn-danger" onclick="deleteExpense(${e.id})">हटाएं</button>` : ''}`).join('')}</tbody>}</div></div>`;
-            document.getElementById("pageContent").innerHTML = html;
-        }
-        
-        function showAddExpenseModal() {
-            const modalBody = document.getElementById("modalBody");
-            modalBody.innerHTML = `<h3>➕ खर्च जोड़ें</h3>
-                <div class="form-group"><label>श्रेणी</label>
-                    <select id="categorySelect" onchange="toggleCustomCategory()">
-                        <option value="निर्माण">निर्माण</option>
-                        <option value="उत्सव">उत्सव</option>
-                        <option value="बिजली">बिजली</option>
-                        <option value="सजावट">सजावट</option>
-                        <option value="वेतन">वेतन</option>
-                        <option value="Custom">⚙️ Custom (अपनी श्रेणी)</option>
-                    </select>
-                </div>
-                <div class="form-group" id="customCategoryDiv" style="display:none;">
-                    <label>Custom श्रेणी का नाम</label>
-                    <input type="text" id="customCategory" placeholder="जैसे: प्रसाद, पूजा सामग्री, आदि">
-                </div>
-                <div class="form-group"><label>राशि (₹)</label><input type="number" id="amount"></div>
-                <div class="form-group"><label>विवरण</label><textarea id="description" rows="2"></textarea></div>
-                <div class="form-group"><label>तारीख</label><input type="date" id="expenseDate" value="${new Date().toISOString().split('T')[0]}"></div>`;
-            document.getElementById("modalConfirmBtn").onclick = () => {
-                if(!document.getElementById("amount").value) { alert("❌ राशि जरूरी है!"); return; }
-                let category = document.getElementById("categorySelect").value;
-                if(category === "Custom") {
-                    const customCat = document.getElementById("customCategory").value;
-                    if(!customCat) { alert("❌ कृपया Custom श्रेणी का नाम डालें!"); return; }
-                    category = customCat;
-                }
-                appData.expenses.push({ 
-                    id: Date.now(), 
-                    category: category, 
-                    amount: parseFloat(document.getElementById("amount").value), 
-                    description: document.getElementById("description").value, 
-                    date: document.getElementById("expenseDate").value, 
-                    year: new Date(document.getElementById("expenseDate").value).getFullYear(), 
-                    month: monthNames[new Date(document.getElementById("expenseDate").value).getMonth()], 
-                    addedBy: currentUser.username 
-                });
-                saveData(); closeModal(); renderExpenses(); showToast("✅ खर्च जुड़ गया!");
-            };
-            document.getElementById("modal").style.display = "flex";
-        }
-        
-        function toggleCustomCategory() {
-            const select = document.getElementById("categorySelect");
-            const customDiv = document.getElementById("customCategoryDiv");
-            if(select.value === "Custom") {
-                customDiv.style.display = "block";
+                // Save to session
+                sessionStorage.setItem("testUser", JSON.stringify(user));
+                
+                // Show success and redirect after 2 seconds
+                setTimeout(() => {
+                    alert("लॉगिन सफल! अब पूरा ऐप खुलेगा।\n\nआपका यूजर: " + user.username + "\nरोल: " + user.role);
+                    // Here you can redirect to main app or show main content
+                    document.body.innerHTML = `<div style="text-align:center; padding:50px;"><h1>✅ लॉगिन सफल!</h1><p>आपका यूजर: ${user.username}</p><p>रोल: ${user.role}</p><button onclick="location.reload()">लॉगआउट करें</button></div>`;
+                }, 1000);
             } else {
-                customDiv.style.display = "none";
+                messageDiv.style.color = "red";
+                messageDiv.innerHTML = "❌ गलत यूजरनेम या पासवर्ड! कृपया सही जानकारी डालें।";
             }
         }
         
-        function deleteExpense(id) {
-            if(confirm("खर्च हटाएं?")) { appData.expenses = appData.expenses.filter(e => e.id !== id); saveData(); renderExpenses(); showToast("✅ खर्च हट गया!"); }
+        // Check if already logged in
+        const savedUser = sessionStorage.getItem("testUser");
+        if (savedUser) {
+            const user = JSON.parse(savedUser);
+            document.body.innerHTML = `<div style="text-align:center; padding:50px;"><h1>✅ आप पहले से लॉगिन हैं!</h1><p>यूजर: ${user.username}</p><p>रोल: ${user.role}</p><button onclick="sessionStorage.clear(); location.reload()">लॉगआउट करें</button></div>`;
         }
-        
-        // ==================== USERS ====================
-        function renderUsers() {
-            if (currentUser?.role !== "super_admin" && currentUser?.role !== "admin") {
-                document.getElementById("pageContent").innerHTML = "<div class='card'><h3>🔒 Access Denied</h3><p>केवल एडमिन ही यूजर देख सकते हैं।</p></div>";
-                return;
-            }
-            const html = `<div style="margin-bottom:16px;"><button class="btn btn-primary" onclick="showAddUserModal()"><i class="fas fa-user-plus"></i> यूजर जोड़ें</button></div>
-                <div class="card"><div class="table-container"><table><thead><tr><th>यूजरनेम</th><th>नाम</th><th>रोल</th><th>कार्य</th></tr></thead>
-                <tbody>${appData.users.map(u => `<tr><td class="${u.role === 'operator' ? 'pending-row' : ''}">${u.username}<td class="${u.role === 'operator' ? 'pending-row' : ''}">${u.name}<td class="${u.role === 'operator' ? 'pending-row' : ''}"><span class="badge ${u.role === 'super_admin' ? 'badge-paid' : 'badge-pending'}">${u.role === 'super_admin' ? 'सुपर एडमिन' : (u.role === 'admin' ? 'एडमिन' : 'ऑपरेटर')}</span><td class="action-btns"><button class="btn btn-warning" onclick="resetUserPassword(${u.id})">पासवर्ड रीसेट</button>
-                ${u.username !== 'superadmin' ? `<button class="btn btn-danger" onclick="deleteUser(${u.id})">हटाएं</button>` : ''}
-                ${u.role === 'operator' && currentUser?.role === 'super_admin' ? `<button class="btn btn-primary" onclick="makeAdmin(${u.id})">एडमिन बनाएं</button>` : ''} </td>`).join('')}</tbody>}</div></div>`;
-            document.getElementById("pageContent").innerHTML = html;
-        }
-        
-        function showAddUserModal() {
-            const modalBody = document.getElementById("modalBody");
-            modalBody.innerHTML = `<h3>➕ नया यूजर जोड़ें</h3>
-                <div class="form-group"><label>यूजरनेम</label><input type="text" id="username"></div>
-                <div class="form-group"><label>नाम</label><input type="text" id="name"></div>
-                <div class="form-group"><label>मोबाइल नंबर</label><input type="tel" id="mobile" placeholder="10 अंक"></div>
-                <div class="form-group"><label>पासवर्ड</label><input type="password" id="password"></div>
-                <div class="form-group"><label>रोल</label><select id="role"><option value="operator">ऑपरेटर</option><option value="admin">एडमिन</option></select></div>`;
-            document.getElementById("modalConfirmBtn").onclick = () => {
-                if(!document.getElementById("username").value || !document.getElementById("password").value) { alert("❌ यूजरनेम और पासवर्ड जरूरी है!"); return; }
-                appData.users.push({ id: Date.now(), username: document.getElementById("username").value, name: document.getElementById("name").value, mobile: document.getElementById("mobile").value, password: document.getElementById("password").value, role: document.getElementById("role").value });
-                saveData(); closeModal(); renderUsers(); showToast("✅ यूजर जुड़ गया!");
-            };
-            document.getElementById("modal").style.display = "flex";
-        }
-        
-        function deleteUser(userId) {
-            if(confirm("यूजर हटाएं?")) { appData.users = appData.users.filter(u => u.id !== userId); saveData(); renderUsers(); showToast("✅ यूजर हट गया!"); }
-        }
-        
-        function makeAdmin(userId) {
-            if(confirm("इस ऑपरेटर को एडमिन बनाएं?")) {
-                const user = appData.users.find(u => u.id === userId);
-                if(user && user.role === "operator") { user.role = "admin"; saveData(); renderUsers(); showToast("✅ अब यह एडमिन है!"); }
-            }
-        }
-        
-        // ==================== SETTINGS ====================
-        function renderSettings() {
-            if (!hasPermission("manage_settings")) {
-                document.getElementById("pageContent").innerHTML = "<div class='card'><h3>🔒 Access Denied</h3><p>केवल एडमिन ही सेटिंग्स बदल सकते हैं।</p></div>";
-                return;
-            }
-            const html = `<div class="card"><h3>⚙️ सेटिंग्स</h3>
-                <div class="form-group"><label>समिति का नाम</label><input type="text" id="committeeName" value="${appData.settings.committeeName}"></div>
-                <div class="form-group"><label>बैनर</label><input type="text" id="committeeBanner" value="${appData.settings.committeeBanner}"></div>
-                <div class="form-group"><label>UPI ID</label><input type="text" id="upiId" value="${appData.settings.upiId}"></div>
-                <div class="form-group"><label>अध्यक्ष का नाम</label><input type="text" id="presidentName" value="${appData.settings.presidentName}"></div>
-                <div class="form-group"><label>सचिव का नाम</label><input type="text" id="secretaryName" value="${appData.settings.secretaryName}"></div>
-                <div class="form-group"><label>डिफॉल्ट मासिक राशि</label><input type="number" id="defaultMonthlyAmount" value="${appData.settings.defaultMonthlyAmount}"></div>
-                <button class="btn btn-primary" onclick="saveSettings()"><i class="fas fa-save"></i> सेव करें</button></div>
-                <div class="card" style="margin-top:16px;"><h3>🔄 डेटा मैनेजमेंट</h3>
-                <button class="btn btn-success" onclick="downloadBackup()"><i class="fas fa-download"></i> बैकअप डाउनलोड</button>
-                <button class="btn btn-danger" onclick="resetAllData()"><i class="fas fa-trash"></i> सभी डेटा रीसेट</button></div>`;
-            document.getElementById("pageContent").innerHTML = html;
-        }
-        
-        function saveSettings() {
-            appData.settings.committeeName = document.getElementById("committeeName").value;
-            appData.settings.committeeBanner = document.getElementById("committeeBanner").value;
-            appData.settings.upiId = document.getElementById("upiId").value;
-            appData.settings.presidentName = document.getElementById("presidentName").value;
-            appData.settings.secretaryName = document.getElementById("secretaryName").value;
-            appData.settings.defaultMonthlyAmount = parseInt(document.getElementById("defaultMonthlyAmount").value);
-            document.getElementById("committeeName").innerText = appData.settings.committeeName;
-            document.getElementById("committeeBanner").innerText = appData.settings.committeeBanner;
-            saveData(); showToast("✅ सेटिंग्स सेव हो गई!");
-        }
-        
-        function downloadBackup() {
-            const backup = { members: appData.members, payments: appData.payments, expenses: appData.expenses, settings: appData.settings };
-            const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a'); a.href = url; a.download = `temple_backup_${new Date().toISOString().split('T')[0]}.json`; a.click(); URL.revokeObjectURL(url);
-            showToast("✅ बैकअप डाउनलोड हो गया!");
-        }
-        
-        function resetAllData() {
-            if(confirm("⚠️ सभी डेटा डिलीट हो जाएगा!")) { localStorage.removeItem("templeAppData"); location.reload(); }
-        }
-        
-        // ==================== HELPERS ====================
-        function setupEventListeners() {
-            document.querySelectorAll('.nav-tab').forEach(tab => {
-                tab.addEventListener('click', () => {
-                    currentTab = tab.dataset.tab;
-                    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-                    tab.classList.add('active');
-                    renderCurrentPage();
-                });
-            });
-        }
-        
-        function switchTab(tabName) { currentTab = tabName; renderCurrentPage(); }
-        
-        function renderCurrentPage() {
-            switch(currentTab) {
-                case "dashboard": renderDashboard(); break;
-                case "members": renderMembers(); break;
-                case "payments": renderPayments(); break;
-                case "pending": renderPending(); break;
-                case "expenses": renderExpenses(); break;
-                case "users": renderUsers(); break;
-                case "settings": renderSettings(); break;
-                default: renderDashboard();
-            }
-        }
-        
-        function toggleDarkMode() { document.body.classList.toggle('dark'); appData.settings.darkMode = document.body.classList.contains('dark'); saveData(); }
-        function applyTheme() { if(appData.settings.darkMode) document.body.classList.add('dark'); if(appData.settings.logo) document.getElementById("templeLogo").innerHTML = `<img src="${appData.settings.logo}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`; }
-        function closeModal() { document.getElementById("modal").style.display = "none"; window.tempPhoto = null; }
-        function showToast(message) { let toast = document.querySelector('.toast'); if(toast) toast.remove(); toast = document.createElement('div'); toast.className = 'toast'; toast.innerHTML = message; document.body.appendChild(toast); setTimeout(() => toast.remove(), 3000); }
-        
-        init();
     </script>
 </body>
-    </html>
+</html>
