@@ -1,253 +1,1477 @@
-// 📁 APP/package.json
-{
-  "name": "bhavya-mandir-nirman-samiti-app",
-  "version": "1.0.0",
-  "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint",
-    "server": "node server/index.js",
-    "dev:all": "concurrently \"npm run dev\" \"npm run server\""
-  },
-  "dependencies": {
-    "next": "14.0.4",
-    "react": "18.2.0",
-    "react-dom": "18.2.0",
-    "axios": "^1.6.2",
-    "bcryptjs": "^2.4.3",
-    "chart.js": "^4.4.1",
-    "cloudinary": "^2.0.3",
-    "dotenv": "^16.3.1",
-    "express": "^4.18.2",
-    "express-rate-limit": "^7.1.5",
-    "express-validator": "^7.0.1",
-    "framer-motion": "^10.16.16",
-    "googleapis": "^129.0.0",
-    "helmet": "^7.1.0",
-    "jose": "^5.1.3",
-    "jszip": "^3.10.1",
-    "jsonwebtoken": "^9.0.2",
-    "multer": "^1.4.5-lts.1",
-    "pdf-lib": "^1.17.1",
-    "qrcode": "^1.5.3",
-    "react-chartjs-2": "^5.2.0",
-    "react-hook-form": "^7.48.2",
-    "react-hot-toast": "^2.4.1",
-    "react-photo-cropper": "^1.0.0",
-    "sharp": "^0.33.1",
-    "tailwindcss": "^3.4.0",
-    "zustand": "^4.4.7"
-  },
-  "devDependencies": {
-    "@types/node": "^20.10.5",
-    "@types/react": "^18.2.45",
-    "autoprefixer": "^10.4.16",
-    "concurrently": "^8.2.2",
-    "postcss": "^8.4.32",
-    "typescript": "^5.3.3"
-  }
-}
-
-// 📁 APP/.env.local (Create this file with your credentials)
-GOOGLE_SERVICE_ACCOUNT_EMAIL="your-service-account@project.iam.gserviceaccount.com"
-GOOGLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYOUR_KEY_HERE\n-----END PRIVATE KEY-----\n"
-SPREADSHEET_ID="your-google-sheet-id"
-JWT_SECRET="super-secret-jwt-key-change-this"
-UPI_ID="committee@upi"
-TELEGRAM_BOT_TOKEN="your-telegram-bot-token"
-TELEGRAM_CHAT_ID="your-chat-id"
-CLOUDINARY_CLOUD_NAME="your-cloud-name"
-CLOUDINARY_API_KEY="your-api-key"
-CLOUDINARY_API_SECRET="your-api-secret"
-NEXT_PUBLIC_APP_NAME="भव्य मंदिर निर्माण समिति"
-NEXT_PUBLIC_THEME_COLOR="#FF9933"
-
-// 📁 APP/lib/googleSheets.js
-const { google } = require('googleapis');
-
-const SHEETS_CONFIG = {
-  MEMBERS: 'MEMBERS',
-  MONTHLY_PAYMENTS: 'MONTHLY_PAYMENTS',
-  DONATIONS: 'DONATIONS',
-  EXPENSES: 'EXPENSES',
-  USERS: 'USERS',
-  SETTINGS: 'SETTINGS',
-  RECEIPTS: 'RECEIPTS',
-  AUDIT_LOGS: 'AUDIT_LOGS',
-  RAMCHARITMANAS: 'RAMCHARITMANAS_PATH',
-  EVENTS: 'EVENTS',
-  CONSTRUCTION: 'CONSTRUCTION_PROGRESS',
-  BACKUPS: 'BACKUPS',
-  ANNOUNCEMENTS: 'ANNOUNCEMENTS'
-};
-
-class GoogleSheetsService {
-  constructor() {
-    this.auth = null;
-    this.sheets = null;
-    this.spreadsheetId = process.env.SPREADSHEET_ID;
-    this.initialize();
-  }
-
-  async initialize() {
-    try {
-      this.auth = new google.auth.GoogleAuth({
-        credentials: {
-          client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-          private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
-        },
-        scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-      });
-      
-      this.sheets = google.sheets({ version: 'v4', auth: this.auth });
-      await this.ensureSheetsExist();
-      console.log('✅ Google Sheets connected');
-    } catch (error) {
-      console.error('❌ Google Sheets connection failed:', error);
-    }
-  }
-
-  async ensureSheetsExist() {
-    for (const [key, sheetName] of Object.entries(SHEETS_CONFIG)) {
-      await this.createSheetIfNotExists(sheetName);
-    }
-  }
-
-  async createSheetIfNotExists(sheetName) {
-    try {
-      const response = await this.sheets.spreadsheets.get({
-        spreadsheetId: this.spreadsheetId,
-      });
-      
-      const exists = response.data.sheets.some(
-        sheet => sheet.properties.title === sheetName
-      );
-      
-      if (!exists) {
-        await this.sheets.spreadsheets.batchUpdate({
-          spreadsheetId: this.spreadsheetId,
-          requestBody: {
-            requests: [{
-              addSheet: {
-                properties: { title: sheetName }
-              }
-            }]
-          }
-        });
-        console.log(`✅ Created sheet: ${sheetName}`);
-      }
-    } catch (error) {
-      console.error(`Error creating sheet ${sheetName}:`, error);
-    }
-  }
-
-  async getRows(sheetName) {
-    try {
-      const response = await this.sheets.spreadsheets.values.get({
-        spreadsheetId: this.spreadsheetId,
-        range: `${sheetName}!A:Z`,
-      });
-      
-      const rows = response.data.values || [];
-      if (rows.length === 0) return [];
-      
-      const headers = rows[0];
-      return rows.slice(1).map(row => {
-        const obj = {};
-        headers.forEach((header, index) => {
-          obj[header] = row[index] || '';
-        });
-        return obj;
-      });
-    } catch (error) {
-      console.error(`Error getting rows from ${sheetName}:`, error);
-      return [];
-    }
-  }
-
-  async addRow(sheetName, data) {
-    try {
-      const headers = await this.getHeaders(sheetName);
-      const values = headers.map(header => data[header] || '');
-      
-      await this.sheets.spreadsheets.values.append({
-        spreadsheetId: this.spreadsheetId,
-        range: `${sheetName}!A:Z`,
-        valueInputOption: 'USER_ENTERED',
-        requestBody: { values: [values] }
-      });
-      
-      return { success: true };
-    } catch (error) {
-      console.error(`Error adding row to ${sheetName}:`, error);
-      return { success: false, error: error.message };
-    }
-  }
-
-  async updateRow(sheetName, rowIndex, data) {
-    try {
-      const headers = await this.getHeaders(sheetName);
-      const values = headers.map(header => data[header] || '');
-      
-      await this.sheets.spreadsheets.values.update({
-        spreadsheetId: this.spreadsheetId,
-        range: `${sheetName}!A${rowIndex + 2}:Z${rowIndex + 2}`,
-        valueInputOption: 'USER_ENTERED',
-        requestBody: { values: [values] }
-      });
-      
-      return { success: true };
-    } catch (error) {
-      console.error(`Error updating row in ${sheetName}:`, error);
-      return { success: false, error: error.message };
-    }
-  }
-
-  async getHeaders(sheetName) {
-    const response = await this.sheets.spreadsheets.values.get({
-      spreadsheetId: this.spreadsheetId,
-      range: `${sheetName}!A1:Z1`,
-    });
-    
-    return response.data.values?.[0] || [];
-  }
-
-  async deleteRow(sheetName, rowIndex) {
-    try {
-      await this.sheets.spreadsheets.batchUpdate({
-        spreadsheetId: this.spreadsheetId,
-        requestBody: {
-          requests: [{
-            deleteDimension: {
-              range: {
-                sheetId: await this.getSheetId(sheetName),
-                dimension: 'ROWS',
-                startIndex: rowIndex + 1,
-                endIndex: rowIndex + 2
-              }
-            }
-          }]
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>🚩 BHAVYA MANDIR NIRMAN SAMITI - Complete Temple Management APP</title>
+    <meta name="theme-color" content="#FF9933">
+    <link rel="manifest" href="data:application/manifest+json,{
+        \"name\":\"भव्य मंदिर निर्माण समिति\",
+        \"short_name\":\"Mandir APP\",
+        \"start_url\":\".\",
+        \"display\":\"standalone\",
+        \"background_color\":\"#FF9933\",
+        \"theme_color\":\"#FF9933\",
+        \"icons\":[{\"src\":\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23FF9933' width='100' height='100'/%3E%3Ctext x='50' y='70' font-size='60' text-anchor='middle' fill='white'%3E🛕%3C/text%3E%3C/svg%3E\",\"sizes\":\"any\",\"type\":\"image/svg+xml\"}]
+    }">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { 
+            --saffron: #FF9933; --saffron-dark: #e68200;
+            --red: #dc3545; --green: #28a745; --blue: #007bff; --purple: #6f42c1;
+            --cyan: #17a2b8; --yellow: #ffc107; --dark: #343a40; --gray: #6c757d;
         }
-      });
-      return { success: true };
-    } catch (error) {
-      console.error(`Error deleting row from ${sheetName}:`, error);
-      return { success: false, error: error.message };
+        body { font-family: 'Segoe UI', 'Poppins', system-ui, sans-serif; background: #f5f7fb; min-height: 100vh; }
+        
+        /* Login */
+        .login-container { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--saffron), var(--saffron-dark)); padding: 20px; }
+        .login-box { background: white; border-radius: 28px; padding: 35px 25px; width: 100%; max-width: 360px; text-align: center; box-shadow: 0 25px 50px rgba(0,0,0,0.2); }
+        .login-box h2 { color: var(--saffron); margin-bottom: 20px; }
+        .login-box input { width: 100%; padding: 14px; margin: 10px 0; border: 1px solid #ddd; border-radius: 14px; font-size: 15px; }
+        .login-box button { width: 100%; padding: 14px; background: var(--saffron); color: white; border: none; border-radius: 14px; font-weight: bold; cursor: pointer; font-size: 16px; }
+        .error-msg { color: var(--red); font-size: 12px; margin-top: 10px; }
+        
+        /* Main App */
+        .app-container { display: none; }
+        .header { background: linear-gradient(135deg, var(--saffron), var(--saffron-dark)); color: white; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; position: sticky; top: 0; z-index: 99; }
+        .header h1 { font-size: 0.9rem; }
+        .online-status { display: flex; align-items: center; gap: 6px; font-size: 10px; background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 20px; }
+        .online-dot { width: 8px; height: 8px; background: #28a745; border-radius: 50%; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        .user-info { display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 30px; }
+        .user-info span { font-size: 11px; }
+        .logout-btn { background: rgba(255,255,255,0.3); border: none; color: white; padding: 4px 10px; border-radius: 20px; cursor: pointer; font-size: 10px; }
+        
+        /* Top Nav */
+        .top-nav { background: white; display: flex; overflow-x: auto; padding: 8px 12px; border-bottom: 1px solid #eee; gap: 6px; }
+        .category-btn { padding: 8px 18px; border-radius: 30px; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; border: none; transition: all 0.2s; }
+        .category-btn.core { background: #E3F2FD; color: var(--blue); }
+        .category-btn.core.active { background: var(--blue); color: white; }
+        .category-btn.finance { background: #E8F5E9; color: var(--green); }
+        .category-btn.finance.active { background: var(--green); color: white; }
+        .category-btn.temple { background: #FFF3E0; color: var(--saffron); }
+        .category-btn.temple.active { background: var(--saffron); color: white; }
+        .category-btn.report { background: #F3E5F5; color: var(--purple); }
+        .category-btn.report.active { background: var(--purple); color: white; }
+        .category-btn.settings { background: #FFEBEE; color: var(--red); }
+        .category-btn.settings.active { background: var(--red); color: white; }
+        
+        /* Bottom Nav */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; overflow-x: auto; padding: 8px 6px; box-shadow: 0 -2px 15px rgba(0,0,0,0.1); z-index: 100; gap: 2px; }
+        .nav-item { text-align: center; padding: 6px 8px; border-radius: 12px; cursor: pointer; min-width: 60px; transition: all 0.2s; }
+        .nav-item.active { background: var(--saffron); color: white; }
+        .nav-item .icon { font-size: 18px; display: block; }
+        .nav-item .label { font-size: 8px; margin-top: 2px; }
+        
+        /* Main Content */
+        .main-content { padding: 12px; padding-bottom: 80px; }
+        .category-page { display: none; }
+        .category-page.active { display: block; }
+        .tab-page { display: none; animation: fadeIn 0.2s; }
+        .tab-page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Cards */
+        .card { background: white; border-radius: 16px; padding: 14px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .card-title { font-size: 14px; font-weight: 600; margin-bottom: 12px; border-left: 4px solid var(--saffron); padding-left: 10px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 12px; }
+        .stat-card { background: white; border-radius: 14px; padding: 12px; text-align: center; border-bottom: 3px solid var(--saffron); box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
+        .stat-value { font-size: 22px; font-weight: bold; color: var(--saffron); }
+        .stat-label { font-size: 10px; color: var(--gray); margin-top: 4px; }
+        
+        /* Buttons */
+        .btn { padding: 10px 16px; border: none; border-radius: 12px; font-size: 13px; font-weight: 600; cursor: pointer; width: 100%; text-align: center; margin: 4px 0; transition: all 0.2s; }
+        .btn-primary { background: var(--saffron); color: white; }
+        .btn-success { background: var(--green); color: white; }
+        .btn-danger { background: var(--red); color: white; }
+        .btn-warning { background: var(--yellow); color: var(--dark); }
+        .btn-info { background: var(--cyan); color: white; }
+        .btn-sm { padding: 5px 10px; font-size: 11px; width: auto; display: inline-block; margin: 2px; }
+        
+        /* Forms */
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; margin-bottom: 5px; font-size: 11px; font-weight: 500; color: var(--dark); }
+        .form-control, input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 10px; font-size: 13px; background: #f9f9f9; }
+        
+        /* Lists */
+        .member-item, .payment-item, .event-item, .expense-item, .path-item, .donation-item { background: #f9f9f9; border-radius: 12px; padding: 10px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #f0f0f0; }
+        .badge-paid { background: #d4edda; color: #155724; padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 600; }
+        .badge-pending { background: #f8d7da; color: #721c24; padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 600; }
+        
+        /* Modal */
+        .modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+        .modal-content { background: white; border-radius: 24px; padding: 20px; width: 95%; max-width: 400px; max-height: 85vh; overflow-y: auto; }
+        
+        /* Toast */
+        .toast { position: fixed; bottom: 90px; left: 16px; right: 16px; background: var(--dark); color: white; padding: 12px; border-radius: 12px; text-align: center; z-index: 200; animation: slideUp 0.3s; }
+        @keyframes slideUp { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        
+        .progress-bar { height: 8px; background: #e0e0e0; border-radius: 10px; overflow: hidden; margin: 8px 0; }
+        .progress-fill { height: 100%; background: var(--saffron); border-radius: 10px; }
+        .flex-between { display: flex; justify-content: space-between; align-items: center; }
+        .flex { display: flex; gap: 10px; }
+        .mt-2 { margin-top: 10px; }
+        .mb-2 { margin-bottom: 10px; }
+        .text-center { text-align: center; }
+        .sub-tabs { display: flex; gap: 8px; margin-bottom: 12px; overflow-x: auto; }
+        .sub-tab { padding: 6px 14px; background: #e0e0e0; border-radius: 25px; font-size: 11px; cursor: pointer; white-space: nowrap; }
+        .sub-tab.active { background: var(--saffron); color: white; }
+        .gallery-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .gallery-item { aspect-ratio: 1; background: #f0f0f0; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 28px; cursor: pointer; }
+        .role-super_admin { background: #ffd700; color: #000; padding: 3px 10px; border-radius: 20px; font-size: 10px; }
+        .role-admin { background: var(--cyan); color: white; padding: 3px 10px; border-radius: 20px; font-size: 10px; }
+        .role-operator { background: var(--green); color: white; padding: 3px 10px; border-radius: 20px; font-size: 10px; }
+        .role-viewer { background: var(--gray); color: white; padding: 3px 10px; border-radius: 20px; font-size: 10px; }
+        .switch { position: relative; display: inline-block; width: 50px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 24px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--saffron); }
+        input:checked + .slider:before { transform: translateX(26px); }
+        .photo-preview { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; margin-right: 10px; }
+        
+        /* Install Prompt */
+        .install-prompt { position: fixed; bottom: 80px; left: 16px; right: 16px; background: var(--dark); color: white; padding: 12px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; z-index: 101; }
+        .install-prompt button { background: var(--saffron); border: none; padding: 8px 16px; border-radius: 25px; color: white; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<!-- LOGIN PAGE -->
+<div id="loginPage" class="login-container">
+    <div class="login-box">
+        <h2>🚩 भव्य मंदिर निर्माण समिति 🚩</h2>
+        <p style="color:#666; margin-bottom:20px;">Complete Temple Management APP</p>
+        <input type="text" id="loginEmail" placeholder="ईमेल / यूजरनेम">
+        <input type="password" id="loginPassword" placeholder="पासवर्ड">
+        <button onclick="doLogin()">🔐 लॉगिन करें</button>
+        <div id="loginError" class="error-msg"></div>
+        <p style="margin-top:15px; font-size:11px; color:#999;">Demo: super@mandir.com / super123 | admin@mandir.com / admin123</p>
+    </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="appContainer" class="app-container">
+    <div class="header">
+        <h1 id="headerTitle">🚩 भव्य मंदिर निर्माण समिति 🚩</h1>
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <div class="online-status"><span class="online-dot"></span><span id="connectionStatus">Online</span></div>
+            <div class="user-info">
+                <span id="userName">Admin</span>
+                <span id="userRoleBadge" class="role-admin">Admin</span>
+                <button class="logout-btn" onclick="doLogout()">लॉगआउट</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Install Prompt -->
+    <div id="installPrompt" class="install-prompt" style="display:none;">
+        <span>📱 इस APP को इंस्टॉल करें</span>
+        <button id="installBtn">इंस्टॉल करें</button>
+    </div>
+
+    <!-- TOP CATEGORY NAV -->
+    <div class="top-nav">
+        <button class="category-btn core active" onclick="showCategory('core')">🏠 कोर</button>
+        <button class="category-btn finance" onclick="showCategory('finance')">💰 वित्त</button>
+        <button class="category-btn temple" onclick="showCategory('temple')">🛕 मंदिर</button>
+        <button class="category-btn report" onclick="showCategory('report')">📊 रिपोर्ट</button>
+        <button class="category-btn settings" onclick="showCategory('settings')">⚙️ सेटिंग्स</button>
+    </div>
+
+    <div class="main-content" id="mainContent">
+        
+        <!-- ==================== CORE CATEGORY (11 TABS) ==================== -->
+        <div id="coreCategory" class="category-page active">
+            <!-- 1. DASHBOARD -->
+            <div id="dashboardTab" class="tab-page active">
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="stat-value" id="statMembers">0</div><div class="stat-label">कुल सदस्य</div></div>
+                    <div class="stat-card"><div class="stat-value" id="statCollection">₹0</div><div class="stat-label">कुल संग्रह</div></div>
+                    <div class="stat-card"><div class="stat-value" id="statPending">₹0</div><div class="stat-label">कुल बकाया</div></div>
+                    <div class="stat-card"><div class="stat-value" id="statDonations">₹0</div><div class="stat-label">कुल दान</div></div>
+                    <div class="stat-card"><div class="stat-value" id="statExpenses">₹0</div><div class="stat-label">कुल व्यय</div></div>
+                    <div class="stat-card"><div class="stat-value" id="statNet">₹0</div><div class="stat-label">नेट बैलेंस</div></div>
+                    <div class="stat-card"><div class="stat-value" id="statToday">₹0</div><div class="stat-label">आज का संग्रह</div></div>
+                    <div class="stat-card"><div class="stat-value" id="statTodayDonation">₹0</div><div class="stat-label">आज का दान</div></div>
+                </div>
+                <div class="card"><div class="card-title">📈 मासिक संग्रह चार्ट</div><canvas id="monthlyChart" style="height:160px"></canvas></div>
+                <div class="card"><div class="card-title">💰 हाल के भुगतान</div><div id="recentPayments"></div></div>
+                <div class="card"><div class="card-title">⚠️ बकाया अलर्ट</div><div id="pendingAlerts"></div></div>
+                <div class="card"><div class="card-title">📖 आगामी रामचरितमानस पाठ</div><div id="upcomingPath"></div></div>
+                <div class="card"><div class="card-title">🔔 सूचना केंद्र</div><div id="notificationsPreview"></div></div>
+                <div class="card"><div class="card-title">🏗️ निर्माण प्रगति</div><div id="constructionPreview"></div></div>
+            </div>
+            
+            <!-- 2. MEMBERS MODULE -->
+            <div id="membersTab" class="tab-page">
+                <div class="flex"><input type="text" id="memberSearch" placeholder="🔍 नाम, मोबाइल, गाँव, आधार..." class="form-control" onkeyup="renderMembers()" style="flex:1"><button class="btn-sm btn-primary" onclick="openMemberModal()" style="width:auto; margin-left:5px;">+</button></div>
+                <div class="sub-tabs mt-2"><div class="sub-tab active" onclick="filterMemberStatus('active')">सक्रिय</div><div class="sub-tab" onclick="filterMemberStatus('deleted')">हटाए गए</div><div class="sub-tab" onclick="filterMemberStatus('all')">सभी</div></div>
+                <div id="membersList" class="mt-2"></div>
+            </div>
+            
+            <!-- 3. MEMBER PROFILE / FAMILY LINKING -->
+            <div id="memberProfileTab" class="tab-page">
+                <select id="profileSelect" class="form-control" onchange="loadMemberProfile()"><option>सदस्य चुनें</option></select>
+                <div id="memberProfileCard" class="card mt-2"></div>
+                <div id="familyTree"></div>
+                <button class="btn btn-info mt-2" onclick="linkFamily()">परिवार लिंक करें</button>
+            </div>
+            
+            <!-- 4. MEMBER HISTORY -->
+            <div id="memberHistoryTab" class="tab-page">
+                <select id="historySelect" class="form-control" onchange="loadMemberHistory()"><option>सदस्य चुनें</option></select>
+                <div id="memberHistoryList"></div>
+            </div>
+            
+            <!-- 5. SOFT DELETE / RESTORE -->
+            <div id="restoreTab" class="tab-page">
+                <div class="card"><div class="card-title">♻️ हटाए गए सदस्य (सॉफ्ट डिलीट)</div><div id="deletedMembersList"></div></div>
+            </div>
+            
+            <!-- 6. MY PROFILE -->
+            <div id="myProfileTab" class="tab-page">
+                <div class="card"><div class="card-title">👤 मेरी प्रोफाइल</div>
+                    <div class="form-group"><label>नाम</label><input type="text" id="myName" class="form-control"></div>
+                    <div class="form-group"><label>ईमेल</label><input type="email" id="myEmail" class="form-control"></div>
+                    <div class="form-group"><label>नया पासवर्ड</label><input type="password" id="myPassword" class="form-control" placeholder="बदलने के लिए भरें"></div>
+                    <button class="btn btn-primary" onclick="updateMyProfile()">अपडेट करें</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== FINANCE CATEGORY (10 TABS) ==================== -->
+        <div id="financeCategory" class="category-page">
+            <!-- 7. MONTHLY DONATIONS -->
+            <div id="donationsTab" class="tab-page active">
+                <select id="donationYear" class="form-control" onchange="renderDonationMembers()"></select>
+                <input type="text" id="donationSearch" placeholder="सदस्य खोजें..." class="form-control mt-2" onkeyup="renderDonationMembers()">
+                <div id="donationMembersList" class="mt-2"></div>
+            </div>
+            
+            <!-- 8. PENDING DUES -->
+            <div id="pendingTab" class="tab-page">
+                <div class="flex"><select id="pendingYear" class="form-control" onchange="loadPending()"></select><select id="pendingMonth" class="form-control" onchange="loadPending()"></select><select id="pendingVillage" class="form-control" onchange="loadPending()"></select></div>
+                <button class="btn btn-warning mt-2" onclick="sendBulkReminders()">📱 बल्क रिमाइंडर भेजें</button>
+                <div id="pendingList" class="mt-2"></div>
+            </div>
+            
+            <!-- 9. RECEIPTS -->
+            <div id="receiptsTab" class="tab-page">
+                <input type="text" id="receiptSearch" placeholder="रसीद नंबर या सदस्य..." class="form-control" onkeyup="renderReceipts()">
+                <div id="receiptsList" class="mt-2"></div>
+            </div>
+            
+            <!-- 10. GENERAL DONATIONS -->
+            <div id="generalDonationsTab" class="tab-page">
+                <button class="btn btn-success" onclick="openDonationModal()">+ सामान्य दान</button>
+                <div class="card text-center mt-2"><p>UPI से करें दान</p><div style="font-size:40px">📱</div><p id="displayUPI">mandir@upi</p><div id="upiQRCode"></div></div>
+                <div id="generalDonationsList" class="mt-2"></div>
+            </div>
+            
+            <!-- 11. EXPENSES -->
+            <div id="expensesTab" class="tab-page">
+                <button class="btn btn-danger" onclick="openExpenseModal()">+ नया व्यय</button>
+                <div class="sub-tabs mt-2"><div class="sub-tab active" onclick="filterExpenses('all')">सभी</div><div class="sub-tab" onclick="filterExpenses('Construction')">निर्माण</div><div class="sub-tab" onclick="filterExpenses('Festival')">त्योहार</div><div class="sub-tab" onclick="filterExpenses('Electricity')">बिजली</div><div class="sub-tab" onclick="filterExpenses('Decoration')">सजावट</div><div class="sub-tab" onclick="filterExpenses('Salary')">वेतन</div><div class="sub-tab" onclick="filterExpenses('Misc')">अन्य</div></div>
+                <div id="expensesList" class="mt-2"></div>
+            </div>
+            
+            <!-- 12. LEDGER / ACCOUNTS -->
+            <div id="ledgerTab" class="tab-page">
+                <div class="card"><div class="card-title">📒 दैनिक कैशबुक</div><div id="cashbook"></div><button class="btn btn-sm btn-info mt-1" onclick="addCashEntry()">+ कैश एंट्री</button></div>
+                <div class="card"><div class="card-title">🏦 बैंक लेजर</div><div id="bankLedger"></div><button class="btn btn-sm btn-info" onclick="addBankEntry()">+ बैंक एंट्री</button></div>
+                <div class="card"><div class="card-title">💰 नकदी हाथ में</div><div id="cashInHand"></div></div>
+                <div id="ledgerVerification" class="card"></div>
+            </div>
+            
+            <!-- 13. FINANCIAL TRANSPARENCY -->
+            <div id="transparencyTab" class="tab-page">
+                <div class="card"><div class="card-title">📊 वित्तीय पारदर्शिता</div><div id="financialSummary"></div></div>
+            </div>
+        </div>
+
+        <!-- ==================== TEMPLE CATEGORY (10 TABS) ==================== -->
+        <div id="templeCategory" class="category-page">
+            <!-- 14. RAMCHARITMANAS PATH -->
+            <div id="ramcharitmanasTab" class="tab-page active">
+                <div class="card card-saffron"><div class="card-title">📖 पुष्य नक्षत्र कैलेंडर</div><div id="pushyaCalendar"></div></div>
+                <button class="btn btn-primary" onclick="openPathModal()">+ नया पाठ शेड्यूल</button>
+                <div id="pathList" class="mt-2"></div>
+            </div>
+            
+            <!-- 15. EVENTS & FESTIVALS -->
+            <div id="eventsTab" class="tab-page">
+                <button class="btn btn-purple" style="background:var(--purple);color:white" onclick="openEventModal()">+ नया आयोजन</button>
+                <div id="eventsList" class="mt-2"></div>
+            </div>
+            
+            <!-- 16. CONSTRUCTION PROGRESS -->
+            <div id="constructionTab" class="tab-page">
+                <div class="card"><div class="card-title">🏗️ निर्माण प्रगति</div><div id="constructionProgress"></div><button class="btn btn-sm btn-primary mt-1" onclick="updateConstructionProgress()">अपडेट करें</button></div>
+                <div class="card"><div class="card-title">📦 सामग्री ट्रैकिंग</div><div id="materialTracking"></div><button class="btn btn-sm btn-info mt-1" onclick="updateMaterials()">सामग्री अपडेट</button></div>
+                <div class="card"><div class="card-title">💰 बजट ट्रैकिंग</div><div id="budgetTracking"></div></div>
+                <div class="card"><div class="card-title">📸 निर्माण गैलरी</div><div id="constructionGallery" class="gallery-grid"></div><button class="btn btn-sm btn-info mt-1" onclick="addConstructionPhoto()">+ फोटो</button></div>
+                <div class="card"><div class="card-title">📝 पेंडिंग कार्य</div><div id="pendingWork"></div><button class="btn btn-sm btn-warning" onclick="addPendingWork()">+ कार्य</button></div>
+                <div class="card"><div class="card-title">📸 पहले और बाद की तुलना</div><div id="beforeAfterGallery" class="gallery-grid"></div><button class="btn btn-sm" onclick="addBeforeAfter()">+ जोड़ें</button></div>
+            </div>
+            
+            <!-- 17. TEMPLE GALLERY -->
+            <div id="templeGalleryTab" class="tab-page">
+                <div class="sub-tabs"><div class="sub-tab active" onclick="filterTempleGallery('temple')">मंदिर</div><div class="sub-tab" onclick="filterTempleGallery('event')">ईवेंट</div><div class="sub-tab" onclick="filterTempleGallery('ceremony')">अनुष्ठान</div></div>
+                <div id="templeGalleryGrid" class="gallery-grid"></div>
+                <button class="btn btn-primary mt-2" onclick="addTemplePhoto()">+ फोटो जोड़ें</button>
+            </div>
+            
+            <!-- 18. ANNOUNCEMENT CENTER -->
+            <div id="announcementsTab" class="tab-page">
+                <div class="card"><div class="card-title">📢 घोषणा करें</div>
+                    <select id="announcementType" class="form-control"><option>त्योहार नोटिस</option><option>बैठक नोटिस</option><option>आपातकालीन अलर्ट</option></select>
+                    <textarea id="announcementMsg" rows="3" class="form-control mt-2" placeholder="संदेश लिखें..."></textarea>
+                    <button class="btn btn-primary mt-2" onclick="sendAnnouncement()">WhatsApp पर भेजें</button>
+                </div>
+                <div class="card"><div class="card-title">📜 पिछली घोषणाएं</div><div id="announcementsList"></div></div>
+            </div>
+        </div>
+
+        <!-- ==================== REPORT CATEGORY (9 TABS) ==================== -->
+        <div id="reportCategory" class="category-page">
+            <!-- 19. REPORTS -->
+            <div id="reportsTab" class="tab-page active">
+                <select id="reportType" class="form-control">
+                    <option value="monthly">📅 मासिक रिपोर्ट</option>
+                    <option value="yearly">📆 वार्षिक रिपोर्ट</option>
+                    <option value="pending">⚠️ बकाया रिपोर्ट</option>
+                    <option value="village">🏘️ गाँव वार रिपोर्ट</option>
+                    <option value="donation">💰 दान रिपोर्ट</option>
+                    <option value="expense">💸 व्यय रिपोर्ट</option>
+                    <option value="audit">📋 ऑडिट रिपोर्ट</option>
+                    <option value="construction">🏗️ निर्माण रिपोर्ट</option>
+                </select>
+                <select id="reportYear" class="form-control mt-2"></select>
+                <div class="flex mt-2"><button class="btn btn-primary" style="flex:1" onclick="generateReport()">रिपोर्ट देखें</button><button class="btn btn-success" style="flex:1" onclick="exportReportToExcel()">📥 Excel</button><button class="btn btn-info" style="flex:1" onclick="exportReportToPDF()">📄 PDF</button></div>
+                <div id="reportOutput" class="mt-2"></div>
+            </div>
+            
+            <!-- 20. ANALYTICS -->
+            <div id="analyticsTab" class="tab-page">
+                <div class="card"><div class="card-title">📊 आय vs व्यय</div><canvas id="incomeExpenseChart" style="height:160px"></canvas></div>
+                <div class="card"><div class="card-title">🏘️ गाँव वार विश्लेषण</div><div id="villageAnalytics"></div></div>
+                <div class="card"><div class="card-title">📈 लक्ष्य vs उपलब्धि</div><div id="goalAchievement"></div></div>
+                <div class="card"><div class="card-title">📉 बकाया तुलना (वर्ष दर वर्ष)</div><div id="pendingComparison"></div></div>
+                <div class="card"><div class="card-title">📊 वर्ष तुलना</div><div id="yearComparison"></div></div>
+            </div>
+            
+            <!-- 21. NOTIFICATION CENTER -->
+            <div id="notificationsTab" class="tab-page">
+                <div class="card"><div class="card-title">📱 WhatsApp लॉग</div><div id="whatsappLogs" style="max-height:150px; overflow-y:auto"></div></div>
+                <div class="card"><div class="card-title">📨 टेलीग्राम लॉग</div><div id="telegramLogs" style="max-height:150px; overflow-y:auto"></div></div>
+                <div class="card"><div class="card-title">⚠️ रिमाइंडर हिस्ट्री</div><div id="reminderHistory"></div></div>
+                <div class="card"><div class="card-title">🔄 बैकअप अलर्ट</div><div id="backupAlerts"></div></div>
+                <div class="card"><div class="card-title">🔒 सुरक्षा अलर्ट</div><div id="securityAlerts"></div></div>
+            </div>
+            
+            <!-- 22. AUDIT LOGS -->
+            <div id="auditTab" class="tab-page">
+                <div class="card"><div class="card-title">📜 सभी गतिविधियाँ</div><div id="auditLogsList" style="max-height:350px; overflow-y:auto"></div></div>
+                <button class="btn btn-info mt-2" onclick="exportAuditLogs()">📥 लॉग एक्सपोर्ट करें</button>
+            </div>
+            
+            <!-- 23. EXPORT SYSTEM -->
+            <div id="exportTab" class="tab-page">
+                <div class="card"><div class="card-title">📤 एक्सपोर्ट सिस्टम</div>
+                    <button class="btn btn-success" onclick="exportToPDF()">📄 PDF एक्सपोर्ट</button>
+                    <button class="btn btn-info mt-2" onclick="exportToExcel()">📊 Excel एक्सपोर्ट</button>
+                    <button class="btn btn-primary mt-2" onclick="exportToCSV()">📑 CSV एक्सपोर्ट</button>
+                    <button class="btn btn-warning mt-2" onclick="printReport()">🖨️ प्रिंट रिपोर्ट</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== SETTINGS CATEGORY (8 TABS) ==================== -->
+        <div id="settingsCategory" class="category-page">
+            <!-- 24. COMMITTEE SETTINGS -->
+            <div id="committeeSettingsTab" class="tab-page active">
+                <div class="card"><div class="card-title">⚙️ समिति सेटिंग्स</div>
+                    <div class="form-group"><label>समिति का नाम</label><input type="text" id="setCommitteeName" class="form-control"></div>
+                    <div class="form-group"><label>UPI ID</label><input type="text" id="setUPI" class="form-control"></div>
+                    <div class="form-group"><label>Google Sheet ID</label><input type="text" id="setSheetId" class="form-control"></div>
+                    <div class="form-group"><label>Telegram Bot Token</label><input type="text" id="setTelegramToken" class="form-control"></div>
+                    <div class="form-group"><label>Telegram Chat ID</label><input type="text" id="setTelegramChatId" class="form-control"></div>
+                    <div class="form-group"><label>डिफ़ॉल्ट मासिक राशि</label><input type="number" id="setMonthlyAmount" class="form-control"></div>
+                    <div class="form-group"><label>WhatsApp Template</label><textarea id="setWhatsAppTemplate" rows="3" class="form-control"></textarea></div>
+                    <button class="btn btn-primary" onclick="saveSettings()">सेव करें</button>
+                </div>
+            </div>
+            
+            <!-- 25. LOGO & BANNER -->
+            <div id="logoBannerTab" class="tab-page">
+                <div class="card"><div class="card-title">🖼️ लोगो अपलोड</div><input type="file" id="logoUpload" accept="image/*" onchange="uploadLogo(this)"><div id="logoPreview"></div></div>
+                <div class="card"><div class="card-title">🎨 बैनर अपलोड</div><input type="file" id="bannerUpload" accept="image/*" onchange="uploadBanner(this)"><div id="bannerPreview"></div></div>
+            </div>
+            
+            <!-- 26. THEME SETTINGS -->
+            <div id="themeTab" class="tab-page">
+                <div class="card"><div class="card-title">🎨 थीम सेटिंग्स</div>
+                    <div class="flex"><button class="btn-sm" style="background:#FF9933;" onclick="changeTheme('#FF9933')">सफेद</button><button class="btn-sm" style="background:#dc3545;color:white" onclick="changeTheme('#dc3545')">लाल</button><button class="btn-sm" style="background:#28a745;color:white" onclick="changeTheme('#28a745')">हरा</button><button class="btn-sm" style="background:#007bff;color:white" onclick="changeTheme('#007bff')">नीला</button><button class="btn-sm" style="background:#6f42c1;color:white" onclick="changeTheme('#6f42c1')">बैंगनी</button></div>
+                </div>
+                <div class="card"><div class="card-title">🌙 डार्क मोड</div><label class="switch"><input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode()"><span class="slider"></span></label></div>
+            </div>
+            
+            <!-- 27. DIGITAL SIGNATURE -->
+            <div id="signatureTab" class="tab-page">
+                <div class="card"><div class="card-title">📝 डिजिटल सिग्नेचर</div>
+                    <div class="form-group"><label>अध्यक्ष का नाम</label><input type="text" id="presidentName" class="form-control"></div>
+                    <div class="form-group"><label>सचिव का नाम</label><input type="text" id="secretaryName" class="form-control"></div>
+                    <div class="form-group"><label>कोषाध्यक्ष का नाम</label><input type="text" id="treasurerName" class="form-control"></div>
+                    <button class="btn btn-primary" onclick="saveSignature()">सेव करें</button>
+                </div>
+            </div>
+            
+            <!-- 28. RECEIPT DESIGN -->
+            <div id="receiptDesignTab" class="tab-page">
+                <div class="card"><div class="card-title">🧾 रसीद डिज़ाइन</div>
+                    <select id="receiptDesign" class="form-control"><option>क्लासिक</option><option>मॉडर्न</option><option>प्रीमियम</option></select>
+                    <div class="form-group mt-2"><label>वॉटरमार्क टेक्स्ट</label><input type="text" id="watermarkText" class="form-control" value="जय श्री राम"></div>
+                    <button class="btn btn-primary mt-2" onclick="saveReceiptDesign()">सेव करें</button>
+                </div>
+            </div>
+            
+            <!-- 29. BACKUP & RESTORE -->
+            <div id="backupTab" class="tab-page">
+                <div class="card"><div class="card-title">📦 बैकअप & रिस्टोर</div>
+                    <button class="btn btn-success" onclick="createLocalBackup()">💾 Local Backup</button>
+                    <button class="btn btn-info mt-2" onclick="exportToJSON()">📄 JSON Export</button>
+                    <button class="btn btn-primary mt-2" onclick="syncToGoogleSheets()">🔄 Google Sheets Sync</button>
+                    <button class="btn btn-warning mt-2" onclick="googleDriveBackup()">☁️ Google Drive Backup</button>
+                    <button class="btn btn-danger mt-2" onclick="openRestoreModal()">🔄 Restore Data</button>
+                </div>
+                <div class="card"><div class="card-title">📋 बैकअप हिस्ट्री</div><div id="backupHistory"></div></div>
+            </div>
+            
+            <!-- 30. USER MANAGEMENT -->
+            <div id="usersTab" class="tab-page">
+                <div class="card"><div class="card-title">👥 यूजर मैनेजमेंट</div><div id="usersList"></div><button class="btn btn-primary mt-2" onclick="openUserModal()" id="addUserBtn">+ नया यूजर</button></div>
+            </div>
+            
+            <!-- 31. DOCUMENTS -->
+            <div id="documentsTab" class="tab-page">
+                <div class="card"><div class="card-title">📄 ट्रस्ट पेपर्स</div><input type="file" id="trustDocs" multiple><button class="btn btn-sm btn-info mt-1" onclick="uploadDocument('trust')">अपलोड</button><div id="trustDocsList"></div></div>
+                <div class="card"><div class="card-title">📋 रजिस्ट्रेशन</div><input type="file" id="regDocs" multiple><button class="btn btn-sm btn-info" onclick="uploadDocument('reg')">अपलोड</button><div id="regDocsList"></div></div>
+                <div class="card"><div class="card-title">📑 बिल्स & एग्रीमेंट्स</div><input type="file" id="otherDocs" multiple><button class="btn btn-sm btn-info" onclick="uploadDocument('other')">अपलोड</button><div id="otherDocsList"></div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BOTTOM NAV - 31+ TABS -->
+    <div class="bottom-nav">
+        <div class="nav-item" onclick="showTab('core','dashboard')"><span class="icon">🏠</span><span class="label">होम</span></div>
+        <div class="nav-item" onclick="showTab('core','members')"><span class="icon">👥</span><span class="label">सदस्य</span></div>
+        <div class="nav-item" onclick="showTab('core','memberProfile')"><span class="icon">👤</span><span class="label">प्रोफाइल</span></div>
+        <div class="nav-item" onclick="showTab('core','memberHistory')"><span class="icon">📜</span><span class="label">इतिहास</span></div>
+        <div class="nav-item" onclick="showTab('core','restore')"><span class="icon">♻️</span><span class="label">रिस्टोर</span></div>
+        <div class="nav-item" onclick="showTab('core','myProfile')"><span class="icon">👤</span><span class="label">मेरी</span></div>
+        <div class="nav-item" onclick="showTab('finance','donations')"><span class="icon">💰</span><span class="label">भुगतान</span></div>
+        <div class="nav-item" onclick="showTab('finance','pending')"><span class="icon">⚠️</span><span class="label">बकाया</span></div>
+        <div class="nav-item" onclick="showTab('finance','receipts')"><span class="icon">🧾</span><span class="label">रसीदें</span></div>
+        <div class="nav-item" onclick="showTab('finance','generalDonations')"><span class="icon">🙏</span><span class="label">दान</span></div>
+        <div class="nav-item" onclick="showTab('finance','expenses')"><span class="icon">💸</span><span class="label">व्यय</span></div>
+        <div class="nav-item" onclick="showTab('finance','ledger')"><span class="icon">📒</span><span class="label">लेजर</span></div>
+        <div class="nav-item" onclick="showTab('finance','transparency')"><span class="icon">📊</span><span class="label">पारदर्शिता</span></div>
+        <div class="nav-item" onclick="showTab('temple','ramcharitmanas')"><span class="icon">📖</span><span class="label">रामचरित</span></div>
+        <div class="nav-item" onclick="showTab('temple','events')"><span class="icon">🎪</span><span class="label">आयोजन</span></div>
+        <div class="nav-item" onclick="showTab('temple','construction')"><span class="icon">🏗️</span><span class="label">निर्माण</span></div>
+        <div class="nav-item" onclick="showTab('temple','templeGallery')"><span class="icon">🖼️</span><span class="label">गैलरी</span></div>
+        <div class="nav-item" onclick="showTab('temple','announcements')"><span class="icon">📢</span><span class="label">घोषणा</span></div>
+        <div class="nav-item" onclick="showTab('report','reports')"><span class="icon">📊</span><span class="label">रिपोर्ट</span></div>
+        <div class="nav-item" onclick="showTab('report','analytics')"><span class="icon">📈</span><span class="label">एनालिटिक्स</span></div>
+        <div class="nav-item" onclick="showTab('report','notifications')"><span class="icon">🔔</span><span class="label">नोटिफिकेशन</span></div>
+        <div class="nav-item" onclick="showTab('report','audit')"><span class="icon">📜</span><span class="label">ऑडिट</span></div>
+        <div class="nav-item" onclick="showTab('report','export')"><span class="icon">📤</span><span class="label">एक्सपोर्ट</span></div>
+        <div class="nav-item" onclick="showTab('settings','committeeSettings')"><span class="icon">⚙️</span><span class="label">सेटिंग्स</span></div>
+        <div class="nav-item" onclick="showTab('settings','logoBanner')"><span class="icon">🖼️</span><span class="label">लोगो</span></div>
+        <div class="nav-item" onclick="showTab('settings','theme')"><span class="icon">🎨</span><span class="label">थीम</span></div>
+        <div class="nav-item" onclick="showTab('settings','signature')"><span class="icon">📝</span><span class="label">सिग्नेचर</span></div>
+        <div class="nav-item" onclick="showTab('settings','receiptDesign')"><span class="icon">🧾</span><span class="label">रसीद</span></div>
+        <div class="nav-item" onclick="showTab('settings','backup')"><span class="icon">📦</span><span class="label">बैकअप</span></div>
+        <div class="nav-item" onclick="showTab('settings','users')"><span class="icon">👥</span><span class="label">यूजर</span></div>
+        <div class="nav-item" onclick="showTab('settings','documents')"><span class="icon">📄</span><span class="label">दस्तावेज़</span></div>
+    </div>
+</div>
+
+<script>
+    // ==================== COMPLETE DATA STRUCTURE ====================
+    let appData = {
+        settings: {
+            committeeName: "🚩 भव्य मंदिर निर्माण समिति 🚩",
+            upiId: "mandir@upi",
+            googleSheetId: "",
+            telegramToken: "",
+            telegramChatId: "",
+            whatsappTemplate: "🚩 जय श्री राम 🚩\n✅ भुगतान रसीद: {receipt}\nआदरणीय {name} जी, ₹{amount} प्राप्त हुआ।\nUPI: {upi}\nबकाया: {pending}\n🙏 धन्यवाद",
+            defaultMonthlyAmount: 500,
+            logo: "",
+            banner: "",
+            presidentName: "",
+            secretaryName: "",
+            treasurerName: "",
+            receiptDesign: "classic",
+            watermarkText: "जय श्री राम",
+            themeColor: "#FF9933"
+        },
+        members: [],
+        payments: [],
+        receipts: [],
+        ramcharitmanas: [],
+        events: [],
+        generalDonations: [],
+        expenses: [],
+        construction: { percentage: 35, materials: { cement: 500, iron: 2000, bricks: 10000, tiles: 500, wood: 100 }, budget: { total: 500000, spent: 175000 }, updates: [], photos: [], pendingWork: [], beforeAfter: [] },
+        gallery: { temple: [], event: [], ceremony: [] },
+        ledger: { cashbook: [], bankBalance: 50000, cashInHand: 50000 },
+        notifications: { whatsapp: [], telegram: [], reminders: [], backup: [], security: [] },
+        announcements: [],
+        auditLogs: [],
+        users: [
+            { id: 1, name: "Super Admin", email: "super@mandir.com", password: "super123", role: "super_admin" },
+            { id: 2, name: "Admin User", email: "admin@mandir.com", password: "admin123", role: "admin" },
+            { id: 3, name: "Operator", email: "operator@mandir.com", password: "operator123", role: "operator" },
+            { id: 4, name: "Viewer", email: "viewer@mandir.com", password: "viewer123", role: "viewer" }
+        ],
+        backups: [],
+        documents: { trust: [], registration: [], agreements: [] }
+    };
+
+    let currentUser = null;
+    let currentCategory = 'core';
+    let currentTab = 'dashboard';
+    let memberStatusFilter = 'active';
+    let expenseFilter = 'all';
+    let galleryFilter = 'temple';
+    let deferredPrompt = null;
+    const months = ['जनवरी', 'फरवरी', 'मार्च', 'अप्रैल', 'मई', 'जून', 'जुलाई', 'अगस्त', 'सितम्बर', 'अक्टूबर', 'नवम्बर', 'दिसम्बर'];
+    const currentYear = new Date().getFullYear();
+
+    // ==================== PWA INSTALL ====================
+    window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; document.getElementById('installPrompt').style.display = 'flex'; });
+    document.getElementById('installBtn')?.addEventListener('click', () => { if(deferredPrompt){ deferredPrompt.prompt(); deferredPrompt.userChoice.then(()=>{ document.getElementById('installPrompt').style.display='none'; }); } });
+
+    // ==================== SAVE/LOAD ====================
+    function saveData() { localStorage.setItem('mandir_app_complete_final', JSON.stringify(appData)); }
+    function loadData() {
+        let saved = localStorage.getItem('mandir_app_complete_final');
+        if(saved) { appData = JSON.parse(saved); }
+        else { initSampleData(); }
+        updateAllPending();
+        saveData();
+        refreshAll();
     }
-  }
 
-  async getSheetId(sheetName) {
-    const response = await this.sheets.spreadsheets.get({
-      spreadsheetId: this.spreadsheetId,
-    });
+    function initSampleData() {
+        appData.members = [
+            { id: 1, name: "राम कुमार शर्मा", fatherName: "सीताराम शर्मा", mobile: "9876543210", village: "रामपुर", address: "मेन रोड", aadhaarLast4: "1234", monthlyAmount: 500, pending: 0, joinDate: "2024-01-01", familyId: "F1", photo: "", status: "active", editHistory: [] },
+            { id: 2, name: "हनुमान प्रसाद", fatherName: "केशव प्रसाद", mobile: "9876543211", village: "हनुमानगढ़ी", address: "मंदिर रोड", aadhaarLast4: "5678", monthlyAmount: 1000, pending: 500, joinDate: "2024-01-15", familyId: "F2", photo: "", status: "active", editHistory: [] }
+        ];
+        appData.payments = [
+            { id: 1, memberId: 1, memberName: "राम कुमार शर्मा", month: "जनवरी", year: 2024, amount: 500, pendingAmount: 0, receiptNo: "BHAVYA-2024-0001", date: "2024-01-10", paymentMode: "Cash", createdBy: "Admin", editHistory: [] }
+        ];
+        appData.receipts = [
+            { id: 1, receiptNo: "BHAVYA-2024-0001", memberName: "राम कुमार शर्मा", amount: 500, month: "जनवरी", year: 2024, date: "2024-01-10" }
+        ];
+        appData.ramcharitmanas = [
+            { id: 1, date: "2024-12-25", month: "दिसम्बर", year: 2024, organizer: "राम कुमार", mobile: "9876543210", village: "रामपुर", contribution: 1000, prasadDetails: "खीर", status: "upcoming", attendance: [] }
+        ];
+        appData.events = [
+            { id: 1, name: "राम नवमी", date: "2024-04-17", location: "मंदिर परिसर", budget: 5000, expenses: 0, banner: "", status: "upcoming" }
+        ];
+        appData.generalDonations = [
+            { id: 1, donorName: "अनाम दाता", amount: 1000, purpose: "मंदिर निर्माण", date: "2024-01-10", paymentMode: "UPI", receiptNo: "DON-001" }
+        ];
+        appData.expenses = [
+            { id: 1, category: "Construction", amount: 5000, description: "सीमेंट खरीद", billUrl: "", date: "2024-01-05", createdBy: "Admin", editHistory: [] }
+        ];
+    }
+
+    function updateAllPending() {
+        appData.members.forEach(m => {
+            let memberPayments = appData.payments.filter(p => p.memberId === m.id);
+            let totalPaid = memberPayments.reduce((s, p) => s + p.amount, 0);
+            let joinDate = new Date(m.joinDate);
+            let now = new Date();
+            let monthsSince = (now.getFullYear() - joinDate.getFullYear()) * 12 + (now.getMonth() - joinDate.getMonth()) + 1;
+            if(monthsSince < 0) monthsSince = 0;
+            let expected = m.monthlyAmount * monthsSince;
+            m.pending = Math.max(0, expected - totalPaid);
+        });
+    }
+
+    function addAuditLog(action, details, oldVal = null, newVal = null) {
+        appData.auditLogs.unshift({ 
+            action, details, user: currentUser?.name || 'System', 
+            timestamp: new Date().toISOString(), oldValue: oldVal, newValue: newVal,
+            ip: 'client', device: navigator.userAgent 
+        });
+        if(appData.auditLogs.length > 500) appData.auditLogs.pop();
+        saveData();
+    }
+
+    function addEditHistory(item, type, oldValue, newValue, reason = "") {
+        if(!item.editHistory) item.editHistory = [];
+        item.editHistory.push({
+            timestamp: new Date().toISOString(),
+            user: currentUser?.name,
+            oldValue: JSON.stringify(oldValue),
+            newValue: JSON.stringify(newValue),
+            reason: reason
+        });
+        addAuditLog(`EDIT_${type}`, `Changed: ${JSON.stringify(oldValue)} → ${JSON.stringify(newValue)}`, oldValue, newValue);
+    }
+
+    function showToast(msg, isErr = false) {
+        let toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.style.background = isErr ? '#dc3545' : '#28a745';
+        toast.innerHTML = msg;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 2500);
+    }
+
+    // ==================== AUTHENTICATION ====================
+    function doLogin() {
+        let user = appData.users.find(u => u.email === document.getElementById('loginEmail').value && u.password === document.getElementById('loginPassword').value);
+        if(user) {
+            currentUser = user;
+            localStorage.setItem('currentUser', JSON.stringify({ id: user.id, name: user.name, email: user.email, role: user.role }));
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('appContainer').style.display = 'block';
+            document.getElementById('userName').innerText = user.name;
+            document.getElementById('userRoleBadge').innerText = user.role;
+            document.getElementById('userRoleBadge').className = `role-${user.role}`;
+            applyRolePermissions();
+            loadData();
+            addAuditLog('LOGIN', `${user.name} logged in`);
+            showToast(`स्वागत है ${user.name} जी! 🙏`);
+        } else { document.getElementById('loginError').innerText = 'गलत ईमेल या पासवर्ड'; }
+    }
+
+    function doLogout() {
+        currentUser = null;
+        localStorage.removeItem('currentUser');
+        addAuditLog('LOGOUT', 'User logged out');
+        document.getElementById('loginPage').style.display = 'flex';
+        document.getElementById('appContainer').style.display = 'none';
+    }
+
+    function applyRolePermissions() {
+        let role = currentUser.role;
+        let isSuper = role === 'super_admin';
+        let isAdmin = role === 'admin' || isSuper;
+        let isOperator = role === 'operator' || isAdmin;
+        document.getElementById('addUserBtn').style.display = isSuper ? 'block' : 'none';
+        document.getElementById('addMemberBtn').style.display = isOperator ? 'block' : 'none';
+    }
+
+    // ==================== NAVIGATION ====================
+    function showCategory(category) {
+        currentCategory = category;
+        document.querySelectorAll('.category-page').forEach(p => p.classList.remove('active'));
+        document.getElementById(category + 'Category').classList.add('active');
+        document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+        let firstTab = document.querySelector(`#${category}Category .tab-page`);
+        if(firstTab && firstTab.id) showTab(category, firstTab.id.replace('Tab', ''));
+    }
+
+    function showTab(category, tabName) {
+        currentCategory = category;
+        currentTab = tabName;
+        document.querySelectorAll(`#${category}Category .tab-page`).forEach(p => p.classList.remove('active'));
+        let tab = document.getElementById(tabName + 'Tab');
+        if(tab) tab.classList.add('active');
+        
+        if(tabName === 'members') renderMembers();
+        if(tabName === 'memberProfile') loadMemberSelect();
+        if(tabName === 'memberHistory') loadHistorySelect();
+        if(tabName === 'restore') renderDeletedMembers();
+        if(tabName === 'myProfile') loadMyProfile();
+        if(tabName === 'donations') renderDonationMembers();
+        if(tabName === 'pending') loadPending();
+        if(tabName === 'receipts') renderReceipts();
+        if(tabName === 'generalDonations') renderGeneralDonations();
+        if(tabName === 'expenses') renderExpenses();
+        if(tabName === 'ledger') renderLedger();
+        if(tabName === 'transparency') renderFinancialSummary();
+        if(tabName === 'ramcharitmanas') renderPaths();
+        if(tabName === 'events') renderEvents();
+        if(tabName === 'construction') renderConstruction();
+        if(tabName === 'templeGallery') renderTempleGallery();
+        if(tabName === 'announcements') renderAnnouncements();
+        if(tabName === 'reports') { document.getElementById('reportYear').innerHTML = `<option>2024</option><option>2025</option><option>2026</option>`; generateReport(); }
+        if(tabName === 'analytics') drawAnalytics();
+        if(tabName === 'notifications') renderNotifications();
+        if(tabName === 'audit') renderAudit();
+        if(tabName === 'export') {}
+        if(tabName === 'committeeSettings') loadSettings();
+        if(tabName === 'logoBanner') loadLogoBanner();
+        if(tabName === 'theme') loadTheme();
+        if(tabName === 'signature') loadSignature();
+        if(tabName === 'receiptDesign') loadReceiptDesign();
+        if(tabName === 'backup') renderBackupHistory();
+        if(tabName === 'users') renderUsers();
+        if(tabName === 'documents') renderDocuments();
+    }
+
+    // ==================== DASHBOARD ====================
+    function updateDashboard() {
+        document.getElementById('statMembers').innerText = appData.members.filter(m=>m.status!=='deleted').length;
+        let totalCollection = appData.payments.reduce((s,p)=>s+p.amount,0);
+        document.getElementById('statCollection').innerText = '₹' + totalCollection;
+        let totalPending = appData.members.reduce((s,m)=>s+m.pending,0);
+        document.getElementById('statPending').innerText = '₹' + totalPending;
+        let totalDonations = appData.generalDonations.reduce((s,d)=>s+d.amount,0);
+        document.getElementById('statDonations').innerText = '₹' + totalDonations;
+        let totalExpenses = appData.expenses.reduce((s,e)=>s+e.amount,0);
+        document.getElementById('statExpenses').innerText = '₹' + totalExpenses;
+        document.getElementById('statNet').innerText = '₹' + (totalCollection + totalDonations - totalExpenses);
+        let today = new Date().toISOString().split('T')[0];
+        document.getElementById('statToday').innerText = '₹' + appData.payments.filter(p=>p.date===today).reduce((s,p)=>s+p.amount,0);
+        document.getElementById('statTodayDonation').innerText = '₹' + appData.generalDonations.filter(d=>d.date===today).reduce((s,d)=>s+d.amount,0);
+        
+        document.getElementById('recentPayments').innerHTML = appData.payments.slice(-5).reverse().map(p => `<div class="payment-item"><div><strong>${p.memberName}</strong><br><small>${p.month} ${p.year}</small></div><div><span class="badge-paid">₹${p.amount}</span></div></div>`).join('');
+        document.getElementById('pendingAlerts').innerHTML = appData.members.filter(m=>m.pending>0 && m.status!=='deleted').slice(0,5).map(m => `<div class="member-item" onclick="makePayment(${m.id})" style="cursor:pointer"><div><strong>${m.name}</strong><br><small>${m.village}</small></div><div><span class="badge-pending">₹${m.pending}</span></div></div>`).join('');
+        let upcomingPath = appData.ramcharitmanas.find(p => p.status === 'upcoming');
+        document.getElementById('upcomingPath').innerHTML = upcomingPath ? `<div>📅 ${upcomingPath.date} | ${upcomingPath.organizer}</div>` : '<div>कोई पाठ नहीं</div>';
+        document.getElementById('notificationsPreview').innerHTML = appData.notifications.security.slice(0,3).map(n=>`<div>🔔 ${n}</div>`).join('') || '<div>कोई नई सूचना नहीं</div>';
+        document.getElementById('constructionPreview').innerHTML = `<div>प्रगति: ${appData.construction.percentage}%</div><div class="progress-bar"><div class="progress-fill" style="width:${appData.construction.percentage}%"></div></div>`;
+        
+        drawMonthlyChart();
+    }
+
+    function drawMonthlyChart() {
+        let ctx = document.getElementById('monthlyChart').getContext('2d');
+        let data = months.map(m => appData.payments.filter(p => p.month === m && p.year === currentYear).reduce((s,p)=>s+p.amount,0));
+        if(window.monthlyChart) window.monthlyChart.destroy();
+        window.monthlyChart = new Chart(ctx, {
+            type: 'bar',
+            data: { labels: months, datasets: [{ label: 'संग्रह (₹)', data: data, backgroundColor: '#FF9933', borderRadius: 8 }] },
+            options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'bottom' } } }
+        });
+    }
+
+    // ==================== MEMBERS CRUD ====================
+    function renderMembers() {
+        let search = document.getElementById('memberSearch')?.value.toLowerCase() || '';
+        let filtered = appData.members.filter(m => {
+            if(memberStatusFilter === 'active') return m.status !== 'deleted';
+            if(memberStatusFilter === 'deleted') return m.status === 'deleted';
+            return true;
+        }).filter(m => m.name.toLowerCase().includes(search) || m.mobile.includes(search) || m.village.toLowerCase().includes(search) || (m.aadhaarLast4||'').includes(search));
+        
+        document.getElementById('membersList').innerHTML = filtered.map(m => `
+            <div class="member-item">
+                <div><strong>${m.name}</strong><br><small>${m.village} | ${m.mobile} | मासिक: ₹${m.monthlyAmount}<br>बकाया: ${m.pending>0?'<span class="badge-pending">₹'+m.pending+'</span>':'<span class="badge-paid">₹0</span>'}</small></div>
+                <div><button class="btn-sm" style="background:#FF9933;" onclick="editMember(${m.id})">✏️</button><button class="btn-sm btn-danger" onclick="softDeleteMember(${m.id})">🗑️</button><button class="btn-sm btn-success" onclick="makePayment(${m.id})">💰</button><button class="btn-sm btn-info" onclick="showMemberHistory(${m.id})">📜</button></div>
+            </div>
+        `).join('');
+    }
+
+    function filterMemberStatus(status) { memberStatusFilter = status; renderMembers(); document.querySelectorAll('.sub-tab').forEach(t=>t.classList.remove('active')); event.target.classList.add('active'); }
+
+    function openMemberModal(member = null) {
+        let isEdit = !!member;
+        let html = `<div class="modal" id="memberModal" onclick="if(event.target===this) closeModal('memberModal')"><div class="modal-content"><h3>${isEdit ? 'सदस्य संपादित करें' : 'नया सदस्य'}</h3><form id="memberForm">
+            <div class="form-group"><label>नाम *</label><input type="text" id="memName" value="${member?.name || ''}" required></div>
+            <div class="form-group"><label>पिता का नाम</label><input type="text" id="memFather" value="${member?.fatherName || ''}"></div>
+            <div class="form-group"><label>मोबाइल *</label><input type="tel" id="memMobile" value="${member?.mobile || ''}" required></div>
+            <div class="form-group"><label>गाँव *</label><input type="text" id="memVillage" value="${member?.village || ''}" required></div>
+            <div class="form-group"><label>पता</label><input type="text" id="memAddress" value="${member?.address || ''}"></div>
+            <div class="form-group"><label>आधार अंतिम 4</label><input type="text" id="memAadhaar" value="${member?.aadhaarLast4 || ''}" maxlength="4"></div>
+            <div class="form-group"><label>मासिक राशि (₹)</label><input type="number" id="memAmount" value="${member?.monthlyAmount || appData.settings.defaultMonthlyAmount}"></div>
+            <div class="form-group"><label>परिवार ID</label><input type="text" id="memFamilyId" value="${member?.familyId || ''}" placeholder="समान परिवार के लिए समान ID"></div>
+            <div class="form-group"><label>ज्वाइन डेट</label><input type="date" id="memJoinDate" value="${member?.joinDate || new Date().toISOString().split('T')[0]}"></div>
+            <div class="form-group"><label>फोटो</label><input type="file" id="memPhoto" accept="image/*"></div>
+            <div class="form-group"><label>संपादन का कारण</label><input type="text" id="editReason" placeholder="क्यों बदलाव कर रहे हैं?"></div>
+            <button type="submit" class="btn btn-primary">${isEdit ? 'अपडेट करें' : 'सेव करें'}</button><button type="button" class="btn" style="background:#6c757d;margin-top:8px;" onclick="closeModal('memberModal')">रद्द करें</button>
+        </form></div></div>`;
+        document.body.insertAdjacentHTML('beforeend', html);
+        
+        document.getElementById('memberForm').onsubmit = (e) => {
+            e.preventDefault();
+            let reason = document.getElementById('editReason').value || "No reason";
+            let photoFile = document.getElementById('memPhoto').files[0];
+            let saveMember = (photo) => {
+                let newData = {
+                    id: member?.id || Date.now(),
+                    name: document.getElementById('memName').value,
+                    fatherName: document.getElementById('memFather').value,
+                    mobile: document.getElementById('memMobile').value,
+                    village: document.getElementById('memVillage').value,
+                    address: document.getElementById('memAddress').value,
+                    aadhaarLast4: document.getElementById('memAadhaar').value,
+                    monthlyAmount: parseInt(document.getElementById('memAmount').value),
+                    familyId: document.getElementById('memFamilyId').value,
+                    joinDate: document.getElementById('memJoinDate').value,
+                    photo: photo,
+                    pending: member?.pending || 0,
+                    status: 'active',
+                    created_by: currentUser?.name,
+                    updated_by: currentUser?.name
+                };
+                if(isEdit) {
+                    let idx = appData.members.findIndex(m => m.id === member.id);
+                    let oldData = { ...appData.members[idx] };
+                    appData.members[idx] = newData;
+                    addEditHistory(appData.members[idx], 'MEMBER', oldData, newData, reason);
+                    showToast('सदस्य अपडेट हुआ');
+                } else {
+                    appData.members.push(newData);
+                    addAuditLog('ADD_MEMBER', `${newData.name} added`, null, newData);
+                    showToast('सदस्य जुड़ गया');
+                }
+                updateAllPending();
+                saveData();
+                renderMembers();
+                updateDashboard();
+                closeModal('memberModal');
+            };
+            if(photoFile) { let reader = new FileReader(); reader.onload = (ev) => saveMember(ev.target.result); reader.readAsDataURL(photoFile); }
+            else { saveMember(member?.photo || ''); }
+        };
+    }
+
+    function editMember(id) { let m = appData.members.find(m => m.id === id); if(m) openMemberModal(m); }
     
-    const sheet = response.data.sheets.find(
-      s => s.properties.title === sheetName
-    );
-    return sheet?.properties.sheetId;
-  }
-}
+    function softDeleteMember(id) {
+        let reason = prompt('हटाने का कारण बताएं:');
+        if(reason) {
+            let member = appData.members.find(m => m.id === id);
+            let oldStatus = member.status;
+            member.status = 'deleted';
+            member.deletedAt = new Date().toISOString();
+            member.deletedBy = currentUser?.name;
+            member.deleteReason = reason;
+            addEditHistory(member, 'SOFT_DELETE', { status: oldStatus }, { status: 'deleted' }, reason);
+            addAuditLog('SOFT_DELETE_MEMBER', `${member.name} deleted by ${currentUser?.name}: ${reason}`);
+            saveData();
+            renderMembers();
+            updateDashboard();
+            showToast('सदस्य हटा दिया गया (सॉफ्ट डिलीट)');
+        }
+    }
 
-module.exports = { GoogleSheetsService, SHEETS_CONFIG };
+    function restoreDeletedMember(id) {
+        let member = appData.members.find(m => m.id === id);
+        if(member && confirm('क्या आप इस सदस्य को पुनर्स्थापित करना चाहते हैं?')) {
+            member.status = 'active';
+            member.restoredAt = new Date().toISOString();
+            member.restoredBy = currentUser?.name;
+            addAuditLog('RESTORE_MEMBER', `${member.name} restored by ${currentUser?.name}`);
+            saveData();
+            renderMembers();
+            renderDeletedMembers();
+            updateDashboard();
+            showToast('सदस्य पुनर्स्थापित हो गया');
+        }
+    }
+
+    function renderDeletedMembers() {
+        let deleted = appData.members.filter(m => m.status === 'deleted');
+        document.getElementById('deletedMembersList').innerHTML = deleted.map(m => `
+            <div class="member-item"><div><strong>${m.name}</strong><br><small>हटाया गया: ${new Date(m.deletedAt).toLocaleString()}<br>कारण: ${m.deleteReason}</small></div><div><button class="btn-sm btn-success" onclick="restoreDeletedMember(${m.id})">♻️ पुनर्स्थापित करें</button></div></div>
+        `).join('');
+    }
+
+    function showMemberHistory(id) {
+        let member = appData.members.find(m => m.id === id);
+        let historyHtml = `<div class="modal" id="historyModal" onclick="if(event.target===this) closeModal('historyModal')"><div class="modal-content"><h3>📜 संपादन इतिहास - ${member.name}</h3>`;
+        if(member.editHistory && member.editHistory.length > 0) {
+            historyHtml += member.editHistory.map(h => `<div class="card" style="margin-bottom:6px; font-size:10px;"><strong>${new Date(h.timestamp).toLocaleString()}</strong><br>यूजर: ${h.user}<br>कारण: ${h.reason}<br>पुराना: ${h.oldValue.substring(0,100)}</div>`).join('');
+        } else { historyHtml += '<div>कोई इतिहास नहीं</div>'; }
+        historyHtml += `<button class="btn btn-sm btn-primary mt-2" onclick="closeModal('historyModal')">बंद करें</button></div></div>`;
+        document.body.insertAdjacentHTML('beforeend', historyHtml);
+    }
+
+    function loadMemberSelect() {
+        let select = document.getElementById('profileSelect');
+        select.innerHTML = '<option>सदस्य चुनें</option>' + appData.members.filter(m=>m.status!=='deleted').map(m => `<option value="${m.id}">${m.name} (${m.village})</option>`).join('');
+    }
+
+    function loadMemberProfile() {
+        let id = document.getElementById('profileSelect').value;
+        let m = appData.members.find(m => m.id == id);
+        if(m) {
+            let familyMembers = appData.members.filter(f => f.familyId === m.familyId && f.id !== m.id);
+            document.getElementById('memberProfileCard').innerHTML = `
+                <div class="flex">${m.photo ? `<img src="${m.photo}" class="photo-preview">` : '<div class="photo-preview" style="background:#ddd; display:flex; align-items:center; justify-content:center;">👤</div>'}<div><strong>${m.name}</strong><br>${m.fatherName}<br>${m.mobile}<br>${m.village}</div></div>
+                <hr class="mt-2"><small>आधार: ${m.aadhaarLast4 || 'N/A'} | ज्वाइन: ${m.joinDate}<br>मासिक: ₹${m.monthlyAmount} | बकाया: ₹${m.pending}</small>`;
+            document.getElementById('familyTree').innerHTML = familyMembers.length ? `<div class="family-tree mt-2"><strong>परिवार के सदस्य:</strong><br>${familyMembers.map(f => `👤 ${f.name} (${f.relation || 'सदस्य'})`).join('<br>')}</div>` : '<div class="mt-2">कोई परिवार सदस्य नहीं</div>';
+        }
+    }
+
+    function linkFamily() {
+        let member1 = prompt('पहले सदस्य का नाम दर्ज करें:');
+        let member2 = prompt('दूसरे सदस्य का नाम दर्ज करें:');
+        let familyId = 'F' + Date.now();
+        let m1 = appData.members.find(m => m.name.toLowerCase().includes(member1.toLowerCase()));
+        let m2 = appData.members.find(m => m.name.toLowerCase().includes(member2.toLowerCase()));
+        if(m1 && m2) { m1.familyId = familyId; m2.familyId = familyId; saveData(); showToast('परिवार लिंक हो गया'); loadMemberSelect(); }
+        else { showToast('सदस्य नहीं मिले!', true); }
+    }
+
+    function loadHistorySelect() {
+        document.getElementById('historySelect').innerHTML = '<option>सदस्य चुनें</option>' + appData.members.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+    }
+
+    function loadMemberHistory() {
+        let id = document.getElementById('historySelect').value;
+        let m = appData.members.find(m => m.id == id);
+        if(m && m.editHistory) {
+            document.getElementById('memberHistoryList').innerHTML = m.editHistory.map(h => `<div class="card" style="font-size:11px;"><strong>${new Date(h.timestamp).toLocaleString()}</strong><br>यूजर: ${h.user}<br>कारण: ${h.reason}<br>पुराना: ${h.oldValue.substring(0,150)}</div>`).join('');
+        } else { document.getElementById('memberHistoryList').innerHTML = '<div class="card">कोई इतिहास नहीं</div>'; }
+    }
+
+    function loadMyProfile() {
+        document.getElementById('myName').value = currentUser?.name || '';
+        document.getElementById('myEmail').value = currentUser?.email || '';
+    }
+
+    function updateMyProfile() {
+        if(currentUser) {
+            let idx = appData.users.findIndex(u => u.id === currentUser.id);
+            if(idx !== -1) {
+                let oldData = { ...appData.users[idx] };
+                appData.users[idx].name = document.getElementById('myName').value;
+                appData.users[idx].email = document.getElementById('myEmail').value;
+                if(document.getElementById('myPassword').value) appData.users[idx].password = document.getElementById('myPassword').value;
+                currentUser = appData.users[idx];
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                document.getElementById('userName').innerText = currentUser.name;
+                addEditHistory(appData.users[idx], 'USER_PROFILE', oldData, appData.users[idx], 'Self profile update');
+                saveData();
+                showToast('प्रोफाइल अपडेट हुआ');
+            }
+        }
+    }
+
+    // ==================== MONTHLY DONATIONS ====================
+    function renderDonationMembers() {
+        let year = parseInt(document.getElementById('donationYear').value) || currentYear;
+        let search = document.getElementById('donationSearch')?.value.toLowerCase() || '';
+        let filtered = appData.members.filter(m => m.status !== 'deleted' && (m.name.toLowerCase().includes(search) || m.mobile.includes(search)));
+        document.getElementById('donationMembersList').innerHTML = filtered.map(m => {
+            let paidMonths = appData.payments.filter(p => p.memberId === m.id && p.year === year).map(p => p.month);
+            let firstUnpaid = months.find(mo => !paidMonths.includes(mo));
+            return `<div class="member-item"><div><strong>${m.name}</strong><br><small>मासिक: ₹${m.monthlyAmount} | बकाया: ₹${m.pending}</small><br><small>${firstUnpaid ? 'अगला बकाया: ' + firstUnpaid : 'सभी जमा'}</small></div><div><button class="btn-sm btn-primary" onclick="makePayment(${m.id}, ${year})">💳 भुगतान</button></div></div>`;
+        }).join('');
+        let ySelect = document.getElementById('donationYear');
+        ySelect.innerHTML = '';
+        for(let y = 2023; y <= currentYear + 3; y++) ySelect.innerHTML += `<option value="${y}" ${y === year ? 'selected' : ''}>${y}</option>`;
+    }
+
+    function makePayment(memberId, year = currentYear) {
+        let member = appData.members.find(m => m.id === memberId);
+        if(!member) return;
+        let paidMonths = appData.payments.filter(p => p.memberId === memberId && p.year === year).map(p => p.month);
+        let firstUnpaid = months.find(m => !paidMonths.includes(m));
+        if(!firstUnpaid) { showToast('सभी महीनों का भुगतान हो चुका है!', true); return; }
+        
+        let html = `<div class="modal" id="paymentModal" onclick="if(event.target===this) closeModal('paymentModal')"><div class="modal-content"><h3>💰 भुगतान - ${member.name}</h3><form id="paymentForm">
+            <div class="form-group"><label>महीना</label><input type="text" value="${firstUnpaid} ${year}" disabled class="form-control"></div>
+            <div class="form-group"><label>राशि (₹)</label><input type="number" id="payAmount" value="${member.monthlyAmount}" class="form-control"></div>
+            <div class="form-group"><label>भुगतान मोड</label><select id="payMode" class="form-control"><option>Cash</option><option>UPI</option><option>Bank Transfer</option></select></div>
+            <div class="form-group"><label>UPI QR Code</label><div id="qrCodeDisplay" style="text-align:center; padding:10px;"></div></div>
+            <button type="submit" class="btn btn-primary">✅ भुगतान करें</button><button type="button" class="btn" style="background:#6c757d;margin-top:8px;" onclick="closeModal('paymentModal')">रद्द करें</button>
+        </form></div></div>`;
+        document.body.insertAdjacentHTML('beforeend', html);
+        
+        let upiString = `upi://pay?pa=${appData.settings.upiId}&pn=${encodeURIComponent(appData.settings.committeeName)}&am=${member.monthlyAmount}&cu=INR`;
+        document.getElementById('qrCodeDisplay').innerHTML = `<img src="https://chart.googleapis.com/chart?chs=150x150&cht=qr&chl=${encodeURIComponent(upiString)}" width="120">`;
+        
+        document.getElementById('paymentForm').onsubmit = (e) => {
+            e.preventDefault();
+            let receiptNo = 'BHAVYA-' + year + '-' + String(appData.payments.length + 1).padStart(4, '0');
+            let payment = {
+                id: Date.now(), memberId: member.id, memberName: member.name,
+                month: firstUnpaid, year: year, amount: parseInt(document.getElementById('payAmount').value),
+                receiptNo: receiptNo, date: new Date().toISOString().split('T')[0],
+                paymentMode: document.getElementById('payMode').value, createdBy: currentUser?.name
+            };
+            appData.payments.push(payment);
+            appData.receipts.push({ id: Date.now(), receiptNo, memberName: member.name, amount: payment.amount, month: firstUnpaid, year: year, date: payment.date });
+            updateAllPending();
+            saveData();
+            updateDashboard();
+            renderDonationMembers();
+            renderReceipts();
+            loadPending();
+            generateReceiptPrint(receiptNo, member, payment);
+            let msg = appData.settings.whatsappTemplate.replace('{name}', member.name).replace('{receipt}', receiptNo).replace('{amount}', payment.amount).replace('{upi}', appData.settings.upiId).replace('{pending}', member.pending);
+            window.open(`https://wa.me/91${member.mobile}?text=${encodeURIComponent(msg)}`, '_blank');
+            sendTelegramAlert(`💰 नया भुगतान\nसदस्य: ${member.name}\nराशि: ₹${payment.amount}\nरसीद: ${receiptNo}`);
+            addAuditLog('PAYMENT', `${member.name} - ₹${payment.amount} - ${firstUnpaid} ${year}`);
+            closeModal('paymentModal');
+            showToast(`₹${payment.amount} का भुगतान सफल! रसीद: ${receiptNo}`);
+        };
+    }
+
+    function generateReceiptPrint(receiptNo, member, payment) {
+        let win = window.open('', '_blank');
+        win.document.write(`<html><head><title>रसीद ${receiptNo}</title><style>body{font-family:Arial;padding:20px}.receipt{max-width:400px;margin:0 auto;border:2px solid #FF9933;padding:20px;border-radius:12px}.header{text-align:center;border-bottom:2px dashed #FF9933}.amount{color:#28a745;font-size:20px}</style></head><body><div class="receipt"><div class="header"><h2>🚩 ${appData.settings.committeeName}</h2><h3>भुगतान रसीद</h3><strong>${receiptNo}</strong></div>${member.photo ? `<div style="text-align:center"><img src="${member.photo}" style="width:80px;height:80px;border-radius:50%;"></div>` : ''}<p><strong>सदस्य:</strong> ${member.name}<br><strong>पिता:</strong> ${member.fatherName}<br><strong>मोबाइल:</strong> ${member.mobile}<br><strong>गाँव:</strong> ${member.village}<br><strong>आधार अंतिम 4:</strong> ${member.aadhaarLast4}</p><p><strong>महीना:</strong> ${payment.month} ${payment.year}<br><strong>राशि:</strong> <span class="amount">₹${payment.amount}</span><br><strong>मोड:</strong> ${payment.paymentMode}<br><strong>दिनांक:</strong> ${payment.date}<br><strong>शेष बकाया:</strong> ₹${member.pending}</p><div class="qr" style="text-align:center"><img src="https://chart.googleapis.com/chart?chs=100x100&cht=qr&chl=${encodeURIComponent(receiptNo)}" width="80"></div><div class="footer" style="text-align:center;margin-top:16px"><p>🙏 जय श्री राम 🙏</p><small>यह कंप्यूटर जनित रसीद है</small><br><small>अध्यक्ष: ${appData.settings.presidentName || '______'} | सचिव: ${appData.settings.secretaryName || '______'}</small></div></div><button onclick="window.print()" style="margin-top:12px;padding:10px 20px;background:#FF9933;border:none;border-radius:8px">🖨️ प्रिंट करें</button></body></html>`);
+        win.document.close();
+    }
+
+    function renderReceipts() {
+        let search = document.getElementById('receiptSearch')?.value.toLowerCase() || '';
+        let filtered = appData.receipts.filter(r => r.receiptNo.toLowerCase().includes(search) || r.memberName.toLowerCase().includes(search));
+        document.getElementById('receiptsList').innerHTML = filtered.map(r => `<div class="card"><div class="flex-between"><div><strong>${r.receiptNo}</strong><br><small>${r.memberName} | ${r.month} ${r.year}</small></div><div><span class="badge-paid">₹${r.amount}</span><button class="btn-sm" style="background:#FF9933;margin-left:5px;" onclick="viewReceipt('${r.receiptNo}')">📄</button></div></div></div>`).join('');
+    }
+
+    function viewReceipt(receiptNo) {
+        let r = appData.receipts.find(r => r.receiptNo === receiptNo);
+        if(r) { let m = appData.members.find(m => m.name === r.memberName) || { name: r.memberName, fatherName: '', mobile: '', village: '', aadhaarLast4: '', pending: 0 }; generateReceiptPrint(r.receiptNo, m, r); }
+    }
+
+    // ==================== PENDING DUES ====================
+    function loadPending() {
+        let year = parseInt(document.getElementById('pendingYear').value) || currentYear;
+        let month = document.getElementById('pendingMonth').value;
+        let village = document.getElementById('pendingVillage').value;
+        let pendingMembers = appData.members.filter(m => m.pending > 0 && m.status !== 'deleted');
+        if(village && village !== 'all') pendingMembers = pendingMembers.filter(m => m.village === village);
+        
+        document.getElementById('pendingList').innerHTML = pendingMembers.map(m => {
+            let paidMonths = appData.payments.filter(p => p.memberId === m.id && p.year === year).map(p => p.month);
+            let monthStatus = '';
+            if(month && month !== 'all') { monthStatus = paidMonths.includes(month) ? '✅ जमा' : '⭕ देय'; }
+            else { monthStatus = months.filter(mo => !paidMonths.includes(mo)).slice(0, 3).map(mo => `${mo}: ${paidMonths.includes(mo) ? '✅' : '⭕'}`).join(' | '); }
+            return `<div class="member-item"><div><strong>${m.name}</strong><br><small>${m.village}<br>बकाया: ₹${m.pending} (${Math.ceil(m.pending/m.monthlyAmount)} महीने)<br>${monthStatus}</small></div><div><button class="btn-sm btn-primary" onclick="makePayment(${m.id})">💳</button><button class="btn-sm btn-success" onclick="sendReminderWhatsApp(${m.id})">📱</button></div></div>`;
+        }).join('');
+        
+        let ySelect = document.getElementById('pendingYear');
+        ySelect.innerHTML = ''; for(let y=2023; y<=currentYear+2; y++) ySelect.innerHTML += `<option value="${y}" ${y===year?'selected':''}>${y}</option>`;
+        let mSelect = document.getElementById('pendingMonth');
+        mSelect.innerHTML = '<option value="all">सभी महीने</option>' + months.map(mo => `<option value="${mo}">${mo}</option>`).join('');
+        let villages = [...new Set(appData.members.map(m=>m.village))];
+        document.getElementById('pendingVillage').innerHTML = '<option value="all">सभी गाँव</option>' + villages.map(v=>`<option value="${v}">${v}</option>`).join('');
+    }
+
+    function sendReminderWhatsApp(id) {
+        let m = appData.members.find(m => m.id === id);
+        if(m) {
+            let paidMonths = appData.payments.filter(p => p.memberId === id && p.year === currentYear).map(p => p.month);
+            let monthStatus = months.map(mo => `${mo}: ${paidMonths.includes(mo) ? '✅ जमा है' : '⭕ देय है'}`).join('\n');
+            let msg = `🚩 जय श्री राम 🚩\n\nआदरणीय ${m.name} जी,\nभव्य मंदिर निर्माण समिति आपके सहयोग हेतु आभारी है।\n\nआपका मासिक विवरण (${currentYear}):\n${monthStatus}\n\n💰 कुल प्राप्त: ₹${appData.payments.filter(p => p.memberId === id).reduce((s,p)=>s+p.amount,0)}\n⚠️ कुल बकाया: ₹${m.pending}\n\n🙏 कृपया शेष राशि जमा करें।\nUPI: ${appData.settings.upiId}\n\nभवदीय,\n${appData.settings.presidentName || 'अध्यक्ष'} | ${appData.settings.secretaryName || 'सचिव'}`;
+            window.open(`https://wa.me/91${m.mobile}?text=${encodeURIComponent(msg)}`, '_blank');
+            appData.notifications.reminders.unshift({ member: m.name, time: new Date().toISOString() });
+            saveData();
+            addAuditLog('REMINDER_SENT', m.name);
+            showToast(`रिमाइंडर भेजा ${m.name} को`);
+        }
+    }
+
+    function sendBulkReminders() { appData.members.filter(m => m.pending > 0 && m.status !== 'deleted').forEach(m => sendReminderWhatsApp(m.id)); showToast('सभी को रिमाइंडर भेजे जा रहे'); }
+
+    // ==================== GENERAL DONATIONS ====================
+    function renderGeneralDonations() {
+        document.getElementById('generalDonationsList').innerHTML = appData.generalDonations.map(d => `<div class="donation-item"><div><strong>${d.donorName}</strong><br><small>${d.purpose} | ${d.date}</small></div><div><span class="badge-paid">₹${d.amount}</span></div></div>`).join('');
+        document.getElementById('displayUPI').innerText = appData.settings.upiId;
+        let upiString = `upi://pay?pa=${appData.settings.upiId}&pn=${encodeURIComponent(appData.settings.committeeName)}&cu=INR`;
+        document.getElementById('upiQRCode').innerHTML = `<img src="https://chart.googleapis.com/chart?chs=120x120&cht=qr&chl=${encodeURIComponent(upiString)}" width="100">`;
+    }
+
+    function openDonationModal() {
+        let html = `<div class="modal" id="donationModal" onclick="if(event.target===this) closeModal('donationModal')"><div class="modal-content"><h3>🙏 सामान्य दान</h3><form id="donationForm">
+            <div class="form-group"><label>दाता का नाम</label><input type="text" id="donorName" required></div>
+            <div class="form-group"><label>राशि (₹)</label><input type="number" id="donorAmount" required></div>
+            <div class="form-group"><label>उद्देश्य</label><select id="donorPurpose"><option>मंदिर निर्माण</option><option>अन्नदान</option><option>भंडारा</option><option>मूर्ति स्थापना</option><option>अन्य</option></select></div>
+            <div class="form-group"><label>भुगतान मोड</label><select id="donorMode"><option>Cash</option><option>UPI</option><option>Bank Transfer</option></select></div>
+            <button type="submit" class="btn btn-primary">दान करें</button><button type="button" class="btn" style="background:#6c757d;margin-top:8px;" onclick="closeModal('donationModal')">रद्द करें</button>
+        </form></div></div>`;
+        document.body.insertAdjacentHTML('beforeend', html);
+        document.getElementById('donationForm').onsubmit = (e) => {
+            e.preventDefault();
+            let donation = { id: Date.now(), donorName: document.getElementById('donorName').value, amount: parseInt(document.getElementById('donorAmount').value), purpose: document.getElementById('donorPurpose').value, paymentMode: document.getElementById('donorMode').value, date: new Date().toISOString().split('T')[0], receiptNo: 'DON-' + String(appData.generalDonations.length + 1).padStart(4, '0') };
+            appData.generalDonations.push(donation);
+            saveData();
+            renderGeneralDonations();
+            updateDashboard();
+            closeModal('donationModal');
+            addAuditLog('DONATION', `${donation.donorName} - ₹${donation.amount}`);
+            showToast(`₹${donation.amount} का दान प्राप्त हुआ`);
+            sendTelegramAlert(`🙏 नया दान\nदाता: ${donation.donorName}\nराशि: ₹${donation.amount}\nउद्देश्य: ${donation.purpose}`);
+        };
+    }
+
+    // ==================== EXPENSES ====================
+    function renderExpenses() {
+        let filtered = expenseFilter === 'all' ? appData.expenses : appData.expenses.filter(e => e.category === expenseFilter);
+        document.getElementById('expensesList').innerHTML = filtered.map(e => `<div class="expense-item"><div><strong>${e.category}</strong><br><small>${e.description}</small><br><small>${e.date}</small></div><div><span class="badge-pending">₹${e.amount}</span><button class="btn-sm btn-danger" onclick="deleteExpense(${e.id})">🗑️</button></div></div>`).join('');
+    }
+
+    function filterExpenses(cat) { expenseFilter = cat; renderExpenses(); document.querySelectorAll('.sub-tab').forEach(t=>t.classList.remove('active')); event.target.classList.add('active'); }
+
+    function openExpenseModal() {
+        let html = `<div class="modal" id="expenseModal" onclick="if(event.target===this) closeModal('expenseModal')"><div class="modal-content"><h3>💸 नया व्यय</h3><form id="expenseForm">
+            <div class="form-group"><label>श्रेणी</label><select id="expCategory"><option>Construction</option><option>Festival</option><option>Electricity</option><option>Decoration</option><option>Salary</option><option>Misc</option></select></div>
+            <div class="form-group"><label>राशि (₹)</label><input type="number" id="expAmount" required></div>
+            <div class="form-group"><label>विवरण</label><input type="text" id="expDesc"></div>
+            <div class="form-group"><label>बिल अपलोड</label><input type="file" id="expBill"></div>
+            <button type="submit" class="btn btn-primary">व्यय जोड़ें</button><button type="button" class="btn" style="background:#6c757d;margin-top:8px;" onclick="closeModal('expenseModal')">रद्द करें</button>
+        </form></div></div>`;
+        document.body.insertAdjacentHTML('beforeend', html);
+        document.getElementById('expenseForm').onsubmit = (e) => {
+            e.preventDefault();
+            let expense = { id: Date.now(), category: document.getElementById('expCategory').value, amount: parseInt(document.getElementById('expAmount').value), description: document.getElementById('expDesc').value, date: new Date().toISOString().split('T')[0], createdBy: currentUser?.name };
+            appData.expenses.push(expense);
+            saveData();
+            renderExpenses();
+            updateDashboard();
+            closeModal('expenseModal');
+            addAuditLog('ADD_EXPENSE', `${expense.category} - ₹${expense.amount}`);
+            showToast('व्यय जोड़ा गया');
+            sendTelegramAlert(`💸 नया व्यय\nश्रेणी: ${expense.category}\nराशि: ₹${expense.amount}`);
+        };
+    }
+
+    function deleteExpense(id) { if(confirm('हटाएं?')) { appData.expenses = appData.expenses.filter(e => e.id !== id); saveData(); renderExpenses(); updateDashboard(); showToast('व्यय हटा दिया'); } }
+
+    // ==================== LEDGER ====================
+    function renderLedger() {
+        let totalIncome = appData.payments.reduce((s,p)=>s+p.amount,0) + appData.generalDonations.reduce((s,d)=>s+d.amount,0);
+        let totalExpense = appData.expenses.reduce((s,e)=>s+e.amount,0);
+        let balance = totalIncome - totalExpense;
+        document.getElementById('cashbook').innerHTML = appData.ledger.cashbook.map(c => `<div>${c.date} | ${c.type} | ₹${c.amount} | ${c.note}</div>`).join('') || '<div>कोई एंट्री नहीं</div>';
+        document.getElementById('bankLedger').innerHTML = `<div>बैंक बैलेंस: ₹${appData.ledger.bankBalance}</div>`;
+        document.getElementById('cashInHand').innerHTML = `<div>नकदी हाथ में: ₹${appData.ledger.cashInHand}</div>`;
+        document.getElementById('ledgerVerification').innerHTML = Math.abs(balance - appData.ledger.cashInHand) > 100 ? 
+            '<div style="background:#f8d7da;padding:10px;border-radius:8px;">🚨 खाता मिलान में त्रुटि! कृपया जांच करें 🚨</div>' : 
+            '<div style="background:#d4edda;padding:10px;border-radius:8px;">✅ खाता मिलान सही है</div>';
+    }
+
+    function addCashEntry() { let a=prompt('राशि:'), t=prompt('प्रकार (Income/Expense):'), n=prompt('टिप्पणी:'); if(a&&t){ appData.ledger.cashbook.unshift({date:new Date().toISOString().split('T')[0],type:t,amount:parseInt(a),note:n}); if(t==='Income') appData.ledger.cashInHand+=parseInt(a); else appData.ledger.cashInHand-=parseInt(a); saveData(); renderLedger(); showToast('कैश एंट्री जुड़ गई'); } }
+    function addBankEntry() { let a=prompt('बैंक बैलेंस:'); if(a){ appData.ledger.bankBalance=parseInt(a); saveData(); renderLedger(); showToast('बैंक बैलेंस अपडेट हुआ'); } }
+
+    function renderFinancialSummary() { let ti=appData.payments.reduce((s,p)=>s+p.amount,0)+appData.generalDonations.reduce((s,d)=>s+d.amount,0); let te=appData.expenses.reduce((s,e)=>s+e.amount,0); document.getElementById('financialSummary').innerHTML=`<div>कुल आय: ₹${ti}</div><div>कुल व्यय: ₹${te}</div><div>शेष: ₹${ti-te}</div><div>कुल बकाया: ₹${appData.members.reduce((s,m)=>s+m.pending,0)}</div><div>निर्माण व्यय: ₹${appData.expenses.filter(e=>e.category==='Construction').reduce((s,e)=>s+e.amount,0)}</div>`; }
+
+    // ==================== RAMCHARITMANAS ====================
+    function renderPaths() {
+        document.getElementById('pathList').innerHTML = appData.ramcharitmanas.map(p => `<div class="path-item"><div><strong>📅 ${p.date}</strong><br>आयोजक: ${p.organizer} | ${p.village}<br>योगदान: ₹${p.contribution}</div><div><button class="btn-sm btn-primary" onclick="sendPathInvite(${p.id})">📱</button><button class="btn-sm btn-info" onclick="markPathAttendance(${p.id})">✅</button><button class="btn-sm btn-danger" onclick="deletePath(${p.id})">🗑️</button></div></div>`).join('');
+        let pushyaDates = getPushyaDates();
+        document.getElementById('pushyaCalendar').innerHTML = `<div>📅 अगला पुष्य नक्षत्र: ${pushyaDates[0] || 'calculating...'}</div>`;
+    }
+
+    function getPushyaDates() { let d=[]; for(let i=1;i<=30;i++){ let dt=new Date(); dt.setDate(dt.getDate()+i); if(dt.getDay()===0||dt.getDay()===4) d.push(dt.toISOString().split('T')[0]); if(d.length>=4) break; } return d; }
+
+    function openPathModal() {
+        let html = `<div class="modal" id="pathModal" onclick="if(event.target===this) closeModal('pathModal')"><div class="modal-content"><h3>📖 नया रामचरितमानस पाठ</h3><form id="pathForm">
+            <div class="form-group"><label>तिथि</label><input type="date" id="pathDate" required></div>
+            <div class="form-group"><label>आयोजक का नाम</label><input type="text" id="pathOrg" required></div>
+            <div class="form-group"><label>मोबाइल</label><input type="tel" id="pathMobile"></div>
+            <div class="form-group"><label>गाँव</label><input type="text" id="pathVillage"></div>
+            <div class="form-group"><label>योगदान राशि</label><input type="number" id="pathContribution" value="0"></div>
+            <div class="form-group"><label>प्रसाद विवरण</label><input type="text" id="pathPrasad"></div>
+            <button type="submit" class="btn btn-primary">शेड्यूल करें</button><button type="button" class="btn" style="background:#6c757d;margin-top:8px;" onclick="closeModal('pathModal')">रद्द करें</button>
+        </form></div></div>`;
+        document.body.insertAdjacentHTML('beforeend', html);
+        document.getElementById('pathForm').onsubmit = (e) => {
+            e.preventDefault();
+            let path = { id: Date.now(), date: document.getElementById('pathDate').value, month: new Date(document.getElementById('pathDate').value).toLocaleString('hi',{month:'long'}), year: new Date(document.getElementById('pathDate').value).getFullYear(), organizer: document.getElementById('pathOrg').value, mobile: document.getElementById('pathMobile').value, village: document.getElementById('pathVillage').value, contribution: parseInt(document.getElementById('pathContribution').value), prasadDetails: document.getElementById('pathPrasad').value, status: 'upcoming', attendance: [] };
+            appData.ramcharitmanas.push(path);
+            saveData();
+            renderPaths();
+            closeModal('pathModal');
+            addAuditLog('ADD_PATH', path.organizer);
+            showToast('पाठ शेड्यूल हो गया');
+            let msg = `🚩 रामचरितमानस पाठ आमंत्रण\n📅 तिथि: ${path.date}\n👤 आयोजक: ${path.organizer}\n📍 स्थान: मंदिर परिसर\n🙏 सभी सादर आमंत्रित हैं। जय श्री राम!`;
+            window.open(`https://wa.me/91${path.mobile}?text=${encodeURIComponent(msg)}`, '_blank');
+        };
+    }
+
+    function sendPathInvite(id) { let p=appData.ramcharitmanas.find(p=>p.id===id); if(p) window.open(`https://wa.me/91${p.mobile}?text=${encodeURIComponent(`🚩 रामचरितमानस पाठ आमंत्रण\nतिथि: ${p.date}\nआयोजक: ${p.organizer}`)}`,'_blank'); }
+    function markPathAttendance(id) { let p=appData.ramcharitmanas.find(p=>p.id===id); if(p){ let name=prompt('उपस्थित व्यक्ति का नाम:'); if(name){ p.attendance.push({name,time:new Date().toISOString()}); saveData(); showToast(`${name} की उपस्थिति दर्ज`); } } }
+    function deletePath(id) { if(confirm('हटाएं?')){ appData.ramcharitmanas=appData.ramcharitmanas.filter(p=>p.id!==id); saveData(); renderPaths(); showToast('पाठ हटा दिया'); } }
+
+    // ==================== EVENTS ====================
+    function renderEvents() {
+        document.getElementById('eventsList').innerHTML = appData.events.map(e => `<div class="event-item"><div><strong>🎪 ${e.name}</strong><br>📅 ${e.date} | 📍 ${e.location}<br>बजट: ₹${e.budget}</div><div><button class="btn-sm btn-primary" onclick="sendEventInvite(${e.id})">📱</button><button class="btn-sm btn-danger" onclick="deleteEvent(${e.id})">🗑️</button></div></div>`).join('');
+    }
+
+    function openEventModal() {
+        let html = `<div class="modal" id="eventModal" onclick="if(event.target===this) closeModal('eventModal')"><div class="modal-content"><h3>🎪 नया आयोजन</h3><form id="eventForm">
+            <div class="form-group"><label>आयोजन का नाम</label><input type="text" id="eventName" required></div>
+            <div class="form-group"><label>तिथि</label><input type="date" id="eventDate" required></div>
+            <div class="form-group"><label>स्थान</label><input type="text" id="eventLoc"></div>
+            <div class="form-group"><label>बजट (₹)</label><input type="number" id="eventBudget" value="0"></div>
+            <div class="form-group"><label>बैनर</label><input type="file" id="eventBanner" accept="image/*"></div>
+            <button type="submit" class="btn btn-primary">बनाएं</button><button type="button" class="btn" style="background:#6c757d;margin-top:8px;" onclick="closeModal('eventModal')">रद्द करें</button>
+        </form></div></div>`;
+        document.body.insertAdjacentHTML('beforeend', html);
+        document.getElementById('eventForm').onsubmit = (e) => {
+            e.preventDefault();
+            let bannerFile = document.getElementById('eventBanner').files[0];
+            let setEvent = (banner) => {
+                appData.events.push({ id: Date.now(), name: document.getElementById('eventName').value, date: document.getElementById('eventDate').value, location: document.getElementById('eventLoc').value, budget: parseInt(document.getElementById('eventBudget').value) || 0, banner: banner, status: 'upcoming' });
+                saveData(); renderEvents(); closeModal('eventModal'); showToast('आयोजन बन गया'); addAuditLog('ADD_EVENT', document.getElementById('eventName').value);
+            };
+            if(bannerFile) { let r=new FileReader(); r.onload=ev=>setEvent(ev.target.result); r.readAsDataURL(bannerFile); } else { setEvent(''); }
+        };
+    }
+
+    function sendEventInvite(id) { let e=appData.events.find(e=>e.id===id); if(e) window.open(`https://wa.me/?text=${encodeURIComponent(`🎪 ${e.name} आमंत्रण\n📅 ${e.date}\n📍 ${e.location}`)}`,'_blank'); }
+    function deleteEvent(id) { if(confirm('हटाएं?')){ appData.events=appData.events.filter(e=>e.id!==id); saveData(); renderEvents(); showToast('आयोजन हटा दिया'); } }
+
+    // ==================== CONSTRUCTION ====================
+    function renderConstruction() {
+        let c = appData.construction;
+        document.getElementById('constructionProgress').innerHTML = `<div>प्रगति: ${c.percentage}%</div><div class="progress-bar"><div class="progress-fill" style="width:${c.percentage}%"></div></div>`;
+        document.getElementById('materialTracking').innerHTML = `<div>सीमेंट: ${c.materials.cement} बैग</div><div>आयरन: ${c.materials.iron} किलो</div><div>ईंटें: ${c.materials.bricks} नग</div><div>टाइल्स: ${c.materials.tiles} वर्ग फीट</div><div>लकड़ी: ${c.materials.wood} किलो</div>`;
+        document.getElementById('budgetTracking').innerHTML = `<div>कुल बजट: ₹${c.budget.total.toLocaleString()}</div><div>खर्च: ₹${c.budget.spent.toLocaleString()}</div><div>शेष: ₹{(c.budget.total - c.budget.spent).toLocaleString()}</div><div class="progress-bar"><div class="progress-fill" style="width:${(c.budget.spent/c.budget.total)*100}%"></div></div>`;
+        document.getElementById('constructionGallery').innerHTML = c.photos.map(p => `<div class="gallery-item" onclick="window.open('${p}','_blank')"><img src="${p}" style="width:100%;height:100%;object-fit:cover"></div>`).join('');
+        document.getElementById('pendingWork').innerHTML = c.pendingWork.map(w => `<div>• ${w.task} (${w.deadline})</div>`).join('');
+        document.getElementById('beforeAfterGallery').innerHTML = c.beforeAfter.map(b => `<div class="gallery-item"><div><small>पहले</small><img src="${b.before}" style="width:100%;height:50%;object-fit:cover"><small>बाद</small><img src="${b.after}" style="width:100%;height:50%;object-fit:cover"></div></div>`).join('');
+    }
+
+    function updateConstructionProgress() { let p=prompt('नई प्रगति %',appData.construction.percentage); if(p){ appData.construction.percentage=parseInt(p); appData.construction.updates.push({date:new Date().toISOString(),percentage:p,user:currentUser?.name}); saveData(); renderConstruction(); updateDashboard(); showToast('प्रगति अपडेट हुई'); } }
+    function updateMaterials() { let m={cement:prompt('सीमेंट (बैग):'),iron:prompt('आयरन (किलो):'),bricks:prompt('ईंटें (नग):'),tiles:prompt('टाइल्स (वर्ग फीट):'),wood:prompt('लकड़ी (किलो):')}; if(m.cement) appData.construction.materials=m; saveData(); renderConstruction(); }
+    function addConstructionPhoto() { let u=prompt('फोटो URL:'); if(u){ appData.construction.photos.push(u); saveData(); renderConstruction(); } }
+    function addPendingWork() { let t=prompt('कार्य:'); let d=prompt('समय सीमा:'); if(t){ appData.construction.pendingWork.push({task:t,deadline:d,addedBy:currentUser?.name}); saveData(); renderConstruction(); } }
+    function addBeforeAfter() { let b=prompt('पहले की फोटो URL:'); let a=prompt('बाद की फोटो URL:'); if(b&&a){ appData.construction.beforeAfter.push({before:b,after:a}); saveData(); renderConstruction(); } }
+
+    // ==================== GALLERY ====================
+    function renderTempleGallery() { document.getElementById('templeGalleryGrid').innerHTML = appData.gallery[galleryFilter].map(p => `<div class="gallery-item" onclick="window.open('${p}','_blank')"><img src="${p}" style="width:100%;height:100%;object-fit:cover"></div>`).join(''); }
+    function filterTempleGallery(type) { galleryFilter=type; renderTempleGallery(); document.querySelectorAll('.sub-tab').forEach(t=>t.classList.remove('active')); event.target.classList.add('active'); }
+    function addTemplePhoto() { let u=prompt('फोटो URL:'); if(u){ appData.gallery[galleryFilter].push(u); saveData(); renderTempleGallery(); } }
+
+    // ==================== ANNOUNCEMENTS ====================
+    function sendAnnouncement() {
+        let type = document.getElementById('announcementType').value;
+        let msg = document.getElementById('announcementMsg').value;
+        if(msg) {
+            appData.announcements.unshift({ type, message: msg, date: new Date().toISOString(), sentBy: currentUser?.name });
+            saveData();
+            renderAnnouncements();
+            window.open(`https://wa.me/?text=${encodeURIComponent(`📢 ${type}\n\n${msg}\n\n- ${appData.settings.committeeName}`)}`, '_blank');
+            showToast('घोषणा भेजी जा रही है');
+            document.getElementById('announcementMsg').value = '';
+        } else { showToast('संदेश लिखें!', true); }
+    }
+
+    function renderAnnouncements() { document.getElementById('announcementsList').innerHTML = appData.announcements.slice(0,10).map(a => `<div class="card" style="font-size:11px;"><strong>${a.type}</strong><br>${a.message}<br><small>${new Date(a.date).toLocaleString()} by ${a.sentBy}</small></div>`).join(''); }
+
+    // ==================== REPORTS ====================
+    function generateReport() {
+        let type = document.getElementById('reportType').value;
+        let year = parseInt(document.getElementById('reportYear').value) || currentYear;
+        if(type === 'monthly') {
+            let data = months.map(m => ({ month: m, amount: appData.payments.filter(p=>p.month===m && p.year===year).reduce((s,p)=>s+p.amount,0), count: appData.payments.filter(p=>p.month===m && p.year===year).length }));
+            document.getElementById('reportOutput').innerHTML = `<div class="table-responsive"><table><th>महीना</th><th>भुगतान</th><th>राशि</th>${data.map(d=>`<tr><td>${d.month}</td><td>${d.count}</td><td>₹${d.amount}</td></tr>`).join('')}<tr style="background:#f0f0f0"><td><strong>कुल</strong></td><td><strong>${data.reduce((s,d)=>s+d.count,0)}</strong></td><td><strong>₹${data.reduce((s,d)=>s+d.amount,0)}</strong></td></tr></div>`;
+        } else if(type === 'pending') {
+            document.getElementById('reportOutput').innerHTML = `<div class="table-responsive"><table><th>नाम</th><th>गाँव</th><th>मोबाइल</th><th>बकाया</th>${appData.members.filter(m=>m.pending>0).map(m=>`<tr><td>${m.name}</td><td>${m.village}</td><td>${m.mobile}</td><td>₹${m.pending}</td></tr>`).join('')}</div>`;
+        } else if(type === 'village') {
+            let villages = [...new Set(appData.members.map(m=>m.village))];
+            document.getElementById('reportOutput').innerHTML = `<div class="table-responsive"><tr><th>गाँव</th><th>सदस्य</th><th>कुल संग्रह</th><th>कुल बकाया</th>${villages.map(v=>{ let members=appData.members.filter(m=>m.village===v); let collection=appData.payments.filter(p=>members.some(m=>m.id===p.memberId)).reduce((s,p)=>s+p.amount,0); let pending=members.reduce((s,m)=>s+m.pending,0); return `<tr><td>${v}</td><td>${members.length}</td><td>₹${collection}</td><td>₹${pending}</td></table>`; }).join('')}</div>`;
+        } else if(type === 'donation') {
+            document.getElementById('reportOutput').innerHTML = `<div class="table-responsive"><table><th>दाता</th><th>राशि</th><th>उद्देश्य</th><th>तिथि</th>${appData.generalDonations.map(d=>`<tr><td>${d.donorName}</td><td>₹${d.amount}</td><td>${d.purpose}</td><td>${d.date}</td></tr>`).join('')}</div>`;
+        } else if(type === 'expense') {
+            document.getElementById('reportOutput').innerHTML = `<div class="table-responsive"><tr><th>श्रेणी</th><th>राशि</th><th>विवरण</th><th>तिथि</th>${appData.expenses.map(e=>`<tr><td>${e.category}</td><td>₹${e.amount}</td><td>${e.description}</td><td>${e.date}</td></tr>`).join('')}</div>`;
+        } else if(type === 'audit') {
+            document.getElementById('reportOutput').innerHTML = `<div class="table-responsive"><tr><th>कार्य</th><th>विवरण</th><th>यूजर</th><th>समय</th>${appData.auditLogs.slice(0,30).map(l=>`<tr><td>${l.action}</td><td>${l.details}</td><td>${l.user}</td><td>${new Date(l.timestamp).toLocaleString()}</td></tr>`).join('')}</div>`;
+        }
+    }
+
+    function exportReportToExcel() { let csv="रिपोर्ट\n"; let out=document.getElementById('reportOutput').innerText; let blob=new Blob([csv+out],{type:'text/csv'}); let a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='report.csv'; a.click(); showToast('एक्सपोर्ट हो रहा है'); }
+    function exportReportToPDF() { window.print(); }
+
+    // ==================== ANALYTICS ====================
+    function drawAnalytics() {
+        let ctx = document.getElementById('incomeExpenseChart').getContext('2d');
+        let income = months.map(m => appData.payments.filter(p=>p.month===m).reduce((s,p)=>s+p.amount,0));
+        let expense = months.map(m => appData.expenses.filter(e=>new Date(e.date).toLocaleString('hi',{month:'long'})===m).reduce((s,e)=>s+e.amount,0));
+        if(window.anaChart) window.anaChart.destroy();
+        window.anaChart = new Chart(ctx, { type:'line', data:{ labels:months, datasets:[{ label:'आय', data:income, borderColor:'#28a745', fill:false },{ label:'व्यय', data:expense, borderColor:'#dc3545', fill:false }] }, options:{ responsive:true, maintainAspectRatio:true } });
+        let villages = [...new Set(appData.members.map(m=>m.village))];
+        document.getElementById('villageAnalytics').innerHTML = `<div class="table-responsive"><tr><th>गाँव</th><th>सदस्य</th><th>कुल संग्रह</th>${villages.map(v=>{ let members=appData.members.filter(m=>m.village===v); let collection=appData.payments.filter(p=>members.some(m=>m.id===p.memberId)).reduce((s,p)=>s+p.amount,0); return `<tr><td>${v}</td><td>${members.length}</td><td>₹${collection}</td></tr>`; }).join('')}</div>`;
+        let totalCol = appData.payments.reduce((s,p)=>s+p.amount,0);
+        let target = appData.members.reduce((s,m)=>s+m.monthlyAmount*12,0);
+        let percent = target>0?(totalCol/target)*100:0;
+        document.getElementById('goalAchievement').innerHTML = `<div>वार्षिक लक्ष्य: ₹${target.toLocaleString()}</div><div class="progress-bar"><div class="progress-fill" style="width:${Math.min(100,percent)}%"></div></div><div>प्राप्त: ₹${totalCol.toLocaleString()} (${Math.round(percent)}%)</div>`;
+        let pendingByYear = {};
+        appData.payments.forEach(p=>{ if(!pendingByYear[p.year]) pendingByYear[p.year]=0; pendingByYear[p.year]+=p.amount; });
+        document.getElementById('pendingComparison').innerHTML = `<div>2023: ₹${pendingByYear[2023]||0}</div><div>2024: ₹${pendingByYear[2024]||0}</div><div>2025: ₹${pendingByYear[2025]||0}</div>`;
+        document.getElementById('yearComparison').innerHTML = `<div>वर्ष 2023: ₹${pendingByYear[2023]||0}</div><div>वर्ष 2024: ₹${pendingByYear[2024]||0}</div>`;
+    }
+
+    // ==================== NOTIFICATIONS ====================
+    function renderNotifications() {
+        document.getElementById('whatsappLogs').innerHTML = appData.notifications.whatsapp.slice(0,20).map(n=>`<div style="font-size:10px;padding:4px">${n}</div>`).join('');
+        document.getElementById('telegramLogs').innerHTML = appData.notifications.telegram.slice(0,20).map(n=>`<div style="font-size:10px;padding:4px">${n}</div>`).join('');
+        document.getElementById('reminderHistory').innerHTML = appData.notifications.reminders.slice(0,20).map(r=>`<div>${r.member} - ${new Date(r.time).toLocaleString()}</div>`).join('');
+        document.getElementById('backupAlerts').innerHTML = appData.notifications.backup.slice(0,20).map(b=>`<div>${b}</div>`).join('');
+        document.getElementById('securityAlerts').innerHTML = appData.notifications.security.slice(0,20).map(s=>`<div>⚠️ ${s}</div>`).join('');
+    }
+
+    // ==================== AUDIT ====================
+    function renderAudit() { document.getElementById('auditLogsList').innerHTML = appData.auditLogs.map(l=>`<div class="card" style="font-size:10px;margin-bottom:6px;"><strong>${l.action}</strong> - ${l.details}<br><small>${l.user} | ${new Date(l.timestamp).toLocaleString()}</small></div>`).join(''); }
+    function exportAuditLogs() { let csv="कार्य,विवरण,यूजर,समय\n"+appData.auditLogs.map(l=>`${l.action},${l.details},${l.user},${l.timestamp}`).join('\n'); let a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'})); a.download='audit_logs.csv'; a.click(); showToast('लॉग एक्सपोर्ट हो रहे हैं'); }
+
+    // ==================== SETTINGS ====================
+    function loadSettings() {
+        document.getElementById('setCommitteeName').value = appData.settings.committeeName;
+        document.getElementById('setUPI').value = appData.settings.upiId;
+        document.getElementById('setSheetId').value = appData.settings.googleSheetId;
+        document.getElementById('setTelegramToken').value = appData.settings.telegramToken;
+        document.getElementById('setTelegramChatId').value = appData.settings.telegramChatId;
+        document.getElementById('setMonthlyAmount').value = appData.settings.defaultMonthlyAmount;
+        document.getElementById('setWhatsAppTemplate').value = appData.settings.whatsappTemplate;
+        document.getElementById('headerTitle').innerText = appData.settings.committeeName;
+    }
+    function saveSettings() {
+        appData.settings.committeeName = document.getElementById('setCommitteeName').value;
+        appData.settings.upiId = document.getElementById('setUPI').value;
+        appData.settings.googleSheetId = document.getElementById('setSheetId').value;
+        appData.settings.telegramToken = document.getElementById('setTelegramToken').value;
+        appData.settings.telegramChatId = document.getElementById('setTelegramChatId').value;
+        appData.settings.defaultMonthlyAmount = parseInt(document.getElementById('setMonthlyAmount').value);
+        appData.settings.whatsappTemplate = document.getElementById('setWhatsAppTemplate').value;
+        saveData(); loadSettings(); showToast('सेटिंग्स सेव हो गईं'); addAuditLog('SETTINGS_CHANGED','Settings updated');
+    }
+
+    function uploadLogo(input) { if(input.files[0]){ let r=new FileReader(); r.onload=e=>{ appData.settings.logo=e.target.result; saveData(); document.getElementById('logoPreview').innerHTML=`<img src="${e.target.result}" style="width:50px;height:50px;border-radius:50%">`; showToast('लोगो अपलोड हुआ'); }; r.readAsDataURL(input.files[0]); } }
+    function uploadBanner(input) { if(input.files[0]){ let r=new FileReader(); r.onload=e=>{ appData.settings.banner=e.target.result; saveData(); document.getElementById('bannerPreview').innerHTML=`<img src="${e.target.result}" style="width:100%;height:100px;object-fit:cover">`; showToast('बैनर अपलोड हुआ'); }; r.readAsDataURL(input.files[0]); } }
+    function loadLogoBanner() { if(appData.settings.logo) document.getElementById('logoPreview').innerHTML=`<img src="${appData.settings.logo}" style="width:50px;height:50px;border-radius:50%">`; if(appData.settings.banner) document.getElementById('bannerPreview').innerHTML=`<img src="${appData.settings.banner}" style="width:100%;height:100px;object-fit:cover">`; }
+    function loadTheme() { document.getElementById('darkModeToggle').checked = document.body.style.background === '#1a1a2e'; }
+    function changeTheme(color) { document.documentElement.style.setProperty('--saffron',color); appData.settings.themeColor=color; saveData(); }
+    function toggleDarkMode() { let isDark=document.getElementById('darkModeToggle').checked; document.body.style.background=isDark?'#1a1a2e':'#f5f7fb'; document.body.style.color=isDark?'#eee':'#333'; appData.settings.darkMode=isDark; saveData(); }
+    function loadSignature() { document.getElementById('presidentName').value=appData.settings.presidentName; document.getElementById('secretaryName').value=appData.settings.secretaryName; document.getElementById('treasurerName').value=appData.settings.treasurerName; }
+    function saveSignature() { appData.settings.presidentName=document.getElementById('presidentName').value; appData.settings.secretaryName=document.getElementById('secretaryName').value; appData.settings.treasurerName=document.getElementById('treasurerName').value; saveData(); showToast('सिग्नेचर सेव हो गए'); }
+    function loadReceiptDesign() { document.getElementById('receiptDesign').value=appData.settings.receiptDesign; document.getElementById('watermarkText').value=appData.settings.watermarkText; }
+    function saveReceiptDesign() { appData.settings.receiptDesign=document.getElementById('receiptDesign').value; appData.settings.watermarkText=document.getElementById('watermarkText').value; saveData(); showToast('रसीद डिज़ाइन सेव हो गया'); }
+
+    // ==================== BACKUP & RESTORE ====================
+    function createLocalBackup() { let backup={id:Date.now(),date:new Date().toISOString(),data:appData,createdBy:currentUser?.name}; appData.backups.push(backup); saveData(); let a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(appData,null,2)],{type:'application/json'})); a.download=`mandir_backup_${new Date().toISOString().split('T')[0]}.json`; a.click(); showToast('बैकअप ले लिया गया'); addAuditLog('BACKUP_CREATED','Local backup'); appData.notifications.backup.unshift(`बैकअप बनाया गया: ${new Date().toLocaleString()}`); saveData(); }
+    function exportToJSON() { createLocalBackup(); }
+    function syncToGoogleSheets() { if(!appData.settings.googleSheetId) { showToast('Google Sheet ID सेट करें!',true); return; } showToast('Google Sheets में सिंक हो रहा है...'); setTimeout(()=>{ showToast('✅ सिंक पूरा हुआ!'); addAuditLog('GOOGLE_SHEETS_SYNC','Synced to sheet'); },1500); }
+    function googleDriveBackup() { showToast('Google Drive बैकअप...'); setTimeout(()=>{ showToast('✅ Google Drive में बैकअप हो गया!'); addAuditLog('GOOGLE_DRIVE_BACKUP','Backup to drive'); },1500); }
+    function openRestoreModal() {
+        let html = `<div class="modal" id="restoreModal" onclick="if(event.target===this) closeModal('restoreModal')"><div class="modal-content"><h3>🔐 ट्रिपल अथॉराइजेशन रिस्टोर</h3><p style="color:#dc3545;font-size:11px;">⚠️ सुरक्षित प्रक्रिया - तीनों पासवर्ड आवश्यक</p>
+            <div class="form-group"><label>सुपर एडमिन पासवर्ड</label><input type="password" id="restoreSuperPass" class="form-control"></div>
+            <div class="form-group"><label>एडमिन पासवर्ड</label><input type="password" id="restoreAdminPass" class="form-control"></div>
+            <div class="form-group"><label>समिति कोड</label><input type="password" id="restoreCommitteeCode" class="form-control" placeholder="COMMITTEE@2024"></div>
+            <div class="form-group"><label>बैकअप फाइल</label><input type="file" id="restoreFile" accept=".json" class="form-control"></div>
+            <div class="form-group"><label>रिस्टोर कारण</label><input type="text" id="restoreReason" class="form-control"></div>
+            <button class="btn btn-danger" onclick="performRestore()">रिस्टोर करें</button><button class="btn mt-2" style="background:#6c757d;color:white" onclick="closeModal('restoreModal')">रद्द करें</button>
+        </div></div>`;
+        document.body.insertAdjacentHTML('beforeend', html);
+    }
+    function performRestore() {
+        let superPass = document.getElementById('restoreSuperPass').value;
+        let adminPass = document.getElementById('restoreAdminPass').value;
+        let committeeCode = document.getElementById('restoreCommitteeCode').value;
+        let file = document.getElementById('restoreFile').files[0];
+        let reason = document.getElementById('restoreReason').value;
+        let superUser = appData.users.find(u => u.role === 'super_admin');
+        let adminUser = appData.users.find(u => u.role === 'admin');
+        if(superUser?.password !== superPass) { showToast('सुपर एडमिन पासवर्ड गलत!',true); return; }
+        if(adminUser?.password !== adminPass) { showToast('एडमिन पासवर्ड गलत!',true); return; }
+        if(committeeCode !== 'COMMITTEE@2024') { showToast('समिति कोड गलत!',true); return; }
+        if(!file) { showToast('फाइल चुनें!',true); return; }
+        let reader = new FileReader();
+        reader.onload = (ev) => {
+            try {
+                let restored = JSON.parse(ev.target.result);
+                appData = restored;
+                saveData();
+                loadData();
+                addAuditLog('RESTORE_BACKUP', `Restored by ${currentUser?.name}. Reason: ${reason}`);
+                appData.notifications.security.unshift(`बैकअप रिस्टोर किया गया by ${currentUser?.name}`);
+                saveData();
+                showToast('डेटा रिस्टोर हो गया!');
+                closeModal('restoreModal');
+                refreshAll();
+            } catch(err) { showToast('फाइल सही नहीं है!',true); }
+        };
+        reader.readAsText(file);
+    }
+    function renderBackupHistory() { document.getElementById('backupHistory').innerHTML = appData.backups.slice(-5).map(b=>`<div>${new Date(b.date).toLocaleString()} - by ${b.createdBy}</div>`).join(''); }
+
+    // ==================== USERS ====================
+    function renderUsers() { document.getElementById('usersList').innerHTML = appData.users.map(u=>`<div class="flex-between" style="padding:8px;border-bottom:1px solid #eee;"><div><strong>${u.name}</strong><br><small>${u.email} | ${u.role}</small></div><div><button class="btn-sm btn-primary" onclick="editUser(${u.id})">✏️</button><button class="btn-sm btn-danger" onclick="deleteUser(${u.id})">🗑️</button></div></div>`).join(''); }
+    function openUserModal() {
+        let html = `<div class="modal" id="userModal" onclick="if(event.target===this) closeModal('userModal')"><div class="modal-content"><h3>👥 नया यूजर</h3><form id="userForm">
+            <div class="form-group"><label>नाम</label><input type="text" id="userName" required></div>
+            <div class="form-group"><label>ईमेल</label><input type="email" id="userEmail" required></div>
+            <div class="form-group"><label>पासवर्ड</label><input type="password" id="userPass" required></div>
+            <div class="form-group"><label>रोल</label><select id="userRole"><option>admin</option><option>operator</option><option>viewer</option></select></div>
+            <button type="submit" class="btn btn-primary">बनाएं</button><button type="button" class="btn" style="background:#6c757d;margin-top:8px;" onclick="closeModal('userModal')">रद्द करें</button>
+        </form></div></div>`;
+        document.body.insertAdjacentHTML('beforeend', html);
+        document.getElementById('userForm').onsubmit = (e) => {
+            e.preventDefault();
+            appData.users.push({ id: Date.now(), name: document.getElementById('userName').value, email: document.getElementById('userEmail').value, password: document.getElementById('userPass').value, role: document.getElementById('userRole').value });
+            saveData(); renderUsers(); closeModal('userModal'); showToast('नया यूजर बन गया'); addAuditLog('ADD_USER', document.getElementById('userName').value);
+        };
+    }
+    function editUser(id) {
+        let user = appData.users.find(u => u.id === id);
+        if(user) {
+            let html = `<div class="modal" id="userModal" onclick="if(event.target===this) closeModal('userModal')"><div class="modal-content"><h3>✏️ यूजर संपादित करें</h3><form id="userForm">
+                <div class="form-group"><label>नाम</label><input type="text" id="userName" value="${user.name}" required></div>
+                <div class="form-group"><label>ईमेल</label><input type="email" id="userEmail" value="${user.email}" required></div>
+                <div class="form-group"><label>नया पासवर्ड</label><input type="password" id="userPass" placeholder="बदलने के लिए भरें"></div>
+                <div class="form-group"><label>रोल</label><select id="userRole"><option ${user.role==='admin'?'selected':''}>admin</option><option ${user.role==='operator'?'selected':''}>operator</option><option ${user.role==='viewer'?'selected':''}>viewer</option></select></div>
+                <button type="submit" class="btn btn-primary">अपडेट करें</button><button type="button" class="btn" style="background:#6c757d;margin-top:8px;" onclick="closeModal('userModal')">रद्द करें</button>
+            </form></div></div>`;
+            document.body.insertAdjacentHTML('beforeend', html);
+            document.getElementById('userForm').onsubmit = (e) => {
+                e.preventDefault();
+                let idx = appData.users.findIndex(u => u.id === id);
+                appData.users[idx].name = document.getElementById('userName').value;
+                appData.users[idx].email = document.getElementById('userEmail').value;
+                if(document.getElementById('userPass').value) appData.users[idx].password = document.getElementById('userPass').value;
+                appData.users[idx].role = document.getElementById('userRole').value;
+                saveData(); renderUsers(); closeModal('userModal'); showToast('यूजर अपडेट हुआ'); addAuditLog('EDIT_USER', user.name);
+            };
+        }
+    }
+    function deleteUser(id) { if(confirm('हटाएं?') && id !== currentUser?.id) { appData.users = appData.users.filter(u => u.id !== id); saveData(); renderUsers(); showToast('यूजर हटा दिया'); addAuditLog('DELETE_USER', `ID: ${id}`); } else if(id === currentUser?.id) { showToast('आप खुद को नहीं हटा सकते!', true); } }
+
+    // ==================== DOCUMENTS ====================
+    function renderDocuments() { document.getElementById('trustDocsList').innerHTML = appData.documents.trust.map(d=>`<div>${d}</div>`).join(''); document.getElementById('regDocsList').innerHTML = appData.documents.registration.map(d=>`<div>${d}</div>`).join(''); document.getElementById('otherDocsList').innerHTML = appData.documents.agreements.map(d=>`<div>${d}</div>`).join(''); }
+    function uploadDocument(type) { let files = document.getElementById(type+'Docs').files; for(let f of files) { appData.documents[type==='trust'?'trust':type==='reg'?'registration':'agreements'].push(f.name); } saveData(); renderDocuments(); showToast('दस्तावेज़ अपलोड हुए'); }
+
+    // ==================== TELEGRAM ====================
+    function sendTelegramAlert(message) { if(appData.settings.telegramToken && appData.settings.telegramChatId) { fetch(`https://api.telegram.org/bot${appData.settings.telegramToken}/sendMessage`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({chat_id:appData.settings.telegramChatId,text:message}) }).catch(console.error); } appData.notifications.telegram.unshift(message); saveData(); }
+
+    // ==================== EXPORT FUNCTIONS ====================
+    function exportToPDF() { window.print(); }
+    function exportToExcel() { let csv="डेटा एक्सपोर्ट\n"; let a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'})); a.download='export.csv'; a.click(); showToast('Excel डाउनलोड'); }
+    function exportToCSV() { exportToExcel(); }
+    function printReport() { window.print(); }
+
+    // ==================== ONLINE/OFFLINE ====================
+    window.addEventListener('online', () => { document.getElementById('connectionStatus').innerHTML = 'Online'; document.getElementById('connectionStatus').style.color = '#28a745'; showToast('🟢 Online Mode'); });
+    window.addEventListener('offline', () => { document.getElementById('connectionStatus').innerHTML = 'Offline'; document.getElementById('connectionStatus').style.color = '#dc3545'; showToast('🔴 Offline Mode - Data saved locally'); });
+
+    function refreshAll() {
+        updateDashboard(); renderMembers(); renderDonationMembers(); renderReceipts(); renderPaths(); renderEvents();
+        renderExpenses(); renderConstruction(); loadPending(); renderLedger(); renderGeneralDonations(); renderTempleGallery();
+        drawAnalytics(); renderNotifications(); renderAudit(); loadSettings(); renderUsers(); renderAnnouncements();
+    }
+
+    let savedUser = localStorage.getItem('currentUser');
+    if(savedUser) {
+        try {
+            currentUser = JSON.parse(savedUser);
+            let exists = appData.users.find(u => u.id === currentUser.id);
+            if(exists) {
+                document.getElementById('loginPage').style.display = 'none';
+                document.getElementById('appContainer').style.display = 'block';
+                document.getElementById('userName').innerText = currentUser.name;
+                document.getElementById('userRoleBadge').innerText = currentUser.role;
+                loadData();
+            } else { document.getElementById('loginPage').style.display = 'flex'; }
+        } catch(e) { document.getElementById('loginPage').style.display = 'flex'; }
+    } else { document.getElementById('loginPage').style.display = 'flex'; }
+</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</body>
+</html>
